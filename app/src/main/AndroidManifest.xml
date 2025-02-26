@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission  android:name="android.permission.WAKE_LOCK"/>
+
     <application
         android:allowBackup="true"
         android:appCategory="audio"
@@ -13,6 +16,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Ramp"
         tools:targetApi="31">
+
         <meta-data
             android:name="com.google.android.gms.car.application"
             android:resource="@xml/automotive_app_desc" />

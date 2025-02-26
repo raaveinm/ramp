@@ -105,9 +105,11 @@ public class onPlay extends MediaBrowserServiceCompat {
     private static final class MediaSessionCallback extends MediaSessionCompat.Callback {
         @Override
         public void onPlay() {
+/*
             ImageButton ButtonPlayPause = null;
             ButtonPlayPause = ButtonPlayPause.findViewById(R.id.ButtonPlayPause);
             ButtonPlayPause.setImageResource(R.drawable.ic_media_pause);
+*/
         }
 
         @Override

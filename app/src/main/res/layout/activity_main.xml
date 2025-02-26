@@ -18,91 +18,86 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.368"
-        app:srcCompat="@drawable/resource_default"
-
-        tools:ignore="MissingConstraints" />
-
-    <ImageButton
-        android:id="@+id/ButtonNext"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:soundEffectsEnabled="false"
-
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.676"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.875"
-        app:srcCompat="@android:drawable/ic_media_next"
+        app:srcCompat="@drawable/defaultii"
 
         tools:ignore="MissingConstraints" />
 
     <ImageButton
         android:id="@+id/RepeatButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:soundEffectsEnabled="false"
-
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.83"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.875"
-        app:srcCompat="@android:drawable/ic_popup_sync" />
-
-    <ImageButton
-        android:id="@+id/ButtonPlayPause"
         android:layout_width="70dp"
         android:layout_height="70dp"
         android:soundEffectsEnabled="false"
 
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/ButtonNext"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.883"
-        app:srcCompat="@android:drawable/ic_media_play"
-
-        tools:ignore="MissingConstraints" />
+        app:layout_constraintVertical_bias="0.875"
+        app:srcCompat="@android:drawable/ic_popup_sync" />
 
     <ImageButton
-        android:id="@+id/ButtonPrevious"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/ButtonNext"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:soundEffectsEnabled="false"
+
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/RepeatButton"
+        app:layout_constraintStart_toEndOf="@id/ButtonPlayPause"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.875"
+        app:srcCompat="@android:drawable/ic_media_next" />
+
+    <ImageButton
+        android:id="@+id/ButtonPlayPause"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:soundEffectsEnabled="false"
 
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.321"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/ButtonNext"
+        app:layout_constraintStart_toEndOf="@+id/ButtonPrevious"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.875"
-        app:srcCompat="@android:drawable/ic_media_previous"
-
-        tools:ignore="MissingConstraints" />
+        app:layout_constraintVertical_bias="0.889"
+        app:srcCompat="@android:drawable/ic_media_play"/>
 
     <ImageButton
         android:id="@+id/SortButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
         android:soundEffectsEnabled="false"
 
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.163"
+        app:layout_constraintEnd_toStartOf="@+id/ButtonPrevious"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.875"
         app:srcCompat="@android:drawable/ic_menu_sort_alphabetically" />
 
     <ImageButton
-        android:id="@+id/ButtonMenu"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/ButtonPrevious"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
         android:soundEffectsEnabled="false"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/ButtonPlayPause"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/SortButton"
+        app:layout_constraintTop_toTopOf="parent"
+
+        app:layout_constraintVertical_bias="0.875"
+        app:srcCompat="@android:drawable/ic_media_previous"
+        tools:ignore="MissingConstraints" />
+
+    <ImageButton
+        android:id="@+id/ButtonMenu"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:soundEffectsEnabled="false"
+        android:visibility="visible"
 
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -117,7 +112,7 @@
     <SeekBar
         android:id="@+id/seekBar"
         android:layout_width="270dp"
-        android:layout_height="19dp"
+        android:layout_height="30dp"
         android:soundEffectsEnabled="false"
 
         app:layout_constraintBottom_toBottomOf="parent"
@@ -125,8 +120,37 @@
         app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.941"
+        app:layout_constraintVertical_bias="0.942"
 
         tools:ignore="MissingConstraints" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="381dp"
+        android:layout_height="52dp"
+        android:text="Nothing is Playing"
+        android:textAlignment="center"
+        android:textSize="18sp"
+
+        app:layout_constraintBottom_toTopOf="@id/ButtonPlayPause"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/SongCover" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/Menu"
+        android:layout_width="381dp"
+        android:layout_height="309dp"
+        android:soundEffectsEnabled="false"
+        android:visibility="gone"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.533"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.031"
+
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
