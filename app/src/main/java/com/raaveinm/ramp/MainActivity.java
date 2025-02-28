@@ -1,11 +1,14 @@
 package com.raaveinm.ramp;
 
+import static com.raaveinm.ramp.ext.ExtMethods.getRandom;
+
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
 
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -17,8 +20,6 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.media.MediaPlayer;
-
-import java.io.IOException;
 
 /**
  * List of questions
@@ -33,28 +34,35 @@ import java.io.IOException;
  *
  * MENU status             com.raaveinm.ramp                    I  8
  * 6. not VISIBLE/INVISBLE? 8???????
+ * 7. How to create app logo?
+ * 8. How to ,ake smooth transition in two photos or smooth disappearing of button (for example)?
  */
 
 public class MainActivity extends AppCompatActivity {
     String TAG = "MainActivity";
-
     Boolean playPauseStatus = false;
     MediaPlayer player = new MediaPlayer();
+    int[] backgroundResourceIds = {
+            R.drawable.defaulti,
+            R.drawable.defaultii,
+            R.drawable.defaultiii,
+            R.drawable.defaultiv
+    };
 
-/*
-    question 5. I meant here that declaration was made in commented section.
+    /*
+        question 5. I meant here that declaration was made in commented section.
 
-    ImageButton buttonPlayPause = findViewById(R.id.ButtonPlayPause);
-    TextView nowPlaying = findViewById(R.id.textView);
-    SeekBar seekBar = findViewById(R.id.seekBar);
-    RecyclerView menu = findViewById(R.id.Menu);
+        ImageButton buttonPlayPause = findViewById(R.id.ButtonPlayPause);
+        TextView nowPlaying = findViewById(R.id.textView);
+        SeekBar seekBar = findViewById(R.id.seekBar);
+        RecyclerView menu = findViewById(R.id.Menu);
 
 
-    ImageButton ButtonNext = findViewById(R.id.ButtonNext);
-    ImageButton ButtonPrevious = findViewById(R.id.ButtonPrevious);
-    ImageButton SortButton = findViewById(R.id.SortButton);
-    ImageButton ButtonMenu = findViewById(R.id.ButtonMenu);
-*/
+        ImageButton ButtonNext = findViewById(R.id.ButtonNext);
+        ImageButton ButtonPrevious = findViewById(R.id.ButtonPrevious);
+        ImageButton SortButton = findViewById(R.id.SortButton);
+        ImageButton ButtonMenu = findViewById(R.id.ButtonMenu);
+    */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,7 +78,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     @SuppressLint("PrivateResource")
     protected void onStart(){
         super.onStart();
@@ -79,9 +86,18 @@ public class MainActivity extends AppCompatActivity {
         TextView nowPlaying = findViewById(R.id.textView);
         SeekBar seekBar = findViewById(R.id.seekBar);
         RecyclerView menu = findViewById(R.id.Menu);
+        ImageView songCover = findViewById(R.id.SongCover);
+        ImageButton buttonNext = findViewById(R.id.ButtonNext);
+        ImageButton buttonPrevious = findViewById(R.id.ButtonPrevious);
+        ImageButton sortButton = findViewById(R.id.SortButton);
+        ImageButton buttonMenu = findViewById(R.id.ButtonMenu);
+
+        songCover.setImageResource(getRandom(backgroundResourceIds));
+
 /*
         try {
-            player.setDataSource("assets/RIOT-Overkill.flac");
+            AssetFileDescriptor afd = getAssets().openFd("RIOT-Overkill.flac");
+            player.setDataSource(afd);
             player.prepareAsync();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -114,16 +130,24 @@ public class MainActivity extends AppCompatActivity {
             seekBar.setMax(player.getDuration());
         });
 
-        Log.i("menu status", String.valueOf((menu.getVisibility())));
+        Log.i("menu status", String.valueOf(menu.getVisibility()));
 
         menu.setOnClickListener(v->{
-            if (menu.getVisibility() == View.INVISIBLE){
+            if (menu.getVisibility() == View.GONE){
                 menu.setVisibility(View.VISIBLE);
                 Log.i("menu status", "menu is visible");
             }else{
-                menu.setVisibility(View.INVISIBLE);
+                menu.setVisibility(View.GONE);
                 Log.i("menu status", "menu is hidden");
             }
+        });
+
+        buttonNext.setOnClickListener(v->{
+            songCover.setImageResource(getRandom(backgroundResourceIds));
+        });
+
+        buttonPrevious.setOnClickListener(v->{
+            songCover.setImageResource(getRandom(backgroundResourceIds));
         });
     }
 
