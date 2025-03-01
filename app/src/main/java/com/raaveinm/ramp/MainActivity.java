@@ -3,6 +3,8 @@ package com.raaveinm.ramp;
 import static com.raaveinm.ramp.ext.ExtMethods.getRandom;
 
 import android.annotation.SuppressLint;
+import android.content.res.AssetFileDescriptor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -21,6 +23,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.media.MediaPlayer;
 
+import java.io.IOException;
+
 /**
  * List of questions
  * 1. How to export value of playPauseStatus to another lifeCycle?
@@ -36,6 +40,7 @@ import android.media.MediaPlayer;
  * 6. not VISIBLE/INVISBLE? 8???????
  * 7. How to create app logo?
  * 8. How to ,ake smooth transition in two photos or smooth disappearing of button (for example)?
+ * 9. RecyclerView            com.raaveinm.ramp                    E  No adapter attached; skipping layout
  */
 
 public class MainActivity extends AppCompatActivity {
@@ -80,7 +85,6 @@ public class MainActivity extends AppCompatActivity {
 
     @SuppressLint("PrivateResource")
     protected void onStart(){
-        super.onStart();
 
         ImageButton buttonPlayPause = findViewById(R.id.ButtonPlayPause);
         TextView nowPlaying = findViewById(R.id.textView);
@@ -94,15 +98,17 @@ public class MainActivity extends AppCompatActivity {
 
         songCover.setImageResource(getRandom(backgroundResourceIds));
 
-/*
+        String fld = "faint.mp3";
+        Uri uri = Uri.parse(fld);
+
+
         try {
-            AssetFileDescriptor afd = getAssets().openFd("RIOT-Overkill.flac");
-            player.setDataSource(afd);
+            player.setDataSource(String.valueOf(uri));
             player.prepareAsync();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            Log.e("PLAYER-ERR","there "+ e.getMessage());
         }
-*/
+
         Log.i(TAG, "onStart called");
 
 
@@ -132,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
 
         Log.i("menu status", String.valueOf(menu.getVisibility()));
 
-        menu.setOnClickListener(v->{
+        buttonMenu.setOnClickListener(v->{
             if (menu.getVisibility() == View.GONE){
                 menu.setVisibility(View.VISIBLE);
                 Log.i("menu status", "menu is visible");
@@ -149,6 +155,8 @@ public class MainActivity extends AppCompatActivity {
         buttonPrevious.setOnClickListener(v->{
             songCover.setImageResource(getRandom(backgroundResourceIds));
         });
+
+        super.onStart();
     }
 
     protected void onPause(){
