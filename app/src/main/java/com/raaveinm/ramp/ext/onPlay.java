@@ -1,4 +1,4 @@
-package com.raaveinm.ramp;
+package com.raaveinm.ramp.ext;
 
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -12,7 +12,6 @@ import androidx.media.MediaBrowserServiceCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
-import android.widget.ImageButton;
 
 import java.util.ArrayList;
 import java.util.List;

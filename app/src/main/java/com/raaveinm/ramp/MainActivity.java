@@ -94,15 +94,6 @@ public class MainActivity extends AppCompatActivity {
 
         songCover.setImageResource(getRandom(backgroundResourceIds));
 
-/*
-        try {
-            AssetFileDescriptor afd = getAssets().openFd("RIOT-Overkill.flac");
-            player.setDataSource(afd);
-            player.prepareAsync();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-*/
         Log.i(TAG, "onStart called");
 
 
