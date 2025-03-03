@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">ramp</string>
-    <string name="my_string">Hello, World!</string>
+    <string name="nowPlaying">Nothing is Playing</string>
 </resources>

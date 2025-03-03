@@ -128,7 +128,7 @@
         android:id="@+id/textView"
         android:layout_width="381dp"
         android:layout_height="52dp"
-        android:text="Nothing is Playing"
+        android:text="@string/nowPlaying"
         android:textAlignment="center"
         android:textSize="18sp"
 
