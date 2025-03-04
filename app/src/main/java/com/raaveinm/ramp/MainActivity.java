@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 
+import android.media.MediaMetadataRetriever;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -24,6 +25,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.media.MediaPlayer;
 
+import com.raaveinm.ramp.ext.ExtMethods;
+
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 
 /**
@@ -100,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
         ImageButton buttonMenu = findViewById(R.id.ButtonMenu);
 
         songCover.setImageResource(getRandom(backgroundResourceIds));
+
         Uri uri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.faint);
 
         player.setAudioAttributes(
@@ -108,9 +114,18 @@ public class MainActivity extends AppCompatActivity {
                         .setUsage(AudioAttributes.USAGE_MEDIA)
                         .build()
         );
+        /*
+        String url = "https://drive.google.com/file/d/10Z3Bi8yoCAZCTywATNfHfxKkpjc8GBWK/view?usp=sharing";
+        player.setAudioAttributes(
+                new AudioAttributes.Builder()
+                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                        .setUsage(AudioAttributes.USAGE_MEDIA)
+                        .build()
+        );*/
 
         try {
             player.setDataSource(getApplicationContext(), uri);
+            //player.setDataSource(url);
             player.prepareAsync();
         } catch (IOException e) {
             Log.e("PLAYER-ERR", "there " + e.getMessage());
@@ -119,24 +134,34 @@ public class MainActivity extends AppCompatActivity {
         Log.i(TAG, "onStart called");
 
         buttonPlayPause.setOnClickListener(v->{
-            if (player.isPlaying()){
+            if (!player.isPlaying()){
 
                 player.start();
 
-                buttonPlayPause.setImageResource(android.R.drawable.ic_media_pause);
+                buttonPlayPause.setImageResource(R.drawable.pause_20px);
 
                 Log.v("Player","media is playing. or not. whatever.");
                 Log.i("Player Session ID", String.valueOf(this.player.getAudioSessionId()));
             }else{
                 player.pause();
-                buttonPlayPause.setImageResource(android.R.drawable.ic_media_play);
+                buttonPlayPause.setImageResource(R.drawable.play_arrow_20px);
 
                 Log.v("Player","media is stopped. or not. whatever.");
             }
         });
 
+        sortButton.setOnClickListener(v->{
+            player.stop();
+            buttonPlayPause.setImageResource(R.drawable.play_arrow_20px);
+            songCover.setImageResource(getRandom(backgroundResourceIds));
+        });
+
         player.setOnPreparedListener(mp->{
-            //nowPlaying.setText(player.getTrackInfo());
+            try {
+                nowPlaying.setText(ExtMethods.getTrackInfo(uri));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
             seekBar.setMax(player.getDuration());
         });
 
