@@ -3,9 +3,13 @@ package com.raaveinm.ramp;
 import static com.raaveinm.ramp.ext.ExtMethods.getRandom;
 
 import android.annotation.SuppressLint;
+import android.content.res.AssetFileDescriptor;
+import android.media.AudioAttributes;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 
+import android.media.MediaMetadataRetriever;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -21,6 +25,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.media.MediaPlayer;
 
+import com.raaveinm.ramp.ext.ExtMethods;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+
 /**
  * List of questions
  * 1. How to export value of playPauseStatus to another lifeCycle?
@@ -30,17 +40,20 @@ import android.media.MediaPlayer;
  * 5. Why did it throws error, if declaration was made in commented section?
  * FATAL EXCEPTION: main (Ask Gemini)
  * Process: com.raaveinm.ramp, PID: 12826
- * java.lang.RuntimeException: Unable to instantiate activity ComponentInfo{com.raaveinm.ramp/com.raaveinm.ramp.MainActivity}: java.lang.NullPointerException: Attempt to invoke virtual method 'android.content.pm.ApplicationInfo android.content.Context.getApplicationInfo()' on a null object reference
- *
+ * java.lang.RuntimeException: Unable to instantiate activity ComponentInfo
+ * {com.raaveinm.ramp/com.raaveinm.ramp.MainActivity}: java.lang.NullPointerException:
+ * Attempt to invoke virtual method 'android.content.pm.ApplicationInfo
+ * android.content.Context.getApplicationInfo()' on a null object reference
  * MENU status             com.raaveinm.ramp                    I  8
  * 6. not VISIBLE/INVISBLE? 8???????
  * 7. How to create app logo?
  * 8. How to ,ake smooth transition in two photos or smooth disappearing of button (for example)?
+ * 9. RecyclerView     com.raaveinm.ramp       E  No adapter attached; skipping layout
+ * 10. Track Info throws error on string
  */
 
 public class MainActivity extends AppCompatActivity {
     String TAG = "MainActivity";
-    Boolean playPauseStatus = false;
     MediaPlayer player = new MediaPlayer();
     int[] backgroundResourceIds = {
             R.drawable.defaulti,
@@ -80,7 +93,6 @@ public class MainActivity extends AppCompatActivity {
 
     @SuppressLint("PrivateResource")
     protected void onStart(){
-        super.onStart();
 
         ImageButton buttonPlayPause = findViewById(R.id.ButtonPlayPause);
         TextView nowPlaying = findViewById(R.id.textView);
@@ -94,18 +106,34 @@ public class MainActivity extends AppCompatActivity {
 
         songCover.setImageResource(getRandom(backgroundResourceIds));
 
+        Uri uri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.faint);
+
+        player.setAudioAttributes(
+                new AudioAttributes.Builder()
+                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                        .setUsage(AudioAttributes.USAGE_MEDIA)
+                        .build()
+        );
+
+        try {
+            player.setDataSource(getApplicationContext(), uri);
+            //player.setDataSource(url);
+            player.prepareAsync();
+        } catch (IOException e) {
+            Log.e("PLAYER-ERR", "there " + e.getMessage());
+        }
+
         Log.i(TAG, "onStart called");
 
-
         buttonPlayPause.setOnClickListener(v->{
-            if (!playPauseStatus){
-                playPauseStatus = true;
+            if (!player.isPlaying()){
+
                 player.start();
 
                 buttonPlayPause.setImageResource(android.R.drawable.ic_media_pause);
 
                 Log.v("Player","media is playing. or not. whatever.");
-                Log.i("Player Session ID", String.valueOf(player.getAudioSessionId()));
+                Log.i("Player Session ID", String.valueOf(this.player.getAudioSessionId()));
             }else{
                 playPauseStatus = false;
                 player.pause();
@@ -116,6 +144,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        sortButton.setOnClickListener(v->{
+            player.stop();
+            buttonPlayPause.setImageResource(R.drawable.play_arrow_20px);
+            songCover.setImageResource(getRandom(backgroundResourceIds));
+        });
+
         player.setOnPreparedListener(mp->{
             nowPlaying.setText(player.getCurrentPosition());
             seekBar.setMax(player.getDuration());
@@ -123,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
 
         Log.i("menu status", String.valueOf(menu.getVisibility()));
 
-        menu.setOnClickListener(v->{
+        buttonMenu.setOnClickListener(v->{
             if (menu.getVisibility() == View.GONE){
                 menu.setVisibility(View.VISIBLE);
                 Log.i("menu status", "menu is visible");
@@ -140,6 +174,8 @@ public class MainActivity extends AppCompatActivity {
         buttonPrevious.setOnClickListener(v->{
             songCover.setImageResource(getRandom(backgroundResourceIds));
         });
+
+        super.onStart();
     }
 
     protected void onPause(){
@@ -147,11 +183,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     protected void onResume(){
-        super.onResume();
         Log.i(TAG, "onResume called");
 
         RecyclerView menu = findViewById(R.id.Menu);
-
+        super.onResume();
     }
 
     @Override
