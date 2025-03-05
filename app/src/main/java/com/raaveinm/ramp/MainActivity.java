@@ -33,7 +33,7 @@ import java.io.IOException;
 
 /**
  * List of questions
- * 1. How to export value of playPauseStatus to another lifeCycle?
+ * 1. How to export value of playPauseStatus to another lifeCycle? (solved)
  * 2. How to Import media from local storage?
  * 3. How to Create media query?
  * 4. How to optimize usage of resources?
@@ -45,22 +45,16 @@ import java.io.IOException;
  * Attempt to invoke virtual method 'android.content.pm.ApplicationInfo
  * android.content.Context.getApplicationInfo()' on a null object reference
  * MENU status             com.raaveinm.ramp                    I  8
- * 6. not VISIBLE/INVISBLE? 8???????
- * 7. How to create app logo?
- * 8. How to ,ake smooth transition in two photos or smooth disappearing of button (for example)?
- * 9. RecyclerView     com.raaveinm.ramp       E  No adapter attached; skipping layout
- * 10. Track Info throws error on string
+ * 6. How to create app logo?
+ * 7. How to make smooth transition in two photos or smooth disappearing of button (for example)?
+ * 8. RecyclerView     com.raaveinm.ramp       E  No adapter attached; skipping layout
+ * 9. How to get Track Info?
  */
 
 public class MainActivity extends AppCompatActivity {
     String TAG = "MainActivity";
     MediaPlayer player = new MediaPlayer();
-    int[] backgroundResourceIds = {
-            R.drawable.defaulti,
-            R.drawable.defaultii,
-            R.drawable.defaultiii,
-            R.drawable.defaultiv
-    };
+
 
     /*
         question 5. I meant here that declaration was made in commented section.
@@ -88,93 +82,12 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        PlayerFragment.newInstance("null","null");
     }
 
 
     @SuppressLint("PrivateResource")
     protected void onStart(){
-
-        ImageButton buttonPlayPause = findViewById(R.id.ButtonPlayPause);
-        TextView nowPlaying = findViewById(R.id.textView);
-        SeekBar seekBar = findViewById(R.id.seekBar);
-        RecyclerView menu = findViewById(R.id.Menu);
-        ImageView songCover = findViewById(R.id.SongCover);
-        ImageButton buttonNext = findViewById(R.id.ButtonNext);
-        ImageButton buttonPrevious = findViewById(R.id.ButtonPrevious);
-        ImageButton sortButton = findViewById(R.id.SortButton);
-        ImageButton buttonMenu = findViewById(R.id.ButtonMenu);
-
-        songCover.setImageResource(getRandom(backgroundResourceIds));
-
-        Uri uri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.faint);
-
-        player.setAudioAttributes(
-                new AudioAttributes.Builder()
-                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                        .setUsage(AudioAttributes.USAGE_MEDIA)
-                        .build()
-        );
-
-        try {
-            player.setDataSource(getApplicationContext(), uri);
-            //player.setDataSource(url);
-            player.prepareAsync();
-        } catch (IOException e) {
-            Log.e("PLAYER-ERR", "there " + e.getMessage());
-        }
-
-        Log.i(TAG, "onStart called");
-
-        buttonPlayPause.setOnClickListener(v->{
-            if (!player.isPlaying()){
-
-                player.start();
-
-                buttonPlayPause.setImageResource(android.R.drawable.ic_media_pause);
-
-                Log.v("Player","media is playing. or not. whatever.");
-                Log.i("Player Session ID", String.valueOf(this.player.getAudioSessionId()));
-            }else{
-                playPauseStatus = false;
-                player.pause();
-
-                buttonPlayPause.setImageResource(android.R.drawable.ic_media_play);
-
-                Log.v("Player","media is stopped. or not. whatever.");
-            }
-        });
-
-        sortButton.setOnClickListener(v->{
-            player.stop();
-            buttonPlayPause.setImageResource(R.drawable.play_arrow_20px);
-            songCover.setImageResource(getRandom(backgroundResourceIds));
-        });
-
-        player.setOnPreparedListener(mp->{
-            nowPlaying.setText(player.getCurrentPosition());
-            seekBar.setMax(player.getDuration());
-        });
-
-        Log.i("menu status", String.valueOf(menu.getVisibility()));
-
-        buttonMenu.setOnClickListener(v->{
-            if (menu.getVisibility() == View.GONE){
-                menu.setVisibility(View.VISIBLE);
-                Log.i("menu status", "menu is visible");
-            }else{
-                menu.setVisibility(View.GONE);
-                Log.i("menu status", "menu is hidden");
-            }
-        });
-
-        buttonNext.setOnClickListener(v->{
-            songCover.setImageResource(getRandom(backgroundResourceIds));
-        });
-
-        buttonPrevious.setOnClickListener(v->{
-            songCover.setImageResource(getRandom(backgroundResourceIds));
-        });
-
         super.onStart();
     }
 
@@ -183,9 +96,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     protected void onResume(){
-        Log.i(TAG, "onResume called");
-
-        RecyclerView menu = findViewById(R.id.Menu);
         super.onResume();
     }
 
