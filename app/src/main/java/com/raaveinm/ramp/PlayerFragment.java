@@ -24,20 +24,16 @@ import android.util.Log;
 
 import java.io.IOException;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link PlayerFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class PlayerFragment extends Fragment {
     private MediaPlayer player;
     private ImageView songCover;
     private ImageButton buttonPlayPause;
     private ImageButton buttonNext;
     private ImageButton buttonPrevious;
-    private ImageButton sortButton;
+    private ImageButton shuffle;
     private TextView nowPlaying;
     private SeekBar seekBar;
+    private Boolean isShuffle = false;
 
     private final int[] backgroundResourceIds = {
             R.drawable.defaulti,
@@ -67,7 +63,7 @@ public class PlayerFragment extends Fragment {
         buttonPlayPause = view.findViewById(R.id.ButtonPlayPause);
         buttonNext = view.findViewById(R.id.ButtonNext);
         buttonPrevious = view.findViewById(R.id.ButtonPrevious);
-        sortButton = view.findViewById(R.id.SortButton);
+        shuffle = view.findViewById(R.id.shuffle);
         nowPlaying = view.findViewById(R.id.textView);
         seekBar = view.findViewById(R.id.seekBar);
 
@@ -82,8 +78,7 @@ public class PlayerFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Set up MediaPlayer
-        player = new MediaPlayer(); // Initialize in onViewCreated or onCreate
+        player = new MediaPlayer();
         player.setAudioAttributes(
                 new AudioAttributes.Builder()
                         .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
@@ -104,25 +99,20 @@ public class PlayerFragment extends Fragment {
             if (player != null) {
                 if (!player.isPlaying()) {
                     player.start();
-                    buttonPlayPause.setImageResource(android.R.drawable.ic_media_pause);
+                    buttonPlayPause.setImageResource(R.drawable.pause);
                     Log.v("Player", "media is playing.");
                     Log.i("Player Session ID", String.valueOf(player.getAudioSessionId()));
                 } else {
                     player.pause();
-                    buttonPlayPause.setImageResource(android.R.drawable.ic_media_play);
+                    buttonPlayPause.setImageResource(R.drawable.play_arrow);
                     Log.v("Player", "media is stopped.");
                 }
             }
         });
 
-        sortButton.setOnClickListener(v -> {
-            if (player != null) {
-                player.stop();
-                player.reset();
-                buttonPlayPause.setImageResource(android.R.drawable.ic_media_play);
-                songCover.setImageResource(getRandom(backgroundResourceIds));
-            }
-
+        shuffle.setOnClickListener(v -> {
+            Shuffle(isShuffle);
+            isShuffle = !isShuffle;
         });
 
         buttonNext.setOnClickListener(v -> {
@@ -166,5 +156,15 @@ public class PlayerFragment extends Fragment {
     public void onStart(){
         super.onStart();
         Log.i(TAG, "onStart called");
+    }
+
+    public void Shuffle (Boolean isShuffle) {
+        if (!isShuffle) {
+            ImageButton shuffle = getActivity().findViewById(R.id.shuffle);
+            shuffle.setImageResource(R.drawable.shuffle_on);
+        }else {
+            ImageButton shuffle = getActivity().findViewById(R.id.shuffle);
+            shuffle.setImageResource(R.drawable.shuffle);
+        }
     }
 }

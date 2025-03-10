@@ -37,14 +37,7 @@ import java.io.IOException;
  * 2. How to Import media from local storage?
  * 3. How to Create media query?
  * 4. How to optimize usage of resources?
- * 5. Why did it throws error, if declaration was made in commented section?
- * FATAL EXCEPTION: main (Ask Gemini)
- * Process: com.raaveinm.ramp, PID: 12826
- * java.lang.RuntimeException: Unable to instantiate activity ComponentInfo
- * {com.raaveinm.ramp/com.raaveinm.ramp.MainActivity}: java.lang.NullPointerException:
- * Attempt to invoke virtual method 'android.content.pm.ApplicationInfo
- * android.content.Context.getApplicationInfo()' on a null object reference
- * MENU status             com.raaveinm.ramp                    I  8
+ * 5. Why did it throws error, if declaration was made in commented section? (solved)
  * 6. How to create app logo?
  * 7. How to make smooth transition in two photos or smooth disappearing of button (for example)?
  * 8. RecyclerView     com.raaveinm.ramp       E  No adapter attached; skipping layout
@@ -55,21 +48,6 @@ public class MainActivity extends AppCompatActivity {
     String TAG = "MainActivity";
     MediaPlayer player = new MediaPlayer();
 
-
-    /*
-        question 5. I meant here that declaration was made in commented section.
-
-        ImageButton buttonPlayPause = findViewById(R.id.ButtonPlayPause);
-        TextView nowPlaying = findViewById(R.id.textView);
-        SeekBar seekBar = findViewById(R.id.seekBar);
-        RecyclerView menu = findViewById(R.id.Menu);
-
-
-        ImageButton ButtonNext = findViewById(R.id.ButtonNext);
-        ImageButton ButtonPrevious = findViewById(R.id.ButtonPrevious);
-        ImageButton SortButton = findViewById(R.id.SortButton);
-        ImageButton ButtonMenu = findViewById(R.id.ButtonMenu);
-    */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

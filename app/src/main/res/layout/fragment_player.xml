@@ -8,8 +8,8 @@
 
         <ImageView
             android:id="@+id/SongCover"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:layout_height="300dp"
 
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -22,79 +22,9 @@
             tools:ignore="MissingConstraints" />
 
         <ImageButton
-            android:id="@+id/RepeatButton"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
-            android:soundEffectsEnabled="false"
-
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/ButtonNext"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.875"
-            app:srcCompat="@android:drawable/ic_popup_sync" />
-
-        <ImageButton
-            android:id="@+id/ButtonNext"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
-            android:soundEffectsEnabled="false"
-
-
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/RepeatButton"
-            app:layout_constraintStart_toEndOf="@id/ButtonPlayPause"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.875"
-            app:srcCompat="@drawable/fast_forward_20px" />
-
-        <ImageButton
-            android:id="@+id/ButtonPlayPause"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:soundEffectsEnabled="false"
-
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/ButtonNext"
-            app:layout_constraintStart_toEndOf="@+id/ButtonPrevious"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.889"
-            app:srcCompat="@android:drawable/ic_media_play"/>
-
-        <ImageButton
-            android:id="@+id/SortButton"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
-            android:soundEffectsEnabled="false"
-
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/ButtonPrevious"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.875"
-            app:srcCompat="@android:drawable/ic_menu_sort_alphabetically" />
-
-        <ImageButton
-            android:id="@+id/ButtonPrevious"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
-            android:soundEffectsEnabled="false"
-
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/ButtonPlayPause"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toEndOf="@+id/SortButton"
-            app:layout_constraintTop_toTopOf="parent"
-
-            app:layout_constraintVertical_bias="0.875"
-            app:srcCompat="@android:drawable/ic_media_previous"
-            tools:ignore="MissingConstraints" />
-
-        <ImageButton
             android:id="@+id/ButtonMenu"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:soundEffectsEnabled="false"
             android:visibility="visible"
 
@@ -104,9 +34,8 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.023"
-            app:srcCompat="@android:drawable/ic_menu_sort_by_size"
-
-            tools:ignore="MissingConstraints" />
+            app:srcCompat="@drawable/menu_20px"
+            android:background="@color/transparent"/>
 
         <SeekBar
             android:id="@+id/seekBar"
@@ -127,14 +56,107 @@
             android:id="@+id/textView"
             android:layout_width="381dp"
             android:layout_height="52dp"
-            android:text="Nothing is Playing"
+            android:text="@string/onPlay"
             android:textAlignment="center"
+            android:textColor="?android:attr/text"
             android:textSize="18sp"
 
-            app:layout_constraintBottom_toTopOf="@id/ButtonPlayPause"
+            app:layout_constraintBottom_toTopOf="@+id/linearLayout"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/SongCover" />
+
+        <LinearLayout
+            android:id="@+id/linearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/SongCover"
+            android:gravity="center">
+
+                <Space
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".8" />
+
+                <ImageButton
+                    android:id="@+id/SortButton"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/background_butt"
+                    android:soundEffectsEnabled="false"
+
+                    app:srcCompat="@drawable/add" />
+
+                <Space
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".2" />
+
+                <ImageButton
+                    android:id="@+id/ButtonPrevious"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/background_butt"
+
+                    android:soundEffectsEnabled="false"
+                    app:srcCompat="@drawable/fast_rewind" />
+
+                <Space
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".2" />
+
+                <ImageButton
+                    android:id="@+id/ButtonPlayPause"
+                    android:layout_width="0dp"
+                    android:layout_height="70dp"
+                    android:layout_weight="2"
+                    android:background="@drawable/background_butt"
+                    android:soundEffectsEnabled="false"
+
+                    app:srcCompat="@drawable/play_arrow" />
+
+                <Space
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".2" />
+
+                <ImageButton
+                    android:id="@+id/ButtonNext"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/background_butt"
+                    android:soundEffectsEnabled="false"
+
+                    app:srcCompat="@drawable/fast_forward" />
+
+                <Space
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".2" />
+
+                <ImageButton
+                    android:id="@+id/shuffle"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/background_butt"
+                    android:soundEffectsEnabled="false"
+
+                    app:srcCompat="@drawable/shuffle" />
+
+                <Space
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".8" />
+        </LinearLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
