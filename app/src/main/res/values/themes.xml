@@ -1,19 +1,9 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.Ramp" parent="Theme.Material3.DayNight.NoActionBar">
-
-        <item name="android:button">@color/button_light</item>
-        <item name="highlight_color">@color/highlight_light</item>
-        <item name="android:text">@color/text_light</item>
-        <item name="android:colorBackground">@color/background_light</item>
-        <item name="secondary_items_color">@color/secondary_items_light</item>
-        <item name="detail_color">@color/detail_light</item>
-        <item name="item_color">@color/item_light</item>
-
+        <!-- Customize your light theme here. -->
+        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
     </style>
 
     <style name="Theme.Ramp" parent="Base.Theme.Ramp" />
-
-    <style name="ThemeOverlay.Ramp.FullscreenContainer" parent="">
-    </style>
 </resources>

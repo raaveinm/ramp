@@ -2,31 +2,4 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="light_blue_600">#FF039BE5</color>
-    <color name="light_blue_900">#FF01579B</color>
-    <color name="light_blue_A200">#FF40C4FF</color>
-    <color name="light_blue_A400">#FF00B0FF</color>
-    <color name="black_overlay">#66000000</color>
-    <color name="transparent">#00FFFFFF</color>
-
-    <color name="button_dark">#7600DD</color>
-    <color name="button_light">#E042D8</color>
-
-    <color name="highlight_dark">#EE018D</color>
-    <color name="highlight_light">#7600DD</color>
-
-    <color name="text_dark">#BEBEBE</color>
-    <color name="text_light">#242424</color>
-
-    <color name="background_dark">#292929</color>
-    <color name="background_light">#F0DAFF</color>
-
-    <color name="secondary_items_dark">#FF0962</color>
-    <color name="secondary_items_light">#8C21D3</color>
-
-    <color name="detail_dark">#C1C1C1</color>
-    <color name="detail_light">#262626</color>
-
-    <color name="item_dark">#EFEFEF</color>
-    <color name="item_light">#EFEFEF</color>
 </resources>
