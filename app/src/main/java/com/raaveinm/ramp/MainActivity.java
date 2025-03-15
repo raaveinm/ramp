@@ -36,11 +36,10 @@ import java.io.IOException;
  * 1. How to export value of playPauseStatus to another lifeCycle? (solved)
  * 2. How to Import media from local storage?
  * 3. How to Create media query?
- * 4. How to optimize usage of resources?
+ * 4. How to optimize usage of resources? - transmit to kotlin
  * 5. Why did it throws error, if declaration was made in commented section? (solved)
- * 6. How to create app logo?
+ * 6. How to create app logo? (solved)
  * 7. How to make smooth transition in two photos or smooth disappearing of button (for example)?
- * 8. RecyclerView     com.raaveinm.ramp       E  No adapter attached; skipping layout
  * 9. How to get Track Info?
  */
 
