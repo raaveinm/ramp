@@ -22,7 +22,7 @@ class ContentResolver(
         MediaStore.Audio.AudioColumns.DURATION,
         MediaStore.Audio.AudioColumns.TITLE,
         MediaStore.Audio.AudioColumns.ALBUM_ID,
-        MediaStore.Audio.AudioColumns.ALBUM, // <- Added Album column
+        MediaStore.Audio.AudioColumns.ALBUM,
     )
 
     private var selectionClause: String? = "${MediaStore.Audio.AudioColumns.IS_MUSIC} = ?"
@@ -72,7 +72,7 @@ class ContentResolver(
                         val album = cursor.getString(albumColumn)?: "Unknown Album"
                         val albumArtUri: Uri? = ContentUris.withAppendedId(
                             "content://media/external/audio/albumart".toUri(), albumId
-                        ) //Added albumArtUri.
+                        )
 
                         val uri = ContentUris.withAppendedId(
                             MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,

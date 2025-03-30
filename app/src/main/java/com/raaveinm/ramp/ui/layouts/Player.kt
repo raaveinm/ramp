@@ -2,6 +2,7 @@ package com.raaveinm.ramp.ui.layouts
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -28,7 +29,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.raaveinm.ramp.snippets.TrackInfo
@@ -38,74 +41,38 @@ import com.raaveinm.ramp.viewmodels.PlayerViewModel
 import java.util.concurrent.TimeUnit
 
 @Composable
-fun PlayerScreen( // Renamed from PlayerLayout for clarity
+fun PlayerScreen(
     modifier: Modifier = Modifier,
     playerViewModel: PlayerViewModel = viewModel()
 ) {
     val context = LocalContext.current
     val uiState by playerViewModel.uiState.collectAsStateWithLifecycle()
-
-    // --- Permission Handling ---
-    var hasAudioPermission by remember { mutableStateOf(false) } // Track permission status
-
-    val permissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
-        onResult = { isGranted ->
-            hasAudioPermission = isGranted
-            if (isGranted) {
-                playerViewModel.initializeController(context)
-            } else {
-                // Handle permission denial (show message, etc.)
-                // You might want to update the UI state to reflect this
-                println("Permission Denied") // TODO: Show Snackbar or message
-            }
-        }
-    )
-
-    LaunchedEffect(Unit) { // Request permission on launch
-        val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            Manifest.permission.READ_MEDIA_AUDIO
-        } else {
-            Manifest.permission.READ_EXTERNAL_STORAGE // Fallback for older APIs
-        }
-        permissionLauncher.launch(permission)
-    }
-
-    // --- Initialize Controller only AFTER permission is granted ---
-    LaunchedEffect(hasAudioPermission) {
-        if (hasAudioPermission) {
-            playerViewModel.initializeController(context)
-        }
-    }
+    playerViewModel.initializeController(context)
 
     // --- UI Composition ---
-    RampTheme { // Apply your theme
+    RampTheme {
         Scaffold(
-            topBar = { TopBarContent() }, // Your existing TopBar
-            // bottomBar = { }, // You can add a bottom bar later if needed
+            topBar = { TopBarContent() },
             modifier = modifier
         ) { innerPadding ->
 
             when (val state = uiState) {
                 is PlayerUiState.Initializing -> {
-                    // Show Loading Indicator or Placeholder
-                    Box(modifier = Modifier.fillMaxSize().padding(innerPadding), contentAlignment = Alignment.Center) {
-                        if (!hasAudioPermission) {
-                            Text("Requesting permission...")
-                        } else {
-                            CircularProgressIndicator()
-                            Text("Connecting to player service...", Modifier.padding(top = 60.dp))
-                        }
+                    Box(modifier = Modifier.fillMaxSize().padding(innerPadding),
+                        contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                        Text("Connecting to player service...", Modifier.padding(top = 60.dp))
                     }
                 }
+
                 is PlayerUiState.Error -> {
-                    // Show Error Message
-                    Box(modifier = Modifier.fillMaxSize().padding(innerPadding), contentAlignment = Alignment.Center) {
+                    Box(modifier = Modifier.fillMaxSize().padding(innerPadding),
+                        contentAlignment = Alignment.Center) {
                         Text("Error: ${state.message}", color = MaterialTheme.colorScheme.error)
                     }
                 }
+
                 is PlayerUiState.Ready -> {
-                    // Main Player UI
                     PlayerContent(
                         state = state,
                         viewModel = playerViewModel,
@@ -135,19 +102,18 @@ fun PlayerContent(
         modifier = modifier
             .fillMaxSize()
             .padding(horizontal = 25.dp),
-        verticalArrangement = Arrangement.SpaceAround, // Adjust spacing as needed
+        verticalArrangement = Arrangement.SpaceAround,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        // --- Album Art --- (Using placeholder)
         Image(
             contentDescription = "Album Art for $trackTitle",
             contentScale = ContentScale.Crop,
-            painter = painterResource(id = coverArtRes), // Placeholder
+            painter = painterResource(id = coverArtRes),
             modifier = Modifier
-                .fillMaxWidth(0.8f) // Make it slightly smaller than full width
-                .aspectRatio(1f) // Make it square
+                .fillMaxWidth(0.8f)
+                .aspectRatio(1f)
                 .clip(MaterialTheme.shapes.medium)
-                .shadow(10.dp, MaterialTheme.shapes.medium) // Adjusted shadow
+                .shadow(10.dp, MaterialTheme.shapes.medium)
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -156,15 +122,14 @@ fun PlayerContent(
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = trackTitle,
-                style = MaterialTheme.typography.headlineSmall, // Adjusted style
+                style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
             Text(
                 text = trackArtist,
-                style = MaterialTheme.typography.titleMedium, // Adjusted style
-                color = MaterialTheme.colorScheme.onSurfaceVariant, // Use a secondary color
+                style = MaterialTheme.typography.titleMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -177,7 +142,7 @@ fun PlayerContent(
             Slider(
                 value = currentPosition.toFloat(),
                 onValueChange = { viewModel.seekTo(it.toLong()) },
-                valueRange = 0f..(totalDuration.toFloat().coerceAtLeast(0.1f)), // Avoid 0 duration range
+                valueRange = 0f..(totalDuration.toFloat().coerceAtLeast(0.1f)),
                 modifier = Modifier.fillMaxWidth()
             )
             Row(
@@ -201,8 +166,6 @@ fun PlayerContent(
             // Add shuffle/repeat later if needed
             modifier = Modifier.fillMaxWidth()
         )
-
-        // TODO: Add Playlist display (LazyColumn?) here later if needed
     }
 }
 
@@ -227,7 +190,6 @@ fun PlayerControls(
         ) {
             Icon(
                 imageVector = if (isAdded) Icons.Default.Check else Icons.Default.Add,
-                tint = MaterialTheme.colorScheme.onPrimary,
                 contentDescription = if (isAdded) "Added" else "Add",
                 modifier = Modifier.fillMaxSize(),
             )
@@ -238,7 +200,6 @@ fun PlayerControls(
             Icon(
                 imageVector = Icons.Filled.SkipPrevious,
                 contentDescription = "Skip Previous",
-                tint = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.size(48.dp)
             )
         }
@@ -248,7 +209,6 @@ fun PlayerControls(
             Icon(
                 imageVector = if (isPlaying) Icons.Filled.PauseCircleFilled else Icons.Filled.PlayCircleFilled,
                 contentDescription = if (isPlaying) "Pause" else "Play",
-                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(72.dp)
             )
         }
@@ -258,7 +218,6 @@ fun PlayerControls(
             Icon(
                 imageVector = Icons.Filled.SkipNext,
                 contentDescription = "Skip Next",
-                tint = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.size(48.dp)
             )
         }
@@ -268,7 +227,6 @@ fun PlayerControls(
             Icon(
                 imageVector = Icons.Filled.Shuffle,
                 contentDescription = "Shuffle",
-                tint = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.size(48.dp)
             )
         }
@@ -283,7 +241,6 @@ fun formatDuration(millis: Long): String {
 }
 
 
-// Keep your existing TopBarContent as is for now
 @Composable
 fun TopBarContent ( modifier: Modifier = Modifier,){
     Row (
@@ -298,11 +255,9 @@ fun TopBarContent ( modifier: Modifier = Modifier,){
             Icon(
                 imageVector = Icons.Default.Menu,
                 contentDescription = "Playlist",
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(36.dp)
             )
         }
-
-        Text("Ramp Player", style = MaterialTheme.typography.titleMedium)
 
         IconButton(
             modifier = Modifier.padding(end = 16.dp),
@@ -311,26 +266,19 @@ fun TopBarContent ( modifier: Modifier = Modifier,){
             Icon(
                 imageVector = Icons.Default.Settings,
                 contentDescription = "Settings",
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(36.dp)
             )
         }
     }
 }
 
-/*
-@Preview
-@Composable
-fun PlayerLayoutPreview() {
-    PlayerLayout(
-        modifier = Modifier,
-    )
-}
+
 
 @Preview
 @Composable
 fun ButtonsPreview() {
     RampTheme {
-        Buttons()
+        PlayerControls(false, {}, {}, {})
     }
 }
 
@@ -342,10 +290,10 @@ fun TopBarContentPreview() {
 
 @Preview
 @Composable
-fun BodyContentPreview() {
-    BodyContent(TrackInfo().songCover(), "Song name")
+fun PlayerContentPreview() {
+
 }
-*/
+
 
 // for best time
 

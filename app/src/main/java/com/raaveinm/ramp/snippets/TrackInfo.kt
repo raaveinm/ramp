@@ -13,7 +13,7 @@ class TrackInfo {
     )
 
     fun songCover(uri: String? = null): Int {
-        if (uri == "default") {
+        if (uri == null) {
             return covers.random()
         }
         return covers.random()
@@ -26,11 +26,11 @@ class TrackInfo {
 
 data class AudioItem(
     val mediaId: String,
-    val uri: android.net.Uri,
+    val uri: Uri,
     val title: String,
     val displayName: String,
     val artist: String,
     val album: String?,
-    val albumArtUri: android.net.Uri?,
+    val albumArtUri: Uri?,
     val durationMs: Long
 )

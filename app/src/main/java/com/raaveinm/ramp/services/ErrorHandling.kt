@@ -17,9 +17,7 @@ class ErrorHandling(private val context: Context, player: Player) : ForwardingPl
     init { player.addListener(ErrorCustomizationListener()) }
 
     override fun addListener(listener: Player.Listener) { listeners.add(listener) }
-
     override fun removeListener(listener: Player.Listener) { listeners.remove(listener) }
-
     override fun getPlayerError(): PlaybackException? { return customizedPlaybackException }
 
     private inner class ErrorCustomizationListener : Player.Listener {
@@ -43,7 +41,7 @@ class ErrorHandling(private val context: Context, player: Player) : ForwardingPl
                     buttonLabel = context.getString(R.string.err_button_label_restart_stream)
                     errorMessage = context.getString(R.string.err_msg_behind_live_window)
                 }
-                // Apps can customize further error messages by adding more branches.
+
                 else -> {
                     buttonLabel = context.getString(R.string.err_button_label_ok)
                     errorMessage = context.getString(R.string.err_message_default)

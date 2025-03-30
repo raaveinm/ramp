@@ -35,15 +35,13 @@ class ChirroPlayer : MediaLibraryService() {
 
     private var mediaLibrarySession: MediaLibrarySession? = null
     private lateinit var player: ExoPlayer
-    private lateinit var wrappedPlayer: Player // For error handling wrapper
+    private lateinit var wrappedPlayer: Player
     private lateinit var customCommands: List<CommandButton>
-
-    // Coroutine scope for background tasks like loading media
-    private val serviceScope = CoroutineScope(Dispatchers.Main + SupervisorJob()) // Use Main for player access, IO for file access
+    private val serviceScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
     // --- Service Lifecycle ---
 
-    @OptIn(UnstableApi::class) // For ErrorHandling and AudioAttributes
+    @OptIn(UnstableApi::class)
     override fun onCreate() {
         super.onCreate()
 
@@ -51,27 +49,23 @@ class ChirroPlayer : MediaLibraryService() {
 
         player = ExoPlayer.Builder(this)
             .setAudioAttributes(AudioAttributes.DEFAULT, /* handleAudioFocus= */ true)
-            .setHandleAudioBecomingNoisy(true) // Pause when headphones unplugged
+            .setHandleAudioBecomingNoisy(true)
             .build()
 
-        // Optional: Add EventLogger for debugging
         player.addAnalyticsListener(EventLogger())
 
-        // Wrap the player for custom error handling
-        wrappedPlayer = ErrorHandling(this, player) // Use your ErrorHandling class
+        wrappedPlayer = ErrorHandling(this, player)
 
-        // Create the MediaLibrarySession
         mediaLibrarySession = MediaLibrarySession.Builder(
             this,
-            wrappedPlayer, // Use the wrapped player
-            LibrarySessionCallback() // Use our custom callback
+            wrappedPlayer,
+            LibrarySessionCallback()
         )
-            .setSessionActivity(createSessionActivityPendingIntent()) // Intent to launch UI
+            .setSessionActivity(createSessionActivityPendingIntent())
             .build()
 
         Log.d(TAG, "Service Created and Session Initialized")
 
-        // Load media items when the service starts (or on demand)
         loadLocalAudioFiles()
     }
 
@@ -105,32 +99,30 @@ class ChirroPlayer : MediaLibraryService() {
             val audioItems = fetchAudioItemsFromDevice()
             if (audioItems.isNotEmpty()) {
                 val mediaItems = audioItems.map { it.toMediaItem() }
-                // Set items on the player using the Main dispatcher
                 withContext(Dispatchers.Main) {
                     player.setMediaItems(mediaItems)
-                    player.prepare() // Prepare the player after setting items
+                    player.prepare()
                     Log.d(TAG, "Loaded ${mediaItems.size} media items.")
                 }
             } else {
-                Log.d(TAG, "No audio items found on device.")
-                // Handle empty library case if needed (e.g., update session metadata)
+                Log.e(TAG, "No audio items found on device.")
             }
         }
     }
 
     // Use your ContentResolver - Ensure it runs on a background thread
     private suspend fun fetchAudioItemsFromDevice(): List<AudioItem> {
-        return withContext(Dispatchers.IO) { // Ensure ContentResolver runs off the main thread
+        return withContext(Dispatchers.IO) {
             try {
                 ContentResolver(applicationContext).getAudioData()
             } catch (e: Exception) {
                 Log.e(TAG, "Error fetching audio data", e)
-                emptyList<AudioItem>() // Return empty list on error
+                emptyList<AudioItem>()
             }
         }
     }
 
-    @OptIn(androidx.media3.common.util.UnstableApi::class)
+    @OptIn(UnstableApi::class)
     private fun AudioItem.toMediaItem(): MediaItem {
         return MediaItem.Builder()
             .setMediaId(this.mediaId)
@@ -151,19 +143,16 @@ class ChirroPlayer : MediaLibraryService() {
     // --- Session Activity ---
 
     private fun createSessionActivityPendingIntent(): PendingIntent {
-        val intent = Intent(this, MainActivity::class.java) // Intent to launch your MainActivity
+        val intent = Intent(this, MainActivity::class.java)
         return PendingIntent.getActivity(
-            this,
-            0, // Request code
-            intent,
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT // Flags
+            this, 0, intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
     }
 
     // --- Custom Commands ---
 
     private fun createCustomCommands(): List<CommandButton> {
-        // Example: Favorite button
         return listOf(
             CommandButton.Builder()
                 .setSessionCommand(SessionCommand(SAVE_TO_FAVORITES, Bundle.EMPTY))
@@ -192,7 +181,7 @@ class ChirroPlayer : MediaLibraryService() {
             Log.d(TAG, "Controller connected: ${controller.packageName}")
 
             return MediaSession.ConnectionResult.AcceptedResultBuilder(session)
-                .setAvailableSessionCommands(availableSessionCommands.build()) //Modified this line
+                .setAvailableSessionCommands(availableSessionCommands.build())
                 .setCustomLayout(ImmutableList.copyOf(customCommands))
                 .build()
         }
@@ -213,7 +202,6 @@ class ChirroPlayer : MediaLibraryService() {
                     return Futures.immediateFuture(SessionResult(SessionResult.RESULT_SUCCESS))
                 }
             }
-            // If command is not recognized
             return Futures.immediateFuture(SessionResult(SessionError.ERROR_NOT_SUPPORTED))
         }
     }

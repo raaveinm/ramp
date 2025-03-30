@@ -4,12 +4,8 @@ import android.content.ComponentName
 import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
@@ -71,23 +67,22 @@ class PlayerViewModel : ViewModel() {
         mediaControllerFuture?.addListener(
             {
                 try {
-                    val controller = mediaControllerFuture?.get() // Should be non-null if successful
+                    val controller = mediaControllerFuture?.get()
                     if (controller != null) {
                         Log.i(TAG, "MediaController Connected!")
                         mediaController = controller
-                        // Register listener and start updates
                         controller.addListener(playerListener)
-                        updatePlayerState(controller) // Initial state update
+                        updatePlayerState(controller)
                         startPositionTracking()
                         _uiState.value = PlayerUiState.Ready(
-                            playerState = PlayerState( // Initial ready state
+                            playerState = PlayerState(
                                 isPlaying = controller.isPlaying,
                                 currentMediaMetadata = controller.mediaMetadata,
                                 playWhenReady = controller.playWhenReady,
                                 playbackState = controller.playbackState
                             ),
                             currentPosition = controller.currentPosition,
-                            totalDuration = controller.duration.coerceAtLeast(0L) // Ensure non-negative duration
+                            totalDuration = controller.duration.coerceAtLeast(0L)
                         )
                     } else {
                         Log.e(TAG, "MediaController connection failed (controller is null)")
@@ -98,7 +93,7 @@ class PlayerViewModel : ViewModel() {
                     _uiState.value = PlayerUiState.Error("Failed to connect: ${e.message}")
                 }
             },
-            MoreExecutors.directExecutor() // Use directExecutor for simplicity, or mainExecutor
+            MoreExecutors.directExecutor()
         )
     }
 
@@ -109,10 +104,9 @@ class PlayerViewModel : ViewModel() {
                 it.pause()
                 Log.d(TAG, "Sending PAUSE command")
             } else {
-                // If idle or ended, prepare/seek to start before playing
                 if (it.playbackState == Player.STATE_IDLE || it.playbackState == Player.STATE_ENDED) {
-                    it.prepare() // Re-prepare if needed
-                    it.seekToDefaultPosition() // Start from beginning
+                    it.prepare()
+                    it.seekToDefaultPosition()
                 }
                 it.play()
                 Log.d(TAG, "Sending PLAY command")
@@ -149,9 +143,9 @@ class PlayerViewModel : ViewModel() {
             for (i in 0 until controller.mediaItemCount) {
                 if (controller.getMediaItemAt(i).mediaId == mediaId) {
                     Log.d(TAG, "Found mediaId $mediaId at index $i. Seeking and playing.")
-                    controller.seekTo(i, 0L) // Seek to the item's start
-                    controller.playWhenReady = true // Ensure playback starts
-                    controller.prepare() // Prepare might be needed if changing items
+                    controller.seekTo(i, 0L)
+                    controller.playWhenReady = true
+                    controller.prepare()
                     controller.play()
                     itemFound = true
                     break
@@ -172,7 +166,7 @@ class PlayerViewModel : ViewModel() {
                     Player.EVENT_MEDIA_METADATA_CHANGED,
                     Player.EVENT_IS_PLAYING_CHANGED,
                     Player.EVENT_PLAY_WHEN_READY_CHANGED,
-                    Player.EVENT_MEDIA_ITEM_TRANSITION // Important for track changes
+                    Player.EVENT_MEDIA_ITEM_TRANSITION
                 )
             ) {
                 updatePlayerState(player)
@@ -185,11 +179,9 @@ class PlayerViewModel : ViewModel() {
                     startPositionTracking()
                 } else {
                     stopPositionTracking()
-                    // Ensure final position update when pausing
                     updatePosition(player.currentPosition, player.duration)
                 }
             }
-            // Update duration immediately if it changes
             if (events.contains(Player.EVENT_TIMELINE_CHANGED) || events.contains(Player.EVENT_MEDIA_ITEM_TRANSITION)) {
                 updatePosition(player.currentPosition, player.duration)
             }
@@ -224,7 +216,6 @@ class PlayerViewModel : ViewModel() {
     private fun updatePosition(position: Long, duration: Long) {
         val currentUiState = _uiState.value
         if (currentUiState is PlayerUiState.Ready) {
-            // Avoid unnecessary updates if position hasn't changed significantly
             if (kotlin.math.abs(currentUiState.currentPosition - position) > 500 || currentUiState.totalDuration != duration) {
                 _uiState.value = currentUiState.copy(
                     currentPosition = position.coerceAtLeast(0L),
@@ -243,7 +234,7 @@ class PlayerViewModel : ViewModel() {
 
     // --- Position Tracking ---
     private fun startPositionTracking() {
-        stopPositionTracking() // Ensure only one job runs
+        stopPositionTracking()
         positionTrackingJob = viewModelScope.launch {
             while (isActive) {
                 mediaController?.let {
@@ -251,7 +242,7 @@ class PlayerViewModel : ViewModel() {
                         updatePosition(it.currentPosition, it.duration)
                     }
                 }
-                delay(1000L) // Update every second
+                delay(1000L)
             }
         }
         Log.d(TAG, "Started position tracking.")

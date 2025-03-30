@@ -66,4 +66,6 @@ dependencies {
     implementation (libs.media3.session)
 
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+
+    implementation (libs.accompanist.permissions.vlatestversion)
 }

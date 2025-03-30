@@ -58,7 +58,6 @@ class VideoPlayerController(
         owner.lifecycle.removeObserver(this)
         releasePlayer()
     }
-
     /**
      * Loads a list of MediaItems into the player.
      * Call this after the controller is initialized (e.g., in Activity's onCreate/onStart).
@@ -73,7 +72,6 @@ class VideoPlayerController(
         startPositionMs: Long = 0L
     ) {
         player?.let { exoPlayer ->
-            // Update the start index and position before setting new items
             mediaItemIndex = startItemIndex
             playbackPosition = startPositionMs
             exoPlayer.setMediaItems(mediaItems, mediaItemIndex, playbackPosition)
@@ -101,7 +99,6 @@ class VideoPlayerController(
     fun seekToDefaultPosition() { player?.seekToDefaultPosition() }
 
     private fun initializePlayer() {
-        // If player already exists, no need to re-initialize
         if (player != null) {
             Log.d(TAG, "Player already initialized.")
             return
