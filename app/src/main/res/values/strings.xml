@@ -1,7 +1,3 @@
 <resources>
-    <string name="app_name">chirro player</string>
-    <string name="err_button_label_restart_stream" />
-    <string name="err_msg_behind_live_window" />
-    <string name="err_button_label_ok" />
-    <string name="err_message_default" />
+    <string name="app_name">chirro</string>
 </resources>

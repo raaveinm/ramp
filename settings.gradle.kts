@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "ramp"
+rootProject.name = "Chirro"
 include(":app")
  
