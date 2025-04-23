@@ -12,5 +12,6 @@ data class TrackInfo (
     val duration: Long,
     val uri: String,
     val artUri: String,
+    val isFavorite: Boolean,
     val included: Boolean
 )
