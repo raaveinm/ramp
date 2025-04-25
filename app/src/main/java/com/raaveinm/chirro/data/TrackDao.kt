@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TrackDao {
-    @Insert (onConflict = OnConflictStrategy.REPLACE) suspend fun insertTrack(track: TrackInfo)
+    @Insert (onConflict = OnConflictStrategy.IGNORE) suspend fun insertTrack(track: TrackInfo)
     @Update suspend fun updateTrack(track: TrackInfo)
     @Delete suspend fun deleteTrack(track: TrackInfo)
 

@@ -11,12 +11,9 @@ import kotlinx.coroutines.launch
 
 class DatabaseManager {
     fun databaseManager(context: Context) {
-        //CoroutineScope(Dispatchers.IO).launch { updateDatabase(context) }
-        CoroutineScope(Dispatchers.IO).launch { fillDatabase(context) }
-        CoroutineScope(Dispatchers.IO).launch {
-            delay(150L)
-            getDatabase(context)
-        }
+        CoroutineScope(Dispatchers.IO).launch { deleteDatabase(context) }
+        CoroutineScope(Dispatchers.IO).launch { delay(100L); fillDatabase(context) }
+        CoroutineScope(Dispatchers.IO).launch { delay(500L); getDatabase(context) }
     }
 
     private suspend fun fillDatabase(context: Context){

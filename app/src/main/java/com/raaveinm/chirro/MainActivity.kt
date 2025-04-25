@@ -16,6 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
 import com.raaveinm.chirro.data.DatabaseManager
 import com.raaveinm.chirro.domain.PlayerService
+import com.raaveinm.chirro.ui.fragments.PlayerScreen
 import com.raaveinm.chirro.ui.theme.ChirroTheme
 
 /**
@@ -32,10 +33,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             ChirroTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    PlayerScreen(modifier = Modifier.padding(innerPadding))
                 }
             }
         }
@@ -48,7 +46,10 @@ class MainActivity : ComponentActivity() {
         } else {
             DatabaseManager().databaseManager(context = this)
         }
-        ContextCompat.startForegroundService(this, Intent(this, PlayerService::class.java))
+        Intent(this, PlayerService::class.java).also {
+            startService(it)
+            ContextCompat.startForegroundService(this, it)
+        }
     }
 }
 
