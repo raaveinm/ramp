@@ -33,7 +33,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             ChirroTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    PlayerScreen(modifier = Modifier.padding(innerPadding))
+                    PlayerScreen(modifier = Modifier.padding(innerPadding), context = this)
                 }
             }
         }
@@ -50,21 +50,5 @@ class MainActivity : ComponentActivity() {
             startService(it)
             ContextCompat.startForegroundService(this, it)
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    ChirroTheme {
-        Greeting("Android")
     }
 }

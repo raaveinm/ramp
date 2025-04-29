@@ -1,5 +1,6 @@
 package com.raaveinm.chirro.ui.fragments
 
+import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -7,17 +8,27 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.raaveinm.chirro.domain.managment.QueueManager
+import com.raaveinm.chirro.domain.usecase.CommandResolver
 import com.raaveinm.chirro.ui.components.ControlButtons
 import com.raaveinm.chirro.ui.components.TrackCover
 import com.raaveinm.chirro.ui.components.TrackInfoScreen
 
 
 @Composable
-fun PlayerScreen(modifier: Modifier) {
+fun PlayerScreen(
+    modifier: Modifier,
+    context: Context
+) {
+    var isPlaying by rememberSaveable { mutableStateOf(false) }
+
     Column (
         Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -40,11 +51,11 @@ fun PlayerScreen(modifier: Modifier) {
         Spacer(modifier = Modifier.padding(36.dp))
 
         ControlButtons(
-            isPlaying = true,
+            isPlaying = isPlaying,
             currentDuration = 0.2345f,
-            onPlayPauseClick = {},
-            onNextClick = {},
-            onPreviousClick = {},
+            onPlayPauseClick = { isPlaying = CommandResolver().playPauseCommand()},
+            onNextClick = { QueueManager(context).nextItem()},
+            onPreviousClick = { QueueManager(context).previousItem() },
             onSeek = {},
             isFavorite = true,
             onFavoriteClick = {},

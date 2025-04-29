@@ -19,4 +19,5 @@ interface TrackDao {
     @Query("select * from tracklist where artist = :artist") fun getTrackByArtist(artist: String): Flow<List<TrackInfo>>
     @Query("select * from tracklist where album = :album") fun getTrackByAlbum(album: String): Flow<List<TrackInfo>>
     @Query("select * from trackList where isFavorite = 1") fun getFavouriteTracks(): Flow<List<TrackInfo>>
+    @Query("select * from trackList where id = :id") suspend fun getTrackById(id: Int): TrackInfo
 }
