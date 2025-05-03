@@ -1,47 +1,38 @@
 package com.raaveinm.chirro.ui.veiwmodel
 
-import android.media.session.MediaController
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import android.content.ComponentName
+import androidx.compose.runtime.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
+import androidx.media3.session.MediaController
+import androidx.media3.session.SessionToken
 import com.google.common.util.concurrent.ListenableFuture
+import com.google.common.util.concurrent.MoreExecutors
 import com.raaveinm.chirro.data.TrackDao
 import com.raaveinm.chirro.data.TrackInfo
+import com.raaveinm.chirro.domain.PlayerService
 import com.raaveinm.chirro.domain.managment.PlayListManager
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
-
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 
 data class TrackState(
     val id: Int = 0,
-    val title: String,
-    val artist: String,
-    val album: String,
-    val duration: Long,
-    val uri: String,
-    val artUri: String,
-    val isFavorite: Boolean,
-    val included: Boolean
+    val title: String = "Unknown Title",
+    val artist: String = "Unknown Artist",
+    val album: String = "Unknown Album",
+    val duration: Long = 0L,
+    val uri: String? = null,
+    val artUri: String? = null,
+    val isFavorite: Boolean = false,
+    val included: Boolean = true
 )
 
-class PlayerViewModel(private val trackDao: TrackDao) : ViewModel() {
-
-    private val playListManager = PlayListManager(trackDao)
-    val trackList: Flow<List<TrackInfo>> = playListManager.getAllTracks()
-    val favouriteTracks: Flow<List<TrackInfo>> = playListManager.getFavouriteTracks()
-
-    var playerState by mutableStateOf<Player?>(null)
-    var currentTrack by mutableStateOf<TrackState?>(null)
-    var currentPosition by mutableLongStateOf(0L)
-    var totalDuration by mutableLongStateOf(0L)
-    val isPlaying by mutableStateOf(false)
-    val isFavorite by mutableStateOf(false)
-    val isRandom by mutableStateOf(false)
-    val isRepeating by mutableStateOf(false)
-
-    private var mediaControllerFuture: ListenableFuture<MediaController>? = null
-    private var mediaController: MediaController? = null
+class PlayerViewModel(application: Application, private val trackDao: TrackDao) : AndroidViewModel(application) {
 
 }

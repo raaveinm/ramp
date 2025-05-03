@@ -2,66 +2,65 @@ package com.raaveinm.chirro.domain.managment
 
 import android.content.Context
 import androidx.annotation.OptIn
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.core.net.toUri
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
+import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
 import com.raaveinm.chirro.data.DatabaseManager
 import com.raaveinm.chirro.data.TrackInfo
-import com.raaveinm.chirro.domain.PlayerService
-import androidx.media3.common.util.Log
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class QueueManager (private val context: Context) {
-    private var trackId: Int by mutableIntStateOf(1)
-    var currentTrack: TrackInfo? by mutableStateOf(null)
-        private set
+class QueueManager(
+    private val context: Context,
+    private val databaseManager: DatabaseManager
+) {
 
-    suspend fun loadInitialTrack() {
-        withContext(Dispatchers.IO) {
-             currentTrack = DatabaseManager().getTrackById(context = context, trackId = trackId)
-       }
-    }
+    private var trackList: List<TrackInfo> = emptyList()
+    private var mediaItemList: List<MediaItem> = emptyList()
 
     @OptIn(UnstableApi::class)
-    fun setupPlayerWithTrack(track: TrackInfo?) {
-         if (track == null) {
-            Log.e("QueueManager", "Cannot start player, track is null")
-            return
+    suspend fun prepareQueue() {
+        Log.d("QueueManager", "Preparing queue from database...")
+        trackList = withContext(Dispatchers.IO) {
+            databaseManager.getDatabase(context) as List<TrackInfo>
         }
-        if (PlayerService().getPlayer() != null) {
-             val metadata = MediaMetadata.Builder()
-                .setTitle(track.title)
-                .setArtist(track.artist)
-                .build()
 
-            val mediaItem = MediaItem.Builder()
-                .setMediaMetadata(metadata)
-                .setUri(track.uri.toUri())
-                .build()
-            PlayerService().getPlayer()?.setMediaItem(mediaItem)
-            PlayerService().getPlayer()?.prepare()
-            PlayerService().getPlayer()?.play()
+        mediaItemList = trackList.map { trackInfo ->
+            buildMediaItem(trackInfo)
         }
+        Log.d("QueueManager", "Queue prepared with ${mediaItemList.size} items.")
     }
 
-    fun nextItem() {
-        trackId++
-        PlayerService().getPlayer()?.stop()
-       // lifecycleScope.launch { loadInitialTrack(); setupPlayerWithTrack(currentTrack) }
+    /**
+     * Returns the list of MediaItems for the player.
+     * Ensure prepareQueue() has been called successfully before this.
+     */
+    @OptIn(UnstableApi::class)
+    fun getMediaItems(): List<MediaItem> {
+        if (mediaItemList.isEmpty()) {
+            Log.w("QueueManager", "Media queue is empty")
+        }
+        return mediaItemList
     }
 
-    fun previousItem() {
-        if (trackId > 1) {
-            trackId--
-            PlayerService().getPlayer()?.stop()
-          // lifecycleScope.launch { loadInitialTrack(); setupPlayerWithTrack(currentTrack) }
-        }
+    fun findIndexOfTrack(trackId: Int): Int =  trackList.indexOfFirst { it.id == trackId }
+    fun getTrackInfoByIndex(index: Int) = trackList.getOrNull(index)
+
+    @OptIn(UnstableApi::class)
+    private fun buildMediaItem(trackInfo: TrackInfo): MediaItem {
+        val metadata = MediaMetadata.Builder()
+            .setTitle(trackInfo.title)
+            .setArtist(trackInfo.artist)
+            .setAlbumTitle(trackInfo.album)
+            // .setArtworkUri(trackInfo.artworkUri?.toUri())
+            .build()
+
+        return MediaItem.Builder()
+            .setMediaId(trackInfo.id.toString())
+            .setUri(trackInfo.uri.toUri())
+            .setMediaMetadata(metadata)
+            .build()
     }
 }

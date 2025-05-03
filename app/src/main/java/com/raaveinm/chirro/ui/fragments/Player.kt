@@ -15,6 +15,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.raaveinm.chirro.domain.PlayerService
 import com.raaveinm.chirro.domain.managment.QueueManager
 import com.raaveinm.chirro.domain.usecase.CommandResolver
 import com.raaveinm.chirro.ui.components.ControlButtons
@@ -53,9 +54,9 @@ fun PlayerScreen(
         ControlButtons(
             isPlaying = isPlaying,
             currentDuration = 0.2345f,
-            onPlayPauseClick = { isPlaying = CommandResolver().playPauseCommand()},
-            onNextClick = { QueueManager(context).nextItem()},
-            onPreviousClick = { QueueManager(context).previousItem() },
+            onPlayPauseClick = {  },
+            onNextClick = {  },
+            onPreviousClick = {  },
             onSeek = {},
             isFavorite = true,
             onFavoriteClick = {},

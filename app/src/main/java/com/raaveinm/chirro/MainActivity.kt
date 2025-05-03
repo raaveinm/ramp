@@ -9,10 +9,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
 import com.raaveinm.chirro.data.DatabaseManager
 import com.raaveinm.chirro.domain.PlayerService
@@ -46,9 +43,6 @@ class MainActivity : ComponentActivity() {
         } else {
             DatabaseManager().databaseManager(context = this)
         }
-        Intent(this, PlayerService::class.java).also {
-            startService(it)
-            ContextCompat.startForegroundService(this, it)
-        }
+        Intent(this, PlayerService::class.java).also { startService(it) }
     }
 }
