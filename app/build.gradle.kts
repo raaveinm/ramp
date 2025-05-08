@@ -68,7 +68,9 @@ dependencies {
     implementation(libs.androidx.media3.exoplayer.dash)
     implementation(libs.androidx.compose.ui.util)
     implementation(libs.androidx.media3.ui)
+    implementation (libs.androidx.media.compat)
     implementation (libs.androidx.media3.common)
+    implementation (libs.androidx.media3.session)
     implementation (libs.media3.session)
 
     implementation(libs.androidx.lifecycle.viewmodel.compose)
@@ -86,4 +88,5 @@ dependencies {
 
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
+
 }

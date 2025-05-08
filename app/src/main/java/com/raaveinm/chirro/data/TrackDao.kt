@@ -14,6 +14,7 @@ interface TrackDao {
     @Update suspend fun updateTrack(track: TrackInfo)
     @Delete suspend fun deleteTrack(track: TrackInfo)
 
+    @Query("DELETE FROM trackList") suspend fun deleteAllTracks()
     @Query ("select * from trackList where included = 1") fun getTracks(): Flow<List<TrackInfo>>
     @Query("select * from trackList where title = :title") fun getTrackByTitle(title: String): Flow<TrackInfo>
     @Query("select * from tracklist where artist = :artist") fun getTrackByArtist(artist: String): Flow<List<TrackInfo>>
