@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">chirro</string>
+    <string name="channel_name">Audio Playback</string>
+    <string name="channel_description">Shows notification for audio playback controls</string>
+    <string name="notification_default_title">Unknown Track</string>
+    <string name="notification_default_artist">Unknown Artist</string>
+    <string name="notification_default_album">Unknown Album</string>
+    <string name="welcome_text">welcome to chirro</string>
+    <string name="start_text">it\'s simple. just like the good old days.</string>
+    <string name="start_button">I\'m in!</string>
+</resources>
