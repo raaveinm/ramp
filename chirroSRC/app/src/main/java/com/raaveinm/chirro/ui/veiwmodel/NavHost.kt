@@ -5,5 +5,6 @@ enum class NavHost {
     Settings,
     Playlist,
     Manage,
-    Search
+    Search,
+    Welcome
 }
