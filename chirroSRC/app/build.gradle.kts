@@ -1,3 +1,5 @@
+import com.android.build.api.dsl.Packaging
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -38,6 +40,13 @@ android {
     buildFeatures {
         compose = true
     }
+
+    packagingOptions {
+        resources {
+            excludes += "/META-INF/LICENSE.md"
+            excludes += "META-INF/LICENSE-notice.md"
+        }
+    }
 }
 
 dependencies {
@@ -51,13 +60,22 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.runner)
+    androidTestImplementation(libs.androidx.rules)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
+    testImplementation (libs.kotlinx.coroutines.test)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    testImplementation (libs.androidx.arch.core.testing)
+    androidTestImplementation (libs.androidx.arch.core.testing)
+    // For MockK
+    testImplementation (libs.mockk.agent)
+    androidTestImplementation (libs.mockk.android)
 
     implementation (libs.media3.exoplayer)
     implementation (libs.media3.exoplayer.dash)
@@ -82,6 +100,7 @@ dependencies {
     implementation(libs.androidx.room.rxjava3)
     implementation(libs.androidx.room.guava)
     implementation(libs.androidx.room.paging)
+    testImplementation(libs.androidx.room.testing)
     ksp(libs.androidx.room.compiler)
 
     implementation(libs.androidx.datastore.preferences)
