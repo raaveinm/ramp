@@ -64,10 +64,8 @@ class TrackDaoTest {
     fun insertTrack_insertsTrackSuccessfully() = runTest {
         // Given
         val track = createSampleTrack()
-
         // When
         trackDao.insertTrack(track)
-
         // Then
         val tracks = trackDao.getTracks().first()
         assertEquals(1, tracks.size)

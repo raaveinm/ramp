@@ -1,10 +1,9 @@
 package com.raaveinm.chirro.domain.usecase
 
 object Commands {
-    const val PLAY_PAUSE = 0
-    const val SKIP_TO_NEXT = 1
-    const val SKIP_TO_PREVIOUS = 2
-    const val SEEK_TO = 4
-    const val SET_REPEAT_MODE = 5
-    const val SET_SHUFFLE_MODE = 6
+    const val CHANNEL_ID = "PlayerServiceChannel"
+    const val NOTIFICATION_ID = 567
+    const val ACTION_REFRESH_QUEUE = "com.raaveinm.chirro.REFRESH_QUEUE"
+    const val ACTION_TOGGLE_FAVORITE = "com.raaveinm.chirro.TOGGLE_FAVORITE"
+    const val EXTRA_TRACK_ID = "com.raaveinm.chirro.EXTRA_TRACK_ID"
 }

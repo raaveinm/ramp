@@ -26,6 +26,7 @@ import com.raaveinm.chirro.MainActivity
 import com.raaveinm.chirro.R
 import com.raaveinm.chirro.data.DatabaseManager
 import com.raaveinm.chirro.domain.managment.QueueManager
+import com.raaveinm.chirro.domain.usecase.Commands
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -46,17 +47,7 @@ class PlayerService : MediaSessionService() {
     private var mediaSession: MediaSession? = null
     private val databaseManager: DatabaseManager by lazy { DatabaseManager() }
     private val queueManager: QueueManager by lazy { QueueManager(this, databaseManager) }
-
     private var playerNotificationManager: PlayerNotificationManager? = null
-
-    companion object {
-        const val CHANNEL_ID = "PlayerServiceChannel"
-        const val NOTIFICATION_ID = 123
-        const val ACTION_REFRESH_QUEUE = "com.raaveinm.chirro.REFRESH_QUEUE"
-        const val ACTION_TOGGLE_FAVORITE = "com.raaveinm.chirro.TOGGLE_FAVORITE"
-        const val EXTRA_TRACK_ID = "com.raaveinm.chirro.EXTRA_TRACK_ID"
-    }
-
 
     private inner class PlayerSessionCallback : MediaSession.Callback {
         @OptIn(UnstableApi::class)
@@ -64,7 +55,6 @@ class PlayerService : MediaSessionService() {
             session: MediaSession,
             controller: MediaSession.ControllerInfo
         ): MediaSession.ConnectionResult {
-            Log.d("PlayerService", "Controller connected: ${controller.packageName}")
             if (player == null) {
                 Log.e("PlayerService", "Player not initialized during onConnect")
                 return MediaSession.ConnectionResult.reject()
@@ -72,8 +62,8 @@ class PlayerService : MediaSessionService() {
 
             val connectionResult = super.onConnect(session, controller)
             val availableSessionCommands = connectionResult.availableSessionCommands.buildUpon()
-                .add(SessionCommand(ACTION_REFRESH_QUEUE, Bundle.EMPTY))
-                .add(SessionCommand(ACTION_TOGGLE_FAVORITE, Bundle.EMPTY))
+                .add(SessionCommand(Commands.ACTION_REFRESH_QUEUE, Bundle.EMPTY))
+                .add(SessionCommand(Commands.ACTION_TOGGLE_FAVORITE, Bundle.EMPTY))
                 .build()
 
             return MediaSession.ConnectionResult.accept(
@@ -91,19 +81,18 @@ class PlayerService : MediaSessionService() {
             args: Bundle
         ): ListenableFuture<SessionResult> {
             when (customCommand.customAction) {
-                ACTION_REFRESH_QUEUE -> {
+                Commands.ACTION_REFRESH_QUEUE -> {
                     Log.d("PlayerService", "Received REFRESH_QUEUE command")
                     serviceScope.launch { loadAndSetQueue() }.invokeOnCompletion {
                         Futures.immediateFuture(SessionResult(SessionResult.RESULT_SUCCESS))
                     }
                 }
-                ACTION_TOGGLE_FAVORITE -> {
-                    val trackId = args.getInt(EXTRA_TRACK_ID, -1)
+                Commands.ACTION_TOGGLE_FAVORITE -> {
+                    val trackId = args.getInt(Commands.EXTRA_TRACK_ID, -1)
                     if (trackId != -1) {
                         serviceScope.launch { toggleFavoriteStatus(trackId) }
                         return Futures.immediateFuture(SessionResult(SessionResult.RESULT_SUCCESS))
                     }
-                    Log.w("PlayerService", "TOGGLE_FAVORITE command received without valid track ID")
                     return Futures.immediateFuture(SessionResult(SessionError.ERROR_INVALID_STATE))
                 }
                 else -> {}
@@ -121,9 +110,11 @@ class PlayerService : MediaSessionService() {
                         trackId,
                         newFavoriteStatus
                     )
-                    Log.i("PlayerService", "Track $trackId favorite status updated to $newFavoriteStatus")
                 } catch (e: Exception) {
-                    Log.e("PlayerService", "Error updating favorite status for track $trackId", e)
+                    Log.e(
+                        "PlayerService",
+                        "Error updating favorite status for track $trackId", e
+                    )
                 }
             }
         }
@@ -137,15 +128,8 @@ class PlayerService : MediaSessionService() {
             val updatedMediaItems = mediaItems.mapNotNull {
                 if (it.requestMetadata.mediaUri != null) {
                     it.buildUpon().setUri(it.requestMetadata.mediaUri).build()
-                } else {
-                    Log.w("PlayerService", "MediaItem added via controller missing mediaUri: ${it.mediaId}")
-                    null
-                }
-            }.toMutableList().also {
-                val mediaItemIds = it.map { item -> item.mediaId }
-                Log.d("PlayerService", "onAddMediaItems: Updated MediaItem IDs: $mediaItemIds")
-            }
-            Log.i("PlayerService", "onAddMediaItems: Processing ${mediaItems.size}, returning ${updatedMediaItems.size}")
+                } else { null }
+            }.toMutableList()
             return Futures.immediateFuture(updatedMediaItems)
         }
     }
@@ -153,7 +137,8 @@ class PlayerService : MediaSessionService() {
     @SuppressLint("ForegroundServiceType")
     @OptIn(UnstableApi::class)
     override fun onCreate() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.FOREGROUND_SERVICE) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.FOREGROUND_SERVICE)
+            != android.content.pm.PackageManager.PERMISSION_GRANTED) {
             Log.e("PlayerService", "FOREGROUND_SERVICE permission not granted")
             return
         }
@@ -163,56 +148,47 @@ class PlayerService : MediaSessionService() {
         createNotificationChannel()
 
         player = ExoPlayer.Builder(this)
-            .setRenderersFactory(DefaultRenderersFactory(this).setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER))
+            .setRenderersFactory(DefaultRenderersFactory(this)
+                .setExtensionRendererMode(DefaultRenderersFactory
+                    .EXTENSION_RENDERER_MODE_PREFER))
             .setAudioAttributes(AudioAttributes.DEFAULT, true)
             .setHandleAudioBecomingNoisy(true)
             .setWakeMode(C.WAKE_MODE_LOCAL)
             .build().also {
                 it.addListener(PlayerListener())
             }
-        Log.d("PlayerService", "ExoPlayer created")
 
         mediaSession = MediaSession.Builder(this, player!!)
             .setCallback(PlayerSessionCallback())
             .setId("ChirroMediaSession_${System.currentTimeMillis()}")
             .setSessionActivity(createSessionActivityPendingIntent())
             .build()
-        Log.d("PlayerService", "MediaSession created")
-
-        Log.d("PlayerService", "MediaSessionConnector created and configured.")
 
         setupMediaStyleNotification()
 
         serviceScope.launch {
             try {
-                Log.d("PlayerService", "Launching coroutine to load initial queue...")
                 loadAndSetQueue()
-                Log.d("PlayerService", "Initial queue loading process completed.")
             } catch (e: Exception) {
                 Log.e("PlayerService", "Error during initial queue load", e)
             }
         }
-
-        Log.d("PlayerService", "Service created and initialization sequence started.")
     }
 
 
     @OptIn(UnstableApi::class)
     private suspend fun loadAndSetQueue(startPlayback: Boolean = false, startIndex: Int = 0) {
         try {
-            Log.d("PlayerService", "loadAndSetQueue started...")
             queueManager.prepareQueue()
             val mediaItems = queueManager.getMediaItems()
 
             if (mediaItems.isNotEmpty()) {
-                Log.i("PlayerService", "Setting ${mediaItems.size} media items. StartIndex: $startIndex, Play: $startPlayback")
                 withContext(Dispatchers.Main) {
                     player?.setMediaItems(mediaItems, startIndex, C.TIME_UNSET)
                     player?.prepare()
                     if (startPlayback) player?.play()
                 }
             } else {
-                Log.w("PlayerService", "loadAndSetQueue: No media items found.")
                 withContext(Dispatchers.Main) {
                     player?.clearMediaItems()
                     player?.stop()
@@ -226,10 +202,14 @@ class PlayerService : MediaSessionService() {
     @SuppressLint("ForegroundServiceType")
     @OptIn(UnstableApi::class)
     private fun setupMediaStyleNotification() {
-        playerNotificationManager = PlayerNotificationManager.Builder( this, NOTIFICATION_ID, CHANNEL_ID )
-            .setChannelNameResourceId(R.string.channel_name)
+        playerNotificationManager = PlayerNotificationManager.Builder(
+            this,
+            Commands.NOTIFICATION_ID,
+            Commands.CHANNEL_ID
+        ).setChannelNameResourceId(R.string.channel_name)
             .setChannelDescriptionResourceId(R.string.channel_description)
-            .setMediaDescriptionAdapter(object : PlayerNotificationManager.MediaDescriptionAdapter {
+            .setMediaDescriptionAdapter(
+                object : PlayerNotificationManager.MediaDescriptionAdapter {
                 override fun getCurrentContentTitle(player: Player): CharSequence {
                     return player.mediaMetadata.title ?: getString(R.string.notification_default_title)
                 }
@@ -246,7 +226,6 @@ class PlayerService : MediaSessionService() {
                 override fun getCurrentLargeIcon(
                     player: Player, callback: PlayerNotificationManager.BitmapCallback
                 ): android.graphics.Bitmap? {
-                    Log.v("PlayerService", "getCurrentLargeIcon requested for: ${player.mediaMetadata.title}")
                     val mediaMetadata = player.mediaMetadata
                     if (mediaMetadata.artworkUri != null) {
                         val artworkUri = mediaMetadata.artworkUri
@@ -272,8 +251,11 @@ class PlayerService : MediaSessionService() {
                 }
             })
             .setNotificationListener(object : PlayerNotificationManager.NotificationListener {
-                override fun onNotificationPosted(notificationId: Int, notification: Notification, ongoing: Boolean) {
-                    Log.d("PlayerService", "Notification posted (ID: $notificationId, Ongoing: $ongoing)")
+                override fun onNotificationPosted(
+                    notificationId: Int,
+                    notification: Notification,
+                    ongoing: Boolean
+                ) {
                     if (ongoing && player != null) {
                         startForeground(notificationId, notification)
                     } else {
@@ -281,17 +263,14 @@ class PlayerService : MediaSessionService() {
                     }
                 }
                 override fun onNotificationCancelled(notificationId: Int, dismissedByUser: Boolean) {
-                    Log.d("PlayerService", "Notification cancelled (ID: $notificationId, Dismissed by user: $dismissedByUser)")
                     stopSelf()
                 }
-            })
-            .build()
-        Log.d("PlayerService", "PlayerNotificationManager configured and foreground service started.")
+            }).build()
     }
 
     private fun createNotificationChannel() {
         val channel = NotificationChannel(
-            CHANNEL_ID,
+            Commands.CHANNEL_ID,
             getString(R.string.channel_name),
             NotificationManager.IMPORTANCE_LOW
         ).apply {
@@ -302,7 +281,6 @@ class PlayerService : MediaSessionService() {
         }
         val manager = getSystemService(NotificationManager::class.java)
         manager.createNotificationChannel(channel)
-        Log.d("PlayerService", "Notification channel created.")
     }
 
     @SuppressLint("UnspecifiedImmutableFlag")
@@ -315,7 +293,6 @@ class PlayerService : MediaSessionService() {
 
     @OptIn(UnstableApi::class)
     override fun onDestroy() {
-        Log.w("PlayerService", "onDestroy called")
         playerNotificationManager?.setPlayer(null)
         playerNotificationManager = null
         mediaSession?.release()
@@ -325,27 +302,16 @@ class PlayerService : MediaSessionService() {
         serviceScope.cancel()
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
         super.onDestroy()
-        Log.w("PlayerService", "Service destroyed.")
     }
 
     @OptIn(UnstableApi::class)
-    override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession? {
-        Log.d("PlayerService", "onGetSession called by: ${controllerInfo.packageName}")
-        return mediaSession
-    }
+    override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession? = mediaSession
 
+    @OptIn(UnstableApi::class)
     private inner class PlayerListener : Player.Listener {
-        @OptIn(UnstableApi::class)
-        override fun onPlaybackStateChanged(playbackState: Int) {
-        }
-        @OptIn(UnstableApi::class)
-        override fun onIsPlayingChanged(isPlaying: Boolean) {
-        }
-        @OptIn(UnstableApi::class)
-        override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
-        }
-        @OptIn(UnstableApi::class)
-        override fun onPlayerError(error: PlaybackException) {
-        }
+        override fun onPlaybackStateChanged(playbackState: Int) {}
+        override fun onIsPlayingChanged(isPlaying: Boolean) {}
+        override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {}
+        override fun onPlayerError(error: PlaybackException){}
     }
 }

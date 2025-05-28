@@ -24,7 +24,6 @@ class QueueManager(
 
     @OptIn(UnstableApi::class)
     suspend fun prepareQueue() {
-        Log.d("QueueManager", "Preparing queue from database...")
         trackList = withContext(Dispatchers.IO) {
             databaseManager.getInitialTrackList(context)
         }
@@ -53,23 +52,11 @@ class QueueManager(
                 null
             }
         }
-        Log.d("QueueManager", "Queue prepared with ${mediaItemList.size} items.")
     }
 
-    /**
-     * Returns the list of MediaItems for the player.
-     * Ensure prepareQueue() has been called successfully before this.
-     */
     @OptIn(UnstableApi::class)
-    fun getMediaItems(): List<MediaItem> {
-        if (mediaItemList.isEmpty() && trackList.isNotEmpty()) {
-            Log.w("QueueManager", "Media item list is empty," +
-                    " but track list is not. Check prepareQueue logs.")
-        } else if (mediaItemList.isEmpty()) {
-            Log.w("QueueManager", "Media queue is empty")
-        }
-        return mediaItemList
-    }
+    fun getMediaItems(): List<MediaItem> = mediaItemList
+
 
 //    fun findIndexOfTrack(trackId: Int): Int =  trackList.indexOfFirst { it.id == trackId }
 //    fun getTrackInfoByIndex(index: Int): TrackInfo? = trackList.getOrNull(index)

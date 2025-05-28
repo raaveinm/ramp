@@ -136,12 +136,9 @@ class DatabaseManagerTest {
         database.trackDao().insertTrack(track)
         val insertedTracks = database.trackDao().getTracks().first()
         val trackId = insertedTracks[0].id
-
         assertFalse(insertedTracks[0].isFavorite)
-
         // When
         databaseManager.updateTrackFavoriteStatus(context, trackId, true)
-
         // Then
         val updatedTrack = database.trackDao().getTrackById(trackId)
         assertTrue(updatedTrack.isFavorite)

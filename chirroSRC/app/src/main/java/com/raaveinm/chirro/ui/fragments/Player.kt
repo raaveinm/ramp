@@ -1,5 +1,6 @@
 package com.raaveinm.chirro.ui.fragments
 
+import androidx.annotation.OptIn
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -17,7 +18,9 @@ import com.raaveinm.chirro.ui.components.TrackCover
 import com.raaveinm.chirro.ui.components.TrackInfoScreen
 import com.raaveinm.chirro.ui.veiwmodel.PlayerViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.media3.common.util.UnstableApi
 
+@OptIn(UnstableApi::class)
 @Composable
 fun PlayerScreen(
     modifier: Modifier = Modifier,

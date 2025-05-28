@@ -48,20 +48,15 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
 
     private val playerObserverScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private var progressJob: Job? = null
-
     private val databaseManager = DatabaseManager()
-
-
     init { initializeMediaController() }
 
     @OptIn(UnstableApi::class)
     private fun initializeMediaController() {
-        Log.d("PlayerViewModel", "Initializing MediaController...")
         mediaControllerFuture = MediaController.Builder(getApplication(), sessionToken).buildAsync()
         mediaControllerFuture?.addListener({
             try {
-                mediaController = mediaControllerFuture?.get() // Blocks until ready
-                Log.i("PlayerViewModel", "MediaController connected: $mediaController")
+                mediaController = mediaControllerFuture?.get()
                 mediaController?.addListener(PlayerListener())
                 updateStateFromController()
                 startProgressUpdater()
@@ -101,11 +96,8 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
                 totalDuration = duration,
                 isFavorite = isFavorite
             )
-            Log.d("PlayerViewModel", "UI State updated: isPlaying=$isPlaying, track=${metadata?.title}, pos=$position, dur=$duration, fav=$isFavorite")
-
         } ?: run {
             _uiState.value = PlayerUiState()
-            Log.d("PlayerViewModel", "MediaController null, resetting UI state.")
         }
     }
 
@@ -117,39 +109,24 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
         mediaController?.let {
             if (it.isPlaying) {
                 it.pause()
-                Log.i("PlayerViewModel", "Sent PAUSE command")
             } else {
                 it.play()
-                Log.i("PlayerViewModel", "Sent PLAY command")
-
             }
         } ?: Log.w("PlayerViewModel", "playPause called but MediaController is null")
     }
 
     @OptIn(UnstableApi::class)
     fun skipNext() {
-        Log.d("PlayerViewModel", "skipNext triggered")
-        if (mediaController?.hasNextMediaItem() == true) {
-            mediaController?.seekToNextMediaItem()
-            Log.i("PlayerViewModel", "Sent SKIP_NEXT command")
-        } else {
-            Log.w("PlayerViewModel", "skipNext called but no next item available")
-        }
+        if (mediaController?.hasNextMediaItem() == true) mediaController?.seekToNextMediaItem()
     }
 
     @OptIn(UnstableApi::class)
     fun skipPrevious() {
-        Log.d("PlayerViewModel", "skipPrevious triggered")
-        // Optional: Seek to beginning if position > threshold, else previous
         val currentPosition = mediaController?.currentPosition ?: 0
-        if (currentPosition > 3000 && mediaController?.hasPreviousMediaItem() == true) { // Seek to 0 if played > 3s
+        if (currentPosition > 3000 && mediaController?.hasPreviousMediaItem() == true) {
             mediaController?.seekTo(0)
-            Log.i("PlayerViewModel", "Sent SEEK_TO 0 command (instead of previous)")
         } else if (mediaController?.hasPreviousMediaItem() == true) {
             mediaController?.seekToPreviousMediaItem()
-            Log.i("PlayerViewModel", "Sent SKIP_PREVIOUS command")
-        } else {
-            Log.w("PlayerViewModel", "skipPrevious called but no previous item available")
         }
     }
 
@@ -160,8 +137,6 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
             if (duration > 0) {
                 val newPosition = (duration * positionPercent).toLong()
                 it.seekTo(newPosition)
-                Log.i("PlayerViewModel", "Sent SEEK_TO command: " +
-                        "$newPosition ms (${(positionPercent*100).toInt()}%)")
                 _uiState.value = _uiState.value.copy(currentPosition = newPosition)
             } else {
                 Log.w("PlayerViewModel", "seekTo called but duration is unknown or zero")
@@ -173,8 +148,6 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
     fun toggleFavorite() {
         val currentTrackId = _uiState.value.currentTrack?.id
         if (currentTrackId != null && currentTrackId != -1) {
-            Log.d("PlayerViewModel", "toggleFavorite triggered for track ID: $currentTrackId")
-
             val args = Bundle().apply { putInt(PlayerService.EXTRA_TRACK_ID, currentTrackId) }
             val command = SessionCommand(PlayerService.ACTION_TOGGLE_FAVORITE, args)
 //            val futureResult = mediaController?.sendCustomCommand(command, args)
@@ -196,18 +169,13 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
                 try {
                     val currentStatus = _uiState.value.isFavorite
                     databaseManager.updateTrackFavoriteStatus(getApplication(), currentTrackId, !currentStatus)
-                    // Manually update UI state - requires service state to be in sync or might cause flicker
                     withContext(Dispatchers.Main) {
                        _uiState.value = _uiState.value.copy(isFavorite = !currentStatus)
                     }
-                    Log.i("PlayerViewModel", "Favorite status toggled directly in DB for track $currentTrackId")
-
                 } catch (e: Exception) {
                      Log.e("PlayerViewModel", "Error toggling favorite directly in DB for track $currentTrackId", e)
                 }
             }
-        } else {
-            Log.w("PlayerViewModel", "toggleFavorite called but current track ID is invalid: $currentTrackId")
         }
     }
 
@@ -222,7 +190,6 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
                     Player.EVENT_IS_PLAYING_CHANGED,
                     Player.EVENT_MEDIA_ITEM_TRANSITION)
             ) {
-                Log.d("PlayerViewModel", "Player event received, updating UI state.")
                 updateStateFromController()
             }
             if (events.contains(Player.EVENT_IS_PLAYING_CHANGED)) {
@@ -252,21 +219,18 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
                 delay(500)
             }
         }
-        Log.d("PlayerViewModel", "Progress updater started.")
     }
 
     @OptIn(UnstableApi::class)
     private fun stopProgressUpdater() {
         progressJob?.cancel()
         progressJob = null
-        Log.d("PlayerViewModel", "Progress updater stopped.")
     }
 
     @SuppressLint("ImplicitSamInstance")
     @OptIn(UnstableApi::class)
     override fun onCleared() {
         super.onCleared()
-        Log.w("PlayerViewModel", "onCleared called - releasing MediaController")
         stopProgressUpdater()
         playerObserverScope.cancel()
         mediaController?.removeListener(PlayerListener())
@@ -279,7 +243,6 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
                 }
             } else if (!future.isDone) {
                 future.cancel(false)
-                Log.w("PlayerViewModel", "Cancelled MediaController future onCleared")
             }
         }
         mediaController = null
