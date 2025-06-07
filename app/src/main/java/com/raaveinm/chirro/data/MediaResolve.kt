@@ -4,6 +4,7 @@ import android.content.ContentResolver
 import android.database.Cursor
 import android.net.Uri
 import android.util.Log
+import com.raaveinm.chirro.data.room.TrackInfo
 
 class MediaResolve(private val contentResolver: ContentResolver) {
     val resolver: ContentResolver = this.contentResolver
@@ -39,7 +40,7 @@ class MediaResolve(private val contentResolver: ContentResolver) {
                             duration = duration,
                             uri = uri,
                             isFavorite = false,
-                            included = true, // default value
+                            included = true,
                             artUri = "default" // temporary plug
                         )
                     )

@@ -8,8 +8,8 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
-import com.raaveinm.chirro.data.DatabaseManager
-import com.raaveinm.chirro.data.TrackInfo
+import com.raaveinm.chirro.data.room.DatabaseManager
+import com.raaveinm.chirro.data.room.TrackInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -30,27 +30,15 @@ class QueueManager(
 
         mediaItemList = trackList.mapNotNull { trackInfo ->
             try {
-                val fileUri = try {
-                    trackInfo.uri.toUri()
-                } catch (e: Exception) {
-                    Log.w("QueueManager", "Could not parse URI string:" +
-                            " ${trackInfo.uri}, $e.")
+                val fileUri = try { trackInfo.uri.toUri() }
+                catch (_: Exception) {
                     val file = File(trackInfo.uri)
                     if (file.exists()) file.toUri() else null
                 }
 
-                if (fileUri != null) {
-                    buildMediaItem(trackInfo, fileUri)
-                } else {
-                    Log.e("QueueManager", "Could not create valid URI for track:" +
-                            " ${trackInfo.title} - Path: ${trackInfo.uri}")
-                    null
-                }
-            } catch (e: Exception) {
-                Log.e("QueueManager", "Error processing track: " +
-                        "${trackInfo.title} - ${e.message}")
-                null
-            }
+                if (fileUri != null) { buildMediaItem(trackInfo, fileUri) } else { null }
+
+            } catch (_: Exception) { null }
         }
     }
 

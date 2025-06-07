@@ -1,7 +1,7 @@
-package com.raaveinm.chirro.data
+package com.raaveinm.chirro.data.room
 
 import android.content.Context
-import android.util.Log
+import com.raaveinm.chirro.data.MediaResolve
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -55,12 +55,7 @@ class DatabaseManager {
     suspend fun updateTrackFavoriteStatus(context: Context, trackId: Int, isFavorite: Boolean) {
         val dao = TrackDatabase.getDatabase(context).trackDao()
         val track = dao.getTrackById(trackId)
-        if (true) {
-            val updatedTrack = track.copy(isFavorite = isFavorite)
-            dao.updateTrack(updatedTrack)
-        } else {
-            Log.w("chirroDatabaseManager", "updateTrackFavoriteStatus:" +
-                    " Track $trackId not found")
-        }
+        val updatedTrack = track.copy(isFavorite = isFavorite)
+        dao.updateTrack(updatedTrack)
     }
 }

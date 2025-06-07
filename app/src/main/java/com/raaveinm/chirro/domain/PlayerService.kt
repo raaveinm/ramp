@@ -24,7 +24,7 @@ import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import com.raaveinm.chirro.MainActivity
 import com.raaveinm.chirro.R
-import com.raaveinm.chirro.data.DatabaseManager
+import com.raaveinm.chirro.data.room.DatabaseManager
 import com.raaveinm.chirro.domain.managment.QueueManager
 import com.raaveinm.chirro.domain.usecase.Commands
 import kotlinx.coroutines.CoroutineScope

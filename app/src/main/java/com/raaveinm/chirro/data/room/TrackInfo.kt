@@ -1,4 +1,4 @@
-package com.raaveinm.chirro.data
+package com.raaveinm.chirro.data.room
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

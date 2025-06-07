@@ -1,4 +1,4 @@
-package com.raaveinm.chirro.data
+package com.raaveinm.chirro.data.room
 
 import android.content.Context
 import androidx.room.Database

@@ -3,14 +3,13 @@ package com.raaveinm.chirro.domain.managment
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import android.widget.Toast
 import androidx.annotation.OptIn
 import androidx.core.content.ContextCompat
 import androidx.media3.common.util.UnstableApi
-import com.raaveinm.chirro.data.DatabaseManager
+import com.raaveinm.chirro.data.room.DatabaseManager
 import com.raaveinm.chirro.domain.PlayerService
 
-class InitDB {
+class AppDataInitializer {
 
     private val databaseManager = DatabaseManager()
 

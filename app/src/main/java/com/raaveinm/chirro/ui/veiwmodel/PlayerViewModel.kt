@@ -12,8 +12,8 @@ import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
-import com.raaveinm.chirro.data.DatabaseManager
-import com.raaveinm.chirro.data.TrackInfo
+import com.raaveinm.chirro.data.room.DatabaseManager
+import com.raaveinm.chirro.data.room.TrackInfo
 import com.raaveinm.chirro.domain.PlayerService
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,14 +23,6 @@ import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.SessionCommand
 import com.raaveinm.chirro.domain.usecase.Commands
-
-data class PlayerUiState(
-    val currentTrack: TrackInfo? = null,
-    val isPlaying: Boolean = false,
-    val currentPosition: Long = 0L,
-    val totalDuration: Long = 0L,
-    val isFavorite: Boolean = false
-)
 
 @UnstableApi
 class PlayerViewModel(application: Application) : AndroidViewModel(application) {
@@ -150,20 +142,9 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
         if (currentTrackId != null && currentTrackId != -1) {
             val args = Bundle().apply { putInt(Commands.EXTRA_TRACK_ID, currentTrackId) }
             val command = SessionCommand(Commands.ACTION_TOGGLE_FAVORITE, args)
-//            val futureResult = mediaController?.sendCustomCommand(command, args)
-//
-//            futureResult?.addListener({
-//                try {
-//                    val result = futureResult.get()
-//                    if (result.resultCode == SessionResult.RESULT_SUCCESS) {
-//                        Log.i("PlayerViewModel", "TOGGLE_FAVORITE command success for track $currentTrackId")
-//                    } else {
-//                        Log.w("PlayerViewModel", "TOGGLE_FAVORITE command failed for track $currentTrackId with code: ${result.resultCode}")
-//                    }
-//                } catch (e: Exception) {
-//                    Log.e("PlayerViewModel", "Error sending TOGGLE_FAVORITE command for track $currentTrackId", e)
-//                }
-//            }, MoreExecutors.directExecutor())
+            val futureResult = mediaController?.sendCustomCommand(command, args)
+
+           futureResult?.addListener({  },MoreExecutors.directExecutor())
 
             viewModelScope.launch(Dispatchers.IO) {
                 try {

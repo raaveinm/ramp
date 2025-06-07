@@ -16,14 +16,13 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import androidx.annotation.OptIn
 import androidx.media3.common.util.UnstableApi
-import com.raaveinm.chirro.domain.managment.InitDB
+import com.raaveinm.chirro.domain.managment.AppDataInitializer
 import com.raaveinm.chirro.ui.MainScreen
 import com.raaveinm.chirro.ui.components.PermissionRequiredScreen
 import com.raaveinm.chirro.ui.theme.ChirroTheme
 import kotlinx.coroutines.Dispatchers
 
 class MainActivity : ComponentActivity() {
-/*TODO create welcome screen return using NavHost and DataStore*/
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) {
             isGranted: Boolean ->
@@ -90,8 +89,8 @@ class MainActivity : ComponentActivity() {
     @OptIn(UnstableApi::class)
     private fun initializeAppData() {
         lifecycleScope.launch(Dispatchers.IO) {
-            InitDB().initializeAppData(this@MainActivity)
-        }; InitDB().initializeService(this@MainActivity)
+            AppDataInitializer().initializeAppData(this@MainActivity)
+        }; AppDataInitializer().initializeService(this@MainActivity)
         if (false) setContent { ChirroTheme { MainScreen() } }
     }
 }

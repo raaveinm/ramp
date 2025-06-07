@@ -1,4 +1,4 @@
-package com.raaveinm.chirro.data
+package com.raaveinm.chirro.data.room
 
 import androidx.room.Dao
 import androidx.room.Delete
