@@ -1,5 +1,6 @@
 package com.raaveinm.chirro.ui.components
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,6 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+@SuppressLint("DefaultLocale")
 @Composable
 fun TrackInfoScreen(
     modifier: Modifier,
@@ -21,8 +23,11 @@ fun TrackInfoScreen(
     trackAlbum: String,
     trackDuration: Long,
 ) {
+    val trackDurationMin = ((trackDuration / 1000)/60)
+    val trackDurationSec = ((trackDuration / 1000)%60)
+
     Row (
-        modifier = modifier.padding(16.dp),
+        modifier = modifier.padding(6.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -33,10 +38,12 @@ fun TrackInfoScreen(
             )
             Text(text = "$trackArtist - $trackAlbum")
         }
-        Text(
-            text = "${ ((trackDuration / 1000)/60) } : ${ ((trackDuration / 1000)%60) }",
-            fontSize = 20.sp
-        )
+        if (trackDuration != 0L) {
+            Text(
+                text = "$trackDurationMin : ${String.format("%02d", trackDurationSec)}",
+                fontSize = 20.sp
+            )
+        } else { Text(text = "Duration") }
     }
 }
 

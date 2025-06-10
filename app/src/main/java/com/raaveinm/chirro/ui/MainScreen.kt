@@ -1,7 +1,5 @@
 package com.raaveinm.chirro.ui
 
-
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -15,13 +13,8 @@ import com.raaveinm.chirro.ui.fragments.TrackList
 import com.raaveinm.chirro.ui.navigation.Routes
 
 @Composable
-fun MainScreen (
-) {
-//    Scaffold { innerPadding ->
-//        PlayerScreen(modifier = Modifier.padding(innerPadding))
-//    }
-
-    Scaffold () { innerPadding ->
+fun MainScreen () {
+    Scaffold { innerPadding ->
         val navController: NavHostController = rememberNavController()
         NavHost(navController = navController, startDestination = Routes.Player.route) {
             composable(Routes.Player.route) {

@@ -17,7 +17,7 @@ class AppDataInitializer {
     fun initializeAppData(context: Context) {
         try { databaseManager.databaseManager(context) }
         catch (e: Exception) {
-            Log.e("MainActivity", "Error initializing database", e)
+            Log.e("init", "Error initializing database", e)
         }
     }
 

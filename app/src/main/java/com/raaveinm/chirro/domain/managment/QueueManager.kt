@@ -6,7 +6,6 @@ import androidx.annotation.OptIn
 import androidx.core.net.toUri
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
-import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
 import com.raaveinm.chirro.data.room.DatabaseManager
 import com.raaveinm.chirro.data.room.TrackInfo

@@ -41,35 +41,11 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-    private val requestNotificationPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
-            if (isGranted) {
-                checkAudioPermissionAndInitialize()
-            } else {
-                Toast.makeText(
-                    this,
-                    "Notifications disabled. Playback controls might not appear.",
-                    Toast.LENGTH_LONG).show()
-
-                checkAudioPermissionAndInitialize()
-            }
-        }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        when {
-            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
-                    == PackageManager.PERMISSION_GRANTED -> { checkAudioPermissionAndInitialize() }
-            shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS) -> {
-                requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-            }
-            else -> {
-                requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-            }
-        }
-
+        checkAudioPermissionAndInitialize()
         setContent { ChirroTheme { MainScreen() } }
     }
 
