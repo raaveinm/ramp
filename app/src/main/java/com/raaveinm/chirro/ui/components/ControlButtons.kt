@@ -1,5 +1,6 @@
 package com.raaveinm.chirro.ui.components
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,15 +13,15 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Shuffle
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Slider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ComposeCompilerApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
@@ -35,8 +36,10 @@ fun ControlButtons(
     onSeek: (Float) -> Unit,
     isFavorite: Boolean,
     onFavoriteClick: () -> Unit,
-    onShuffleClick: () -> Unit
+    onShareClick: () -> Unit
 ){
+    val context = LocalContext.current
+
     Column {
         Row(
             modifier = modifier.padding(horizontal = 16.dp).fillMaxWidth(),
@@ -88,12 +91,20 @@ fun ControlButtons(
 
             IconButton(
                 modifier = Modifier.padding(horizontal = 6.dp),
-                onClick = onShuffleClick
+                onClick = {
+                    Toast.makeText(
+                        context,
+                        "Sharing is not currently available",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                    onShareClick
+                }
             ) {
                 Icon(
                     modifier = Modifier.size(64.dp),
-                    imageVector = Icons.Default.Shuffle,
-                    contentDescription = "Random"
+                    imageVector = Icons.Default.Share,
+                    contentDescription = "Share"
                 )
             }
 
@@ -121,6 +132,6 @@ fun ControlButtonsPreview() {
         onSeek = {},
         isFavorite = false,
         onFavoriteClick = {},
-        onShuffleClick = {}
+        onShareClick = {}
     )
 }

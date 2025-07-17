@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.raaveinm.chirro"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.raaveinm.chirro"
@@ -66,20 +66,15 @@ dependencies {
     androidTestImplementation(libs.androidx.rules)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
+    testImplementation (libs.mockk.agent)
+    androidTestImplementation (libs.mockk.android)
     testImplementation (libs.kotlinx.coroutines.test)
+    androidTestImplementation (libs.androidx.arch.core.testing)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     testImplementation (libs.androidx.arch.core.testing)
-    androidTestImplementation (libs.androidx.arch.core.testing)
-    // For MockK
-    testImplementation (libs.mockk.agent)
-    androidTestImplementation (libs.mockk.android)
 
-    implementation (libs.media3.exoplayer)
-    implementation (libs.media3.exoplayer.dash)
-    implementation (libs.media3.ui)
     implementation (libs.androidx.material.icons.extended)
-
     implementation(libs.androidx.media3.exoplayer)
     implementation(libs.androidx.media3.exoplayer.dash)
     implementation(libs.androidx.compose.ui.util)
@@ -87,10 +82,9 @@ dependencies {
     implementation (libs.androidx.media.compat)
     implementation (libs.androidx.media3.common)
     implementation (libs.androidx.media3.session)
-    implementation (libs.media3.session)
 
     implementation(libs.androidx.lifecycle.viewmodel.compose)
-
+    implementation(libs.androidx.navigation.compose)
     implementation (libs.accompanist.permissions.vlatestversion)
 
     implementation(libs.androidx.room.runtime)
@@ -101,9 +95,5 @@ dependencies {
     testImplementation(libs.androidx.room.testing)
     ksp(libs.androidx.room.compiler)
 
-    implementation(libs.androidx.datastore.preferences)
-    implementation(libs.androidx.navigation.compose)
-
     implementation(libs.coil.compose)
-    implementation(libs.coil.network.okhttp)
 }

@@ -34,15 +34,6 @@ class DatabaseManager {
         }
     }
 
-//    suspend fun updateDatabase(context: Context) {
-//        val mediaResolver = MediaResolve(context.contentResolver)
-//        val trackList: List<TrackInfo> = mediaResolver.resolve()
-//        val dao = TrackDatabase.getDatabase(context).trackDao()
-//        for (track in trackList) {
-//            dao.updateTrack(track)
-//        }
-//    }
-
     suspend fun deleteDatabase(context: Context){
         TrackDatabase.getDatabase(context).trackDao().deleteAllTracks()
     }

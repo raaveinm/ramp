@@ -91,9 +91,9 @@ fun PlayerScreen(
 
         TrackInfoScreen(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-            trackTitle = currentTrack?.title ?: "---",
-            trackArtist = currentTrack?.artist ?: "---",
-            trackAlbum = currentTrack?.album ?: "---",
+            trackTitle = currentTrack?.title ?: "Unknown",
+            trackArtist = currentTrack?.artist ?: "Unknown",
+            trackAlbum = currentTrack?.album ?: "Unknown",
             trackDuration = totalDuration
         )
 
@@ -109,7 +109,7 @@ fun PlayerScreen(
             onSeek = { newPositionPercent -> playerViewModel.seekTo(newPositionPercent) },
             isFavorite = isFavorite,
             onFavoriteClick = { playerViewModel.toggleFavorite() },
-            onShuffleClick = { }
+            onShareClick = { }
         )
 
         Spacer(modifier = Modifier.height(48.dp))
