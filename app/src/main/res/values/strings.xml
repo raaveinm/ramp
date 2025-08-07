@@ -1,9 +1,4 @@
 <resources>
     <string name="app_name">chirro</string>
-    <string name="channel_name">Audio Playback</string>
-    <string name="channel_description">Shows notification for audio playback controls</string>
-    <string name="notification_default_title">Unknown Track</string>
-    <string name="notification_default_artist">Unknown Artist</string>
-    <string name="notification_default_album">Unknown Album</string>
-    <string name="permission_request">"this application needs to read media storage and sent notifications for its properly work "</string>
+    <string name="service_description">This is service which is used to handle media playback</string>
 </resources>

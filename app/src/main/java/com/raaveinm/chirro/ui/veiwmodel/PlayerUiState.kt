@@ -1,6 +1,7 @@
 package com.raaveinm.chirro.ui.veiwmodel
 
-import com.raaveinm.chirro.data.room.TrackInfo
+import com.raaveinm.chirro.data.TrackInfo
+
 
 data class PlayerUiState(
     val currentTrack: TrackInfo? = null,

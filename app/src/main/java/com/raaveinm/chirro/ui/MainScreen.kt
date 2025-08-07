@@ -4,24 +4,23 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.raaveinm.chirro.ui.fragments.PlayerScreen
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.compose.*
-import com.raaveinm.chirro.ui.fragments.Settings
-import com.raaveinm.chirro.ui.fragments.TrackList
-import com.raaveinm.chirro.ui.navigation.Routes
+import com.raaveinm.chirro.ui.navigation.PlayerScreen
+import com.raaveinm.chirro.ui.screens.PlayerScreen
 
 @Composable
 fun MainScreen () {
+    val navController: NavHostController = rememberNavController()
     Scaffold { innerPadding ->
-        val navController: NavHostController = rememberNavController()
-        NavHost(navController = navController, startDestination = Routes.Player.route) {
-            composable(Routes.Player.route) {
-                PlayerScreen(modifier = Modifier.padding(innerPadding), navController = navController)
-            }
-            composable(Routes.Playlist.route) { TrackList(modifier = Modifier.padding(innerPadding)) }
-            composable(Routes.Settings.route) { Settings() }
+        NavHost(
+            navController = navController,
+            startDestination = PlayerScreen(navController),
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            composable<PlayerScreen> { PlayerScreen(navController) }
         }
     }
 }

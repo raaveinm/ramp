@@ -2,7 +2,6 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    id("com.google.devtools.ksp")
 }
 
 android {
@@ -32,68 +31,48 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
-    buildFeatures {
-        compose = true
+
+    kotlin {
+        jvmToolchain(11)
     }
 
-    packagingOptions {
-        resources {
-            excludes += "/META-INF/LICENSE.md"
-            excludes += "META-INF/LICENSE-notice.md"
-        }
+    buildFeatures {
+        compose = true
     }
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.fragment.ktx)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
 
+    implementation("androidx.compose.ui:ui-text-google-fonts:1.8.3")
+    implementation("androidx.work:work-gcm:2.10.3")
+    implementation("androidx.navigation:navigation-compose:2.9.3")
+    implementation("androidx.compose.material:material-icons-extended:1.7.8")
+    implementation("androidx.media3:media3-exoplayer:1.7.1")
+    implementation("androidx.media3:media3-ui:1.7.1")
+    implementation("androidx.media3:media3-session:1.7.1")
+    implementation("androidx.media3:media3-common:1.7.1")
+    implementation("androidx.room:room-runtime:2.7.2")
+    implementation("androidx.room:room-rxjava3:2.7.2")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.0")
+    implementation(libs.androidx.media)
+
     testImplementation(libs.junit)
+
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(libs.androidx.runner)
-    androidTestImplementation(libs.androidx.rules)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
-    testImplementation (libs.mockk.agent)
-    androidTestImplementation (libs.mockk.android)
-    testImplementation (libs.kotlinx.coroutines.test)
-    androidTestImplementation (libs.androidx.arch.core.testing)
+
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-    testImplementation (libs.androidx.arch.core.testing)
-
-    implementation (libs.androidx.material.icons.extended)
-    implementation(libs.androidx.media3.exoplayer)
-    implementation(libs.androidx.media3.exoplayer.dash)
-    implementation(libs.androidx.compose.ui.util)
-    implementation(libs.androidx.media3.ui)
-    implementation (libs.androidx.media.compat)
-    implementation (libs.androidx.media3.common)
-    implementation (libs.androidx.media3.session)
-
-    implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation(libs.androidx.navigation.compose)
-    implementation (libs.accompanist.permissions.vlatestversion)
-
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.ktx)
-    implementation(libs.androidx.room.rxjava3)
-    implementation(libs.androidx.room.guava)
-    implementation(libs.androidx.room.paging)
-    testImplementation(libs.androidx.room.testing)
-    ksp(libs.androidx.room.compiler)
-
-    implementation(libs.coil.compose)
 }
