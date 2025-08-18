@@ -65,6 +65,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.0")
     implementation(libs.androidx.media)
+    implementation(libs.androidx.foundation)
 
     testImplementation(libs.junit)
 

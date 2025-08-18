@@ -19,6 +19,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Slider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
@@ -35,7 +39,7 @@ fun PlayerControlButtons(
     onNextClick: () -> Unit,
     onSeek: () -> Unit,
     onShareClick: () -> Unit,
-    currentDuration: Float,
+    currentDuration: Long,
     isFavourite: Boolean,
     onFavoriteClick: () -> Unit
 ) {
@@ -106,7 +110,7 @@ fun PlayerControlButtons(
                     .padding(vertical = dimensionResource(R.dimen.small_padding))
             ) {
                 Icon(
-                    imageVector = if (isFavourite){Icons.Default.Favorite}else{Icons.Default.FavoriteBorder},
+                    imageVector = if (isFavourite){ Icons.Default.Favorite }else{ Icons.Default.FavoriteBorder },
                     contentDescription = "next",
                     modifier = Modifier.fillMaxSize()
                 )
@@ -119,7 +123,7 @@ fun PlayerControlButtons(
             modifier = Modifier
                 .padding(horizontal = dimensionResource(R.dimen.medium_padding))
                 .fillMaxWidth(),
-            value = currentDuration,
+            value = currentDuration.toFloat(),
             onValueChange = { onSeek() },
             valueRange = 0f..100f
         )
@@ -130,17 +134,19 @@ fun PlayerControlButtons(
 @Composable
 fun ControlsPreview() {
     ChirroTheme {
+        var isPlaying: Boolean by remember {mutableStateOf(false) }
+        var isFavourite: Boolean by remember { mutableStateOf(false) }
         PlayerControlButtons(
             modifier = Modifier.fillMaxSize(),
-            isPlaying = true,
-            onPlayPauseClick = {},
+            isPlaying = isPlaying,
+            onPlayPauseClick = { isPlaying = !isPlaying },
             onPreviousClick = {},
             onNextClick = {},
             onSeek = {},
             onShareClick = {},
-            currentDuration = 0f,
-            isFavourite = true,
-            onFavoriteClick = {}
+            currentDuration = 0L,
+            isFavourite = isFavourite,
+            onFavoriteClick = { isFavourite = !isFavourite }
         )
     }
 }

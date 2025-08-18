@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
+
 class PlayerViewModel(
     application: Application,
     private val trackRepository: TrackRepository
@@ -37,7 +38,7 @@ class PlayerViewModel(
         viewModelScope.launch {
             while (true) {
                 updateProgress()
-                delay(500) // Update progress every 500ms
+                delay(500)
             }
         }
     }
@@ -97,10 +98,12 @@ class PlayerViewModel(
 
     fun pause() {
         mediaController?.pause()
+        uiState.value.isPlaying = false
     }
 
     fun resume() {
         mediaController?.play()
+        uiState.value.isPlaying = true
     }
 
     fun skipNext() {
@@ -126,17 +129,10 @@ class PlayerViewModel(
     }
 
     override fun onCleared() {
-        mediaController?.removeListener(playerListener)
-        MediaController.releaseFuture(mediaController?.let {
-            MediaController.Builder(getApplication(),
-                SessionToken(getApplication(),
-                    ComponentName(
-                        getApplication(),
-                        PlaybackService::class.java
-                    ))
-            ).buildAsync()
-        }!!)
         super.onCleared()
+        mediaController?.removeListener(playerListener)
+        mediaController?.release()
+        mediaController = null
     }
 
     private fun MediaItem.toTrackInfo(): TrackInfo? {

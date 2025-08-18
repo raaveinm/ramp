@@ -9,7 +9,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.raaveinm.chirro.ui.navigation.PlayerScreen
+import com.raaveinm.chirro.ui.navigation.PlaylistScreen
+import com.raaveinm.chirro.ui.navigation.SettingsScreen
 import com.raaveinm.chirro.ui.screens.PlayerScreen
+import com.raaveinm.chirro.ui.screens.SettingsScreen
 
 @Composable
 fun MainScreen () {
@@ -20,7 +23,24 @@ fun MainScreen () {
             startDestination = PlayerScreen(navController),
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable<PlayerScreen> { PlayerScreen(navController) }
+            composable<PlayerScreen> {
+                PlayerScreen(
+                    modifier = Modifier.padding(innerPadding),
+                    navController = navController
+                )
+            }
+            composable<SettingsScreen> {
+                SettingsScreen(
+                    modifier = Modifier.padding(innerPadding),
+                    navController = navController
+                )
+            }
+            composable<PlaylistScreen> {
+                PlayerScreen(
+                    modifier = Modifier.padding(innerPadding),
+                    navController = navController
+                )
+            }
         }
     }
 }
