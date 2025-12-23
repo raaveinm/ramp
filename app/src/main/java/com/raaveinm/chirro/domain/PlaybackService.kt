@@ -12,8 +12,8 @@ import com.google.common.collect.ImmutableList
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import com.raaveinm.chirro.ChirroApplication
-import com.raaveinm.chirro.data.TrackInfo
-import com.raaveinm.chirro.data.TrackRepository
+import com.raaveinm.chirro.data.database.TrackInfo
+import com.raaveinm.chirro.data.repository.TrackRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob

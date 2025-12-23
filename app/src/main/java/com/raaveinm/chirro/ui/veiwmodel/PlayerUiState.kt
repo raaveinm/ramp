@@ -1,6 +1,6 @@
 package com.raaveinm.chirro.ui.veiwmodel
 
-import com.raaveinm.chirro.data.TrackInfo
+import com.raaveinm.chirro.data.database.TrackInfo
 
 
 data class PlayerUiState(

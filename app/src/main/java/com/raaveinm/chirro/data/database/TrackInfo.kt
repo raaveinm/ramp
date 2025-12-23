@@ -1,4 +1,4 @@
-package com.raaveinm.chirro.data
+package com.raaveinm.chirro.data.database
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
@@ -13,5 +13,4 @@ data class TrackInfo(
     @ColumnInfo val duration: Long,
     @ColumnInfo val uri: String,
     @ColumnInfo val cover: String = "none",
-    @ColumnInfo val isFavourite: Boolean = false
 )

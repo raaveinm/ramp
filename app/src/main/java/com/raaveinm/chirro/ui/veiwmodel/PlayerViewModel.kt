@@ -8,8 +8,8 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
-import com.raaveinm.chirro.data.TrackInfo
-import com.raaveinm.chirro.data.TrackRepository
+import com.raaveinm.chirro.data.database.TrackInfo
+import com.raaveinm.chirro.data.repository.TrackRepository
 import com.raaveinm.chirro.domain.PlaybackService
 import com.raaveinm.chirro.domain.toMediaItem
 import kotlinx.coroutines.delay
@@ -89,7 +89,7 @@ class PlayerViewModel(
             val startIndex = allMediaItems.indexOfFirst { it.mediaId == trackMediaItem.mediaId }
 
             if (startIndex != -1) {
-                controller.setMediaItems(allMediaItems, startIndex, 0)
+                controller.seekTo(startIndex, 0)
                 controller.prepare()
                 controller.play()
             }

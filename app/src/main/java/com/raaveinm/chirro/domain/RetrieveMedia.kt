@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.content.ContentResolver
 import android.net.Uri
 import android.provider.MediaStore
-import com.raaveinm.chirro.data.TrackInfo
+import com.raaveinm.chirro.data.database.TrackInfo
 
 class RetrieveMedia(private val contentResolver: ContentResolver) {
     var mediaList: List<TrackInfo> = emptyList()

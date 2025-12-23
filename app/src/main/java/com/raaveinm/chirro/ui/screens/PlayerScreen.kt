@@ -26,7 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.raaveinm.chirro.R
-import com.raaveinm.chirro.data.TrackInfo
+import com.raaveinm.chirro.data.database.TrackInfo
 import com.raaveinm.chirro.ui.layouts.PlayerControlButtons
 import com.raaveinm.chirro.ui.layouts.TrackInfoLayout
 import com.raaveinm.chirro.ui.navigation.SettingsScreen

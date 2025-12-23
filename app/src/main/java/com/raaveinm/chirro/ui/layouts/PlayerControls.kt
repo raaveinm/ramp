@@ -137,7 +137,7 @@ fun ControlsPreview() {
         var isPlaying: Boolean by remember {mutableStateOf(false) }
         var isFavourite: Boolean by remember { mutableStateOf(false) }
         PlayerControlButtons(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier,
             isPlaying = isPlaying,
             onPlayPauseClick = { isPlaying = !isPlaying },
             onPreviousClick = {},

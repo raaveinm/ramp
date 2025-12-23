@@ -41,6 +41,7 @@ android {
     }
 }
 
+//noinspection UseTomlInstead
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -51,19 +52,19 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
 
-    implementation("androidx.compose.ui:ui-text-google-fonts:1.8.3")
-    implementation("androidx.work:work-gcm:2.10.3")
-    implementation("androidx.navigation:navigation-compose:2.9.3")
+    implementation("androidx.compose.ui:ui-text-google-fonts:1.10.0")
+    implementation("androidx.work:work-gcm:2.11.0")
+    implementation("androidx.navigation:navigation-compose:2.9.6")
     implementation("androidx.compose.material:material-icons-extended:1.7.8")
-    implementation("androidx.media3:media3-exoplayer:1.7.1")
-    implementation("androidx.media3:media3-ui:1.7.1")
-    implementation("androidx.media3:media3-session:1.7.1")
-    implementation("androidx.media3:media3-common:1.7.1")
-    implementation("androidx.room:room-runtime:2.7.2")
-    implementation("androidx.room:room-rxjava3:2.7.2")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.0")
+    implementation("androidx.media3:media3-exoplayer:1.9.0")
+    implementation("androidx.media3:media3-ui:1.9.0")
+    implementation("androidx.media3:media3-session:1.9.0")
+    implementation("androidx.media3:media3-common:1.9.0")
+    implementation("androidx.room:room-runtime:2.8.4")
+    implementation("androidx.room:room-rxjava3:2.8.4")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.10.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.10.0")
     implementation(libs.androidx.media)
     implementation(libs.androidx.foundation)
 
