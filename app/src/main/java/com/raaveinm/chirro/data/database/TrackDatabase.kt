@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [TrackInfo::class], version = 1, exportSchema = false)
+@Database(entities = [FavTrackInfo::class], version = 1, exportSchema = false)
 internal abstract class TrackDatabase: RoomDatabase() {
     abstract fun trackDao(): TrackDao
     companion object{

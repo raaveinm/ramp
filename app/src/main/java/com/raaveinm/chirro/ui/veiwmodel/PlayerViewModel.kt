@@ -16,6 +16,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 
@@ -28,9 +29,18 @@ class PlayerViewModel(
     val uiState = _uiState.asStateFlow()
 
     private val _allTracks = MutableStateFlow<List<TrackInfo>>(emptyList())
-    val allTracks = _allTracks.asStateFlow()
-
+    val allTracks = trackRepository.getAllTracks()
+        .stateIn(
+            scope = viewModelScope,
+            started = kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(10000),
+            initialValue = emptyList()
+        )
     private var mediaController: MediaController? = null
+    fun onFavoriteClicked(track: TrackInfo) {
+        viewModelScope.launch {
+            trackRepository.toggleFavorite(track)
+        }
+    }
 
     init {
         initializeController()

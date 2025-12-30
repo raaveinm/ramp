@@ -1,16 +1,12 @@
 package com.raaveinm.chirro.data.database
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-
-@Entity
 data class TrackInfo(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    @ColumnInfo val title: String,
-    @ColumnInfo val artist: String,
-    @ColumnInfo val album: String,
-    @ColumnInfo val duration: Long,
-    @ColumnInfo val uri: String,
-    @ColumnInfo val cover: String = "none",
+    val id: Int,
+    val title: String,
+    val artist: String,
+    val album: String,
+    val duration: Long,
+    val uri: String,
+    val cover: String = "none",
+    val isFavourite: Boolean = false
 )

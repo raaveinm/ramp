@@ -5,14 +5,12 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TrackDao {
-    @Insert (onConflict = OnConflictStrategy.IGNORE) suspend fun insertTrack(track: TrackInfo)
-    @Update suspend fun updateTrack(track: TrackInfo)
-    @Delete suspend fun deleteTrack(track: TrackInfo)
-    @Query("select * from TrackInfo where id = :id") suspend fun getTrackById(id: Int): TrackInfo
-    @Query ("select * from TrackInfo") fun getAllTracks(): Flow<List<TrackInfo>>
+    @Insert (onConflict = OnConflictStrategy.IGNORE) suspend fun insertTrack(track: FavTrackInfo)
+    @Delete suspend fun deleteTrack(track: FavTrackInfo)
+    @Query("SELECT id FROM FavTrackInfo") fun getFavoriteIds(): Flow<List<Long>>
+    @Query("SELECT EXISTS(SELECT * FROM FavTrackInfo WHERE id = :id)") suspend fun isTrackFavorite(id: Int): Boolean
 }

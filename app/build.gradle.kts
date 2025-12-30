@@ -67,6 +67,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.10.0")
     implementation(libs.androidx.media)
     implementation(libs.androidx.foundation)
+    implementation(libs.androidx.room.ktx)
 
     testImplementation(libs.junit)
 
