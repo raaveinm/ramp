@@ -2,10 +2,12 @@ package com.raaveinm.chirro.ui.veiwmodel
 
 import android.app.Application
 import android.content.ComponentName
+import androidx.annotation.OptIn
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.raaveinm.chirro.data.database.TrackInfo
@@ -53,6 +55,7 @@ class PlayerViewModel(
         }
     }
 
+    @OptIn(UnstableApi::class)
     private fun initializeController() {
         val sessionToken = SessionToken(
             getApplication(),
