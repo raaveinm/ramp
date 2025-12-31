@@ -96,13 +96,12 @@ class PlayerViewModel(
 
     fun playTrack(track: TrackInfo) {
         mediaController?.let { controller ->
-            val trackMediaItem = track.toMediaItem()
-
             val allMediaItems = _allTracks.value.map { it.toMediaItem() }
-            val startIndex = allMediaItems.indexOfFirst { it.mediaId == trackMediaItem.mediaId }
+            val startIndex = allMediaItems.indexOfFirst { it.mediaId == track.id.toString() }
 
             if (startIndex != -1) {
-                controller.seekTo(startIndex, 0)
+                controller.setMediaItems(allMediaItems, startIndex, 0L)
+
                 controller.prepare()
                 controller.play()
             }
@@ -119,13 +118,9 @@ class PlayerViewModel(
         uiState.value.isPlaying = true
     }
 
-    fun skipNext() {
-        mediaController?.seekToNextMediaItem()
-    }
-
-    fun skipPrevious() {
-        mediaController?.seekToPreviousMediaItem()
-    }
+    fun skipNext() = this.mediaController?.seekToNextMediaItem()
+    fun skipPrevious() = this.mediaController?.seekToPreviousMediaItem()
+    fun seekTo(position: Long) = this.mediaController?.seekTo(position)
 
     private fun updatePlayerState() {
         _uiState.value = _uiState.value.copy(
@@ -150,6 +145,6 @@ class PlayerViewModel(
 
     private fun MediaItem.toTrackInfo(): TrackInfo? {
         val trackId = this.mediaId.toIntOrNull() ?: return null
-        return _allTracks.value.find { it.id == trackId }
+        return _allTracks.value.find { it.id == trackId.toLong() }
     }
 }

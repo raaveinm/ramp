@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -43,39 +45,49 @@ android {
 
 //noinspection UseTomlInstead
 dependencies {
+    // --- Core & Compose UI ---
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-
+    implementation(libs.androidx.foundation)
     implementation("androidx.compose.ui:ui-text-google-fonts:1.10.0")
-    implementation("androidx.work:work-gcm:2.11.0")
-    implementation("androidx.navigation:navigation-compose:2.9.6")
     implementation("androidx.compose.material:material-icons-extended:1.7.8")
+
+    // --- Lifecycle & Navigation ---
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.10.0")
+    implementation("androidx.navigation:navigation-compose:2.9.6")
+
+    // --- Data & Storage (Room) ---
+    implementation(libs.androidx.room.ktx)
+    implementation("androidx.room:room-runtime:2.8.4")
+    implementation("androidx.room:room-rxjava3:2.8.4")
+    ksp(libs.androidx.room.compiler)
+
+    // --- Media & Images ---
+    implementation(libs.androidx.media)
     implementation("androidx.media3:media3-exoplayer:1.9.0")
     implementation("androidx.media3:media3-ui:1.9.0")
     implementation("androidx.media3:media3-session:1.9.0")
     implementation("androidx.media3:media3-common:1.9.0")
-    implementation("androidx.room:room-runtime:2.8.4")
-    implementation("androidx.room:room-rxjava3:2.8.4")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.10.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.10.0")
-    implementation(libs.androidx.media)
-    implementation(libs.androidx.foundation)
-    implementation(libs.androidx.room.ktx)
+    implementation("io.coil-kt:coil-compose:2.5.0")
 
+    // --- Background Tasks ---
+    implementation("androidx.work:work-gcm:2.11.0")
+
+    // --- Testing ---
     testImplementation(libs.junit)
-
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
 
+    // --- Debug ---
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }

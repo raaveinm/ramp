@@ -8,35 +8,43 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.raaveinm.chirro.ui.navigation.PlayerScreen
-import com.raaveinm.chirro.ui.navigation.PlaylistScreen
-import com.raaveinm.chirro.ui.navigation.SettingsScreen
+import com.raaveinm.chirro.ui.layouts.TopBar
+import com.raaveinm.chirro.ui.navigation.NavData
 import com.raaveinm.chirro.ui.screens.PlayerScreen
 import com.raaveinm.chirro.ui.screens.SettingsScreen
+import com.raaveinm.chirro.ui.screens.PlaylistScreen
 
 @Composable
-fun MainScreen () {
+fun MainScreen (modifier: Modifier) {
     val navController: NavHostController = rememberNavController()
-    Scaffold { innerPadding ->
+    Scaffold(
+        modifier = modifier,
+        topBar = {
+            TopBar(
+                modifier = Modifier,
+                navController = navController
+            )
+        }
+    ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = PlayerScreen(navController),
+            startDestination = NavData.PlayerScreen,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable<PlayerScreen> {
+            composable<NavData.PlayerScreen> {
                 PlayerScreen(
                     modifier = Modifier.padding(innerPadding),
                     navController = navController
                 )
             }
-            composable<SettingsScreen> {
+            composable<NavData.SettingsScreen> {
                 SettingsScreen(
                     modifier = Modifier.padding(innerPadding),
                     navController = navController
                 )
             }
-            composable<PlaylistScreen> {
-                PlayerScreen(
+            composable<NavData.PlaylistScreen> {
+                PlaylistScreen(
                     modifier = Modifier.padding(innerPadding),
                     navController = navController
                 )

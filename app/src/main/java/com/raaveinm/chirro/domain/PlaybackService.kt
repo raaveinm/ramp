@@ -2,7 +2,6 @@ package com.raaveinm.chirro.domain
 
 import android.app.PendingIntent
 import android.content.Intent
-import androidx.core.net.toUri
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
@@ -24,8 +23,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.concurrent.Callable
-
-private const val ROOT_ID = "chirro_root_id"
 
 @UnstableApi
 class PlaybackService : MediaLibraryService() {
@@ -66,9 +63,8 @@ class PlaybackService : MediaLibraryService() {
         )
     }
 
-    override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaLibrarySession {
-        return session
-    }
+    override fun onGetSession(controllerInfo: MediaSession.ControllerInfo)
+    : MediaLibrarySession { return session }
 
     override fun onDestroy() {
         session.release()
@@ -135,19 +131,6 @@ class PlaybackService : MediaLibraryService() {
             } catch (_: Exception) {
                 LibraryResult.ofError(SessionError.ERROR_UNKNOWN)
             }
-        }
-
-        override fun onAddMediaItems(
-            mediaSession: MediaSession,
-            controller: MediaSession.ControllerInfo,
-            mediaItems: MutableList<MediaItem>
-        ): ListenableFuture<MutableList<MediaItem>> {
-            val updatedMediaItems = mediaItems.map { mediaItem ->
-                mediaItem.buildUpon()
-                    .setUri(mediaItem.requestMetadata.mediaUri ?: mediaItem.mediaId.toUri())
-                    .build()
-            }.toMutableList()
-            return Futures.immediateFuture(updatedMediaItems)
         }
     }
 }

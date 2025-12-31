@@ -1,5 +1,6 @@
 package com.raaveinm.chirro.ui.layouts
 
+import android.health.connect.datatypes.units.Length
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -37,11 +38,12 @@ fun PlayerControlButtons(
     onPlayPauseClick: () -> Unit,
     onPreviousClick: () -> Unit,
     onNextClick: () -> Unit,
-    onSeek: () -> Unit,
+    onSeek: (Float) -> Unit,
     onShareClick: () -> Unit,
     currentDuration: Long,
     isFavourite: Boolean,
-    onFavoriteClick: () -> Unit
+    onFavoriteClick: () -> Unit,
+    trackLength: Long
 ) {
     Column(
         modifier = modifier.padding(dimensionResource(R.dimen.medium_padding)),
@@ -110,7 +112,9 @@ fun PlayerControlButtons(
                     .padding(vertical = dimensionResource(R.dimen.small_padding))
             ) {
                 Icon(
-                    imageVector = if (isFavourite){ Icons.Default.Favorite }else{ Icons.Default.FavoriteBorder },
+                    imageVector =
+                        if (isFavourite) Icons.Default.Favorite
+                    else Icons.Default.FavoriteBorder ,
                     contentDescription = "next",
                     modifier = Modifier.fillMaxSize()
                 )
@@ -124,8 +128,8 @@ fun PlayerControlButtons(
                 .padding(horizontal = dimensionResource(R.dimen.medium_padding))
                 .fillMaxWidth(),
             value = currentDuration.toFloat(),
-            onValueChange = { onSeek() },
-            valueRange = 0f..100f
+            onValueChange = { newValue -> onSeek(newValue) },
+            valueRange = 0f..trackLength.toFloat().coerceAtLeast(1f)
         )
     }
 }
@@ -146,7 +150,8 @@ fun ControlsPreview() {
             onShareClick = {},
             currentDuration = 0L,
             isFavourite = isFavourite,
-            onFavoriteClick = { isFavourite = !isFavourite }
+            onFavoriteClick = { isFavourite = !isFavourite },
+            trackLength = 2000L
         )
     }
 }

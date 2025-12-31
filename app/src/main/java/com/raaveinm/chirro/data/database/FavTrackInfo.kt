@@ -6,6 +6,6 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class FavTrackInfo(
-    @PrimaryKey(autoGenerate = false) val id: Int,
+    @PrimaryKey(autoGenerate = false) val id: Long,
     @ColumnInfo val uri: String,
 )
