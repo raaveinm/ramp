@@ -2,12 +2,12 @@
 /.idea
 /.gradle
 /.kotlin
+/build
 .gradle
 
 # Properties
 /local.properties
 /captures
-/build
 
 # Files
 *.apk

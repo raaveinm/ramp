@@ -12,8 +12,8 @@ android {
 
     defaultConfig {
         applicationId = "com.raaveinm.chirro"
-        minSdk = 33
-        targetSdk = 35
+        minSdk = 28
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 

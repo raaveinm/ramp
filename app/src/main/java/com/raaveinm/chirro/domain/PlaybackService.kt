@@ -14,7 +14,7 @@ import androidx.media3.session.SessionError
 import com.google.common.collect.ImmutableList
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
-import com.raaveinm.chirro.ChirroApplication
+import com.raaveinm.chirro.data.ChirroApplication
 import com.raaveinm.chirro.MainActivity
 import com.raaveinm.chirro.data.repository.TrackRepository
 import kotlinx.coroutines.CoroutineScope

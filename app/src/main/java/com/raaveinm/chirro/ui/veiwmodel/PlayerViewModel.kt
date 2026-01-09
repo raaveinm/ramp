@@ -1,7 +1,10 @@
 package com.raaveinm.chirro.ui.veiwmodel
 
+import android.app.Activity
 import android.app.Application
 import android.content.ComponentName
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.IntentSenderRequest
 import androidx.annotation.OptIn
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -29,7 +32,7 @@ class PlayerViewModel(
 
     private val _uiState = MutableStateFlow(PlayerUiState())
     val uiState = _uiState.asStateFlow()
-
+    val isPlaying: Boolean get() = _uiState.value.isPlaying
     private val _allTracks = MutableStateFlow<List<TrackInfo>>(emptyList())
     val allTracks = trackRepository.getAllTracks()
         .stateIn(
@@ -47,10 +50,11 @@ class PlayerViewModel(
     init {
         initializeController()
         observeAllTracks()
+
         viewModelScope.launch {
             while (true) {
-                updateProgress()
-                delay(500)
+                if (isPlaying) updateProgress()
+                delay(100)
             }
         }
     }
@@ -146,5 +150,9 @@ class PlayerViewModel(
     private fun MediaItem.toTrackInfo(): TrackInfo? {
         val trackId = this.mediaId.toIntOrNull() ?: return null
         return _allTracks.value.find { it.id == trackId.toLong() }
+    }
+
+    fun deleteTrack(track: TrackInfo, activity: Activity, launcher: ActivityResultLauncher<IntentSenderRequest>) {
+        trackRepository.deleteTrack(track.id, activity, launcher)
     }
 }

@@ -1,8 +1,6 @@
-package com.raaveinm.chirro
+package com.raaveinm.chirro.data
 
 import android.app.Application
-import com.raaveinm.chirro.data.AppContainer
-import com.raaveinm.chirro.data.DefaultAppContainer
 
 class ChirroApplication : Application() {
     lateinit var container: AppContainer
