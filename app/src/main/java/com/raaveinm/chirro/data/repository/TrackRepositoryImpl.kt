@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.RecoverableSecurityException
 import android.content.ContentUris
 import android.content.Context
+import android.content.IntentSender
 import android.database.ContentObserver
 import android.net.Uri
 import android.os.Build
@@ -12,6 +13,8 @@ import android.os.Looper
 import android.provider.MediaStore
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
+import androidx.annotation.RequiresApi
+import androidx.core.net.toUri
 import com.raaveinm.chirro.data.database.TrackDao
 import com.raaveinm.chirro.data.database.TrackInfo
 import kotlinx.coroutines.Dispatchers
@@ -96,7 +99,7 @@ class TrackRepositoryImpl(
                     ).toString()
 
                     val coverUri = ContentUris.withAppendedId(
-                        Uri.parse("content://media/external/audio/albumart"),
+                        "content://media/external/audio/albumart".toUri(),
                         albumId
                     ).toString()
 
@@ -194,25 +197,34 @@ class TrackRepositoryImpl(
         return null
     }
 
-    override fun deleteTrack(trackId: Long, activity: Activity, launcher: ActivityResultLauncher<IntentSenderRequest>) {
+    override fun deleteTrack(
+        trackId: Long,
+        activity: Activity,
+        launcher: ActivityResultLauncher<IntentSenderRequest>
+    ) : Boolean {
         val uri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, trackId)
+        val context = activity.applicationContext
 
-        try {
-            context.contentResolver.delete(uri, null, null)
-        } catch (e: SecurityException) {
-            val intentSender = when {
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
-                    MediaStore.createDeleteRequest(context.contentResolver, listOf(uri)).intentSender
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val deleteRequest = MediaStore.createDeleteRequest(context.contentResolver, listOf(uri))
+            launcher.launch(IntentSenderRequest.Builder(deleteRequest).build())
+            return false
+        } else {
+            try {
+                val rows = context.contentResolver.delete(uri, null, null)
+                return rows > 0
+            } catch (e: SecurityException) {
+                val intentSender = when {
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
+                        (e as? RecoverableSecurityException)?.userAction?.actionIntent?.intentSender
+                    }
+                    else -> null
                 }
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
-                    val recoverableSecurityException = e as? RecoverableSecurityException
-                    recoverableSecurityException?.userAction?.actionIntent?.intentSender
-                }
-                else -> null
-            }
 
-            intentSender?.let { sender ->
-                launcher.launch(IntentSenderRequest.Builder(sender).build())
+                intentSender?.let { sender ->
+                    launcher.launch(IntentSenderRequest.Builder(sender).build())
+                }
+                return false
             }
         }
     }

@@ -1,7 +1,7 @@
 # Folders
-/.idea
-/.gradle
-/.kotlin
+/.idea/
+/.gradle/
+/.kotlin/
 /build
 .gradle
 

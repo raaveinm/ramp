@@ -45,7 +45,7 @@ fun PlaylistScreen(
     val activity = context as Activity
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartIntentSenderForResult()
-    ) { _ -> }
+    ) { }
 
     LazyColumn(modifier = modifier) {
         items(
@@ -54,14 +54,14 @@ fun PlaylistScreen(
         ) { track ->
             val dismissState = rememberSwipeToDismissBoxState(
                 confirmValueChange = { dismissValue ->
-                    when(dismissValue) {
+                    when (dismissValue) {
                         SwipeToDismissBoxValue.EndToStart -> {
-                            viewModel.deleteTrack(
+                            val isDeletedImmediately = viewModel.deleteTrack(
                                 track = track,
                                 activity = activity,
                                 launcher = launcher
                             )
-                            true
+                            isDeletedImmediately
                         }
                         else -> false
                     }

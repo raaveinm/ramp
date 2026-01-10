@@ -152,7 +152,20 @@ class PlayerViewModel(
         return _allTracks.value.find { it.id == trackId.toLong() }
     }
 
-    fun deleteTrack(track: TrackInfo, activity: Activity, launcher: ActivityResultLauncher<IntentSenderRequest>) {
-        trackRepository.deleteTrack(track.id, activity, launcher)
+    fun deleteTrack(
+        track: TrackInfo,
+        activity: Activity,
+        launcher: ActivityResultLauncher<IntentSenderRequest>
+    ): Boolean {
+        mediaController?.let { controller ->
+            val trackList = track.id.toString()
+            for (index in 0 until controller.mediaItemCount) {
+                if (controller.getMediaItemAt(index).mediaId == trackList) {
+                    controller.removeMediaItem(index)
+                    break
+                }
+            }
+        }
+        return trackRepository.deleteTrack(track.id, activity, launcher)
     }
 }
