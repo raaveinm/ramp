@@ -1,7 +1,9 @@
 package com.raaveinm.chirro.ui.layouts
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,14 +20,18 @@ import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
@@ -44,9 +50,13 @@ fun TrackInfoLayout(
     modifier: Modifier = Modifier,
     trackInfo: TrackInfo,
     pictureRequired: Boolean = true,
-    containerColor: Color? = null
+    containerColor: Color? = null,
+    onClick: () -> Unit,
+    onSwipeRTL: () -> Unit = {},
+    onSwipeLTR: () -> Unit = {}
 ) {
     if (pictureRequired) {
+        var offsetX by remember { mutableFloatStateOf(0f) }
         Column(
             modifier = modifier
                 .fillMaxWidth()
@@ -60,7 +70,22 @@ fun TrackInfoLayout(
             Card(
                 modifier = Modifier
                     .size(300.dp)
-                    .shadow(12.dp, RoundedCornerShape(16.dp)),
+                    .shadow(12.dp, RoundedCornerShape(16.dp))
+                    .pointerInput(Unit) {
+                        detectHorizontalDragGestures(
+                            onDragEnd = {
+                                when {
+                                    offsetX > 100 -> onSwipeLTR()
+                                    offsetX < -100 -> onSwipeRTL()
+                                }
+                                offsetX = 0f
+                            }
+                        ) {
+                            change, dragAmount ->
+                            offsetX += dragAmount
+                            change.consume()
+                        }
+                    },
                 shape = RoundedCornerShape(16.dp),
                 elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
             ) {
@@ -95,116 +120,101 @@ fun TrackInfoLayout(
             ///////////////////////////////////////////////
             // Track Info Card
             ///////////////////////////////////////////////
-            Card(
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(),
+            TextInfo(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = dimensionResource(R.dimen.large_padding))
                     .padding(horizontal = dimensionResource(R.dimen.small_padding))
-            ) {
-                Row(
-                    modifier = Modifier
-                        .padding(horizontal = dimensionResource(R.dimen.medium_padding))
-                        .padding(vertical = dimensionResource(R.dimen.small_padding))
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = trackInfo.title,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer,
-                            style = MaterialTheme.typography.bodyLarge,
-                            textAlign = TextAlign.Start,
-                            softWrap = true,
-                            overflow = TextOverflow.Ellipsis,
-                            maxLines = 1,
-                        )
-
-                        Text(
-                            text = "${trackInfo.artist} - ${trackInfo.album}",
-                            color = MaterialTheme.colorScheme.onPrimaryContainer,
-                            style = MaterialTheme.typography.labelSmall,
-                            textAlign = TextAlign.Start,
-                            softWrap = true,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-
-                    Text(
-                        text = formatDuration(trackInfo.duration),
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        style = MaterialTheme.typography.labelSmall,
-                        textAlign = TextAlign.End,
-                        modifier = Modifier.padding(start = 8.dp)
-                    )
-                }
-            }
+                    .padding(top = dimensionResource(R.dimen.large_size)),
+                trackInfo = trackInfo,
+                containerColor = containerColor,
+                onClick = onClick
+            )
         }
     } else {
         ///////////////////////////////////////////////
         // Track Info Without Picture
         ///////////////////////////////////////////////
-        Card(
+        TextInfo(
             modifier = modifier,
-            colors = if (containerColor != null) {
-                CardDefaults.cardColors(containerColor = containerColor)
-            } else {
-                CardDefaults.cardColors()
-            }
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = dimensionResource(R.dimen.medium_padding))
-                    .padding(vertical = dimensionResource(R.dimen.small_padding)),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = trackInfo.title,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer, // Ensure text is visible on Red
-                        style = MaterialTheme.typography.bodyLarge,
-                        textAlign = TextAlign.Start,
-                        softWrap = true,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 1,
-                    )
+            trackInfo = trackInfo,
+            containerColor = containerColor,
+            onClick = onClick
+        )
+    }
+}
 
-                    Text(
-                        text = "${trackInfo.artist} - ${trackInfo.album}",
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        style = MaterialTheme.typography.labelSmall,
-                        textAlign = TextAlign.Start,
-                        softWrap = true,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
+///////////////////////////////////////////////
+// Track Info
+///////////////////////////////////////////////
+@Composable
+private fun TextInfo(
+    modifier: Modifier = Modifier,
+    trackInfo: TrackInfo,
+    containerColor: Color? = null,
+    onClick: () -> Unit
+){
+    Card(
+        modifier = modifier,
+        colors = if (containerColor != null) {
+            CardDefaults.cardColors(containerColor = containerColor)
+        } else {
+            CardDefaults.cardColors()
+        },
+        onClick = onClick
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = dimensionResource(R.dimen.medium_padding))
+                .padding(vertical = dimensionResource(R.dimen.small_padding)),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = trackInfo.title,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    style = MaterialTheme.typography.bodyLarge,
+                    textAlign = TextAlign.Start,
+                    softWrap = true,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                )
 
                 Text(
-                    text = formatDuration(trackInfo.duration),
+                    text = "${trackInfo.artist} - ${trackInfo.album}",
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                     style = MaterialTheme.typography.labelSmall,
-                    textAlign = TextAlign.End,
-                    modifier = Modifier.padding(start = 8.dp)
+                    textAlign = TextAlign.Start,
+                    softWrap = true,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
+
+            Text(
+                text = formatDuration(trackInfo.duration),
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                style = MaterialTheme.typography.labelSmall,
+                textAlign = TextAlign.End,
+                modifier = Modifier.padding(start = 8.dp)
+            )
         }
     }
 }
 
+@SuppressLint("DefaultLocale")
 fun formatDuration(durationMs: Long): String {
     val minutes = TimeUnit.MILLISECONDS.toMinutes(durationMs)
     val seconds = TimeUnit.MILLISECONDS.toSeconds(durationMs) % 60
     return String.format("%02d:%02d", minutes, seconds)
 }
 
+///////////////////////////////////////////////
+// Preview
+///////////////////////////////////////////////
 @Preview
 @Composable
 fun TrackInfoLayoutPreview() {
@@ -217,8 +227,9 @@ fun TrackInfoLayoutPreview() {
             album = "Album",
             uri = "Uri",
             cover = "Cover",
-            duration = 100000
+            duration = 100000,
         ),
+        onClick = {}
     )
 }
 
@@ -236,6 +247,7 @@ fun TrackInfoLayoutOnlyText() {
             cover = "Cover",
             duration = 100000,
         ),
-        false
+        false,
+        onClick = {}
     )
 }

@@ -33,7 +33,11 @@ fun TopBar(
     ) {
         IconButton(
             modifier = Modifier.padding(horizontal = dimensionResource(medium_padding)),
-            onClick = { navController.navigate(NavData.SettingsScreen) }
+            onClick = {
+                navController.navigate(NavData.SettingsScreen) {
+                    popUpTo(NavData.PlayerScreen) { this.inclusive = false }
+                }
+            }
         ) {
             Icon(
                 imageVector = Icons.Default.Settings,
@@ -45,7 +49,11 @@ fun TopBar(
 
         IconButton(
             modifier = Modifier.padding(horizontal = dimensionResource(medium_padding)),
-            onClick = { navController.navigate(NavData.PlaylistScreen) }
+            onClick = {
+                navController.navigate(NavData.PlaylistScreen) {
+                    popUpTo(NavData.PlayerScreen) { this.inclusive = false }
+                }
+            }
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.QueueMusic,

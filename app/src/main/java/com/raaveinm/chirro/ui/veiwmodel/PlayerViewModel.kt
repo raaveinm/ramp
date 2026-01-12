@@ -20,7 +20,6 @@ import com.raaveinm.chirro.domain.toMediaItem
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -78,11 +77,15 @@ class PlayerViewModel(
 
     private fun observeAllTracks() {
         viewModelScope.launch {
-            trackRepository.getAllTracks().collectLatest { tracks ->
+            trackRepository.getAllTracks().collect { tracks ->
                 _allTracks.value = tracks
+                if (tracks.isNotEmpty()) {
+                    updatePlayerState()
+                }
             }
         }
     }
+
 
     private val playerListener = object : Player.Listener {
         override fun onEvents(player: Player, events: Player.Events) {
@@ -114,17 +117,20 @@ class PlayerViewModel(
 
     fun pause() {
         mediaController?.pause()
-        uiState.value.isPlaying = false
+        updatePlayerState()
     }
 
     fun resume() {
         mediaController?.play()
-        uiState.value.isPlaying = true
+        updatePlayerState()
     }
 
     fun skipNext() = this.mediaController?.seekToNextMediaItem()
     fun skipPrevious() = this.mediaController?.seekToPreviousMediaItem()
-    fun seekTo(position: Long) = this.mediaController?.seekTo(position)
+    fun seekTo(position: Long) {
+        mediaController?.seekTo(position)
+        updateProgress()
+    }
 
     private fun updatePlayerState() {
         _uiState.value = _uiState.value.copy(
