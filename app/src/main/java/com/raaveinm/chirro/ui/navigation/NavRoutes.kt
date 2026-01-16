@@ -6,4 +6,5 @@ sealed class NavData {
     @Serializable object PlayerScreen : NavData()
     @Serializable object SettingsScreen : NavData()
     @Serializable object PlaylistScreen : NavData()
+    @Serializable object PlaylistScreenJumpToTrack : NavData()
 }

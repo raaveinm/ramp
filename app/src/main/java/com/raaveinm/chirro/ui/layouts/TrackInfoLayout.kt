@@ -3,6 +3,7 @@ package com.raaveinm.chirro.ui.layouts
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -53,7 +54,8 @@ fun TrackInfoLayout(
     containerColor: Color? = null,
     onClick: () -> Unit,
     onSwipeRTL: () -> Unit = {},
-    onSwipeLTR: () -> Unit = {}
+    onSwipeLTR: () -> Unit = {},
+    onCoverClick: () -> Unit = {}
 ) {
     if (pictureRequired) {
         var offsetX by remember { mutableFloatStateOf(0f) }
@@ -71,6 +73,7 @@ fun TrackInfoLayout(
                 modifier = Modifier
                     .size(300.dp)
                     .shadow(12.dp, RoundedCornerShape(16.dp))
+                    .clickable { onCoverClick() }
                     .pointerInput(Unit) {
                         detectHorizontalDragGestures(
                             onDragEnd = {

@@ -1,5 +1,9 @@
 package com.raaveinm.chirro.ui.screens
 
+import android.annotation.SuppressLint
+import android.app.Activity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -11,6 +15,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -22,6 +27,7 @@ import com.raaveinm.chirro.ui.navigation.NavData
 import com.raaveinm.chirro.ui.veiwmodel.AppViewModelProvider
 import com.raaveinm.chirro.ui.veiwmodel.PlayerViewModel
 
+@SuppressLint("ContextCastToActivity")
 @Composable
 fun PlayerScreen(
     navController: NavHostController,
@@ -31,6 +37,10 @@ fun PlayerScreen(
     val uiState by viewModel.uiState.collectAsState()
     val trackInfo: TrackInfo? = uiState.currentTrack
     val isPlaying = uiState.isPlaying
+    val activity = LocalContext.current as Activity
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult()
+    ) { }
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -49,11 +59,10 @@ fun PlayerScreen(
             ),
             modifier = Modifier.fillMaxWidth(),
             pictureRequired = true,
-            onClick = {
-                navController.navigate(NavData.PlaylistScreen)
-            },
+            onClick = { navController.navigate(NavData.PlaylistScreenJumpToTrack) },
             onSwipeRTL = { viewModel.skipNext() },
-            onSwipeLTR = { viewModel.skipPrevious() }
+            onSwipeLTR = { viewModel.skipPrevious() },
+            onCoverClick = { navController.navigate(NavData.PlaylistScreenJumpToTrack) }
         )
 
         Spacer(Modifier.padding(dimensionResource(R.dimen.medium_padding)))
@@ -68,10 +77,18 @@ fun PlayerScreen(
             onPreviousClick = { viewModel.skipPrevious() },
             onNextClick = { viewModel.skipNext() },
             onSeek = { position -> viewModel.seekTo(position.toLong()) },
-            onShareClick = { },
+            onShareClick = { viewModel.shareTrack(activity, trackInfo) },
             currentDuration = uiState.currentPosition,
             isFavourite = uiState.isFavorite,
-            onFavoriteClick = { viewModel.onFavoriteClicked(trackInfo ?: TrackInfo.EMPTY) },
+            onFavoriteClick = {
+                if (trackInfo != null) {
+                    viewModel.deleteTrack(
+                        track = trackInfo,
+                        activity = activity,
+                        launcher = launcher
+                    )
+                }
+            },
             trackLength = uiState.totalDuration
         )
         Spacer(Modifier.padding(dimensionResource(R.dimen.large_size)))

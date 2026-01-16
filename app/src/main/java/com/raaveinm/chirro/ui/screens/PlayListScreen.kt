@@ -27,6 +27,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -50,23 +53,31 @@ import com.raaveinm.chirro.ui.veiwmodel.PlayerViewModel
 fun PlaylistScreen(
     navController: NavController,
     modifier: Modifier = Modifier,
-    viewModel: PlayerViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: PlayerViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    navigateToTrack: Boolean = false
 ) {
     val tracks by viewModel.allTracks.collectAsState()
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val activity = context as Activity
+    var isNavigating by remember { mutableStateOf(navigateToTrack) }
     val listState = rememberLazyListState()
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartIntentSenderForResult()
     ) { }
 
-    LaunchedEffect(key1 = uiState.currentTrack, key2 = tracks) {
-        uiState.currentTrack?.let { current ->
-            val index = tracks.indexOfFirst { it.id == current.id }
-            if (index > 6)
-                listState.animateScrollToItem(index - 4)
+    if (isNavigating) {
+        LaunchedEffect(key1 = uiState.currentTrack, key2 = tracks) {
+            uiState.currentTrack?.let { current ->
+                val index = tracks.indexOfFirst { it.id == current.id }
+                if (index > 6){
+                    listState.animateScrollToItem(index - 6)
+                    isNavigating = false
+                    return@LaunchedEffect
+                }
+            }
         }
+
     }
 
     if (tracks.isEmpty()) {
@@ -137,7 +148,7 @@ fun PlaylistScreen(
 
             SwipeToDismissBox(
                 state = dismissState,
-                enableDismissFromStartToEnd = false,
+                enableDismissFromStartToEnd = true,
                 backgroundContent = {
                     val color = when (dismissState.targetValue) {
                         SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.error

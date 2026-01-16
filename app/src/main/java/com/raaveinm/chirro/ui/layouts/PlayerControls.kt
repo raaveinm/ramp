@@ -5,10 +5,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FastForward
 import androidx.compose.material.icons.filled.FastRewind
 import androidx.compose.material.icons.filled.Favorite
@@ -53,7 +55,8 @@ fun PlayerControlButtons(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = dimensionResource(R.dimen.small_padding)),
+                .padding(vertical = dimensionResource(R.dimen.small_padding))
+                .defaultMinSize(minHeight = dimensionResource(R.dimen.medium_size)),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -112,9 +115,9 @@ fun PlayerControlButtons(
                     .padding(vertical = dimensionResource(R.dimen.small_padding))
             ) {
                 Icon(
-                    imageVector =
-                        if (isFavourite) Icons.Default.Favorite
-                    else Icons.Default.FavoriteBorder ,
+                    imageVector =Icons.Default.Delete,
+//                        if (isFavourite) Icons.Default.Favorite
+//                    else Icons.Default.FavoriteBorder ,
                     contentDescription = "next",
                     modifier = Modifier.fillMaxSize()
                 )

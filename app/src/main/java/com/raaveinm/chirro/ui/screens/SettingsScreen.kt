@@ -27,6 +27,10 @@ fun SettingsScreen(
     modifier: Modifier = Modifier,
     navController: NavController
 ) {
+    // TODO("fetch order")
+    // TODO("Colors and visualization")
+    // TODO("set custom unknown cover")
+    // TODO("")
     Box(
         modifier = modifier,
         content = {

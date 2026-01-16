@@ -3,6 +3,9 @@ package com.raaveinm.chirro.ui.veiwmodel
 import android.app.Activity
 import android.app.Application
 import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.annotation.OptIn
@@ -22,6 +25,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import androidx.core.net.toUri
 
 
 class PlayerViewModel(
@@ -40,11 +44,11 @@ class PlayerViewModel(
             initialValue = emptyList()
         )
     private var mediaController: MediaController? = null
-    fun onFavoriteClicked(track: TrackInfo) {
-        viewModelScope.launch {
-            trackRepository.toggleFavorite(track)
-        }
-    }
+//    fun onFavoriteClicked(track: TrackInfo) {
+//        viewModelScope.launch {
+//            trackRepository.toggleFavorite(track)
+//        }
+//    }
 
     init {
         initializeController()
@@ -173,5 +177,22 @@ class PlayerViewModel(
             }
         }
         return trackRepository.deleteTrack(track.id, activity, launcher)
+    }
+
+    fun shareTrack(context: Context, track: TrackInfo?) {
+        if (track == null) {
+            Log.e("shareTrack", "Track is null")
+            return
+        }
+
+        val shareTrackIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "audio/*"
+            putExtra(Intent.EXTRA_STREAM, track.uri.toUri())
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        val chooserIntent = Intent.createChooser(shareTrackIntent, "Share track")
+        if (context !is Activity)
+            chooserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(chooserIntent)
     }
 }

@@ -55,6 +55,13 @@ fun MainScreen (modifier: Modifier) {
                     navController = navController
                 )
             }
+            composable<NavData.PlaylistScreenJumpToTrack> {
+                PlaylistScreen(
+                    modifier = Modifier,
+                    navController = navController,
+                    navigateToTrack = true
+                )
+            }
         }
     }
 }

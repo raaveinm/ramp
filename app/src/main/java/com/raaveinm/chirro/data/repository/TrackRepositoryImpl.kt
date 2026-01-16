@@ -4,7 +4,6 @@ import android.app.Activity
 import android.app.RecoverableSecurityException
 import android.content.ContentUris
 import android.content.Context
-import android.content.IntentSender
 import android.database.ContentObserver
 import android.net.Uri
 import android.os.Build
@@ -13,7 +12,6 @@ import android.os.Looper
 import android.provider.MediaStore
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
-import androidx.annotation.RequiresApi
 import androidx.core.net.toUri
 import com.raaveinm.chirro.data.database.TrackDao
 import com.raaveinm.chirro.data.database.TrackInfo
@@ -29,6 +27,10 @@ class TrackRepositoryImpl(
     private val context: Context,
     private val trackDao: TrackDao
 ) : TrackRepository {
+
+    ///////////////////////////////////////////////
+    // Fetching favourites and combine with all songs
+    ///////////////////////////////////////////////
     override fun getAllTracks(): Flow<List<TrackInfo>> {
         val favFlow = trackDao.getFavoriteIds()
         val mediaStoreFlow = callbackFlow {
@@ -47,6 +49,7 @@ class TrackRepositoryImpl(
 
     }.flowOn(Dispatchers.IO)
 
+        // Combine
     return mediaStoreFlow.combine(favFlow) { localFiles, favoriteIds ->
         localFiles.map { track ->
             track.copy(isFavourite = favoriteIds.contains(track.id))
@@ -54,6 +57,9 @@ class TrackRepositoryImpl(
     }.flowOn(Dispatchers.Default)
 }
 
+    ///////////////////////////////////////////////
+    // Fetching all songs from MediaStore
+    ///////////////////////////////////////////////
     private fun fetchTracksFromMediaStore(): List<TrackInfo> {
         val mediaList = ArrayList<TrackInfo>()
 
@@ -67,6 +73,7 @@ class TrackRepositoryImpl(
         )
 
         val selection = "${MediaStore.Audio.Media.IS_MUSIC} != 0"
+        val sortOrder = "${MediaStore.Audio.Media.ALBUM} ASC, ${MediaStore.Audio.Media.TRACK} ASC" // TODO("add to settings")
 
         try {
             val cursor = context.contentResolver.query(
@@ -74,7 +81,7 @@ class TrackRepositoryImpl(
                 projection,
                 selection,
                 null,
-                "${MediaStore.Audio.Media.TITLE} ASC"
+                sortOrder
             )
 
             cursor?.use { c ->
@@ -123,12 +130,18 @@ class TrackRepositoryImpl(
         return mediaList
     }
 
+    ///////////////////////////////////////////////
+    // Fetching track by id from playlist
+    ///////////////////////////////////////////////
     override suspend fun getTrackById(id: Int): TrackInfo = withContext(Dispatchers.IO) {
         val track = fetchTrackFromMediaStore(id) ?: throw Exception("Track not found")
         val isFav = trackDao.isTrackFavorite(id.toLong())
         track.copy(isFavourite = isFav)
     }
 
+    ///////////////////////////////////////////////
+    // Toggle favourite
+    ///////////////////////////////////////////////
     override suspend fun toggleFavorite(track: TrackInfo) {
         withContext(Dispatchers.IO) {
             val isCurFav = trackDao.isTrackFavorite(track.id)
@@ -144,6 +157,9 @@ class TrackRepositoryImpl(
         }
     }
 
+    ///////////////////////////////////////////////
+    // Fetching track by id from MediaStore
+    ///////////////////////////////////////////////
     private fun fetchTrackFromMediaStore(trackId: Int): TrackInfo? {
         val uri: Uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
         val resolver = context.contentResolver
@@ -197,6 +213,9 @@ class TrackRepositoryImpl(
         return null
     }
 
+    ///////////////////////////////////////////////
+    // Delete track from device storage
+    ///////////////////////////////////////////////
     override fun deleteTrack(
         trackId: Long,
         activity: Activity,
