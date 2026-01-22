@@ -50,7 +50,7 @@ fun TopBar(
         IconButton(
             modifier = Modifier.padding(horizontal = dimensionResource(medium_padding)),
             onClick = {
-                navController.navigate(NavData.PlaylistScreen) {
+                navController.navigate(NavData.PlaylistScreen(false)) {
                     popUpTo(NavData.PlayerScreen) { this.inclusive = false }
                 }
             }

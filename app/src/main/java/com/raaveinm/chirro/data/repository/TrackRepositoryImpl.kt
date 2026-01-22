@@ -199,7 +199,7 @@ class TrackRepositoryImpl(
                 val duration = c.getLong(durationColumn)
                 val trackUri = c.getString(dataColumn)
 
-                return TrackInfo(
+                return TrackInfo( //TODO("REPLACE HARDCODE")
                     id = id,
                     title = title ?: "Unknown",
                     artist = artist ?: "Unknown Artist",

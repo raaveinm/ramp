@@ -59,10 +59,10 @@ fun PlayerScreen(
             ),
             modifier = Modifier.fillMaxWidth(),
             pictureRequired = true,
-            onClick = { navController.navigate(NavData.PlaylistScreenJumpToTrack) },
+            onClick = { navController.navigate(NavData.PlaylistScreen(true)) },
             onSwipeRTL = { viewModel.skipNext() },
             onSwipeLTR = { viewModel.skipPrevious() },
-            onCoverClick = { navController.navigate(NavData.PlaylistScreenJumpToTrack) }
+            onCoverClick = { navController.navigate(NavData.PlaylistScreen(true)) }
         )
 
         Spacer(Modifier.padding(dimensionResource(R.dimen.medium_padding)))

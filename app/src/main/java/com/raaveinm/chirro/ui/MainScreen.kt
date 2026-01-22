@@ -52,14 +52,8 @@ fun MainScreen (modifier: Modifier) {
             composable<NavData.PlaylistScreen> {
                 PlaylistScreen(
                     modifier = Modifier,
-                    navController = navController
-                )
-            }
-            composable<NavData.PlaylistScreenJumpToTrack> {
-                PlaylistScreen(
-                    modifier = Modifier,
                     navController = navController,
-                    navigateToTrack = true
+                    navigateToTrack = it.arguments?.getBoolean("isNavigating") ?: false
                 )
             }
         }

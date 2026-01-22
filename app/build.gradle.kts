@@ -54,7 +54,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.foundation)
-    implementation("androidx.compose.ui:ui-text-google-fonts:1.10.0")
+    implementation("androidx.compose.ui:ui-text-google-fonts:1.10.1")
     implementation("androidx.compose.material:material-icons-extended:1.7.8")
 
     // --- Lifecycle & Navigation ---
@@ -67,6 +67,8 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     implementation("androidx.room:room-runtime:2.8.4")
     implementation("androidx.room:room-rxjava3:2.8.4")
+    implementation("androidx.datastore:datastore-preferences:1.2.0")
+    implementation("androidx.datastore:datastore-preferences-core:1.2.0")
     ksp(libs.androidx.room.compiler)
 
     // --- Media & Images ---
@@ -75,7 +77,7 @@ dependencies {
     implementation("androidx.media3:media3-ui:1.9.0")
     implementation("androidx.media3:media3-session:1.9.0")
     implementation("androidx.media3:media3-common:1.9.0")
-    implementation("io.coil-kt:coil-compose:2.5.0")
+    implementation("io.coil-kt:coil-compose:2.7.0")
 
     // --- Background Tasks ---
     implementation("androidx.work:work-gcm:2.11.0")
