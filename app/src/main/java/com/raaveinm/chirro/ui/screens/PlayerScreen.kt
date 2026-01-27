@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -42,55 +43,60 @@ fun PlayerScreen(
         contract = ActivityResultContracts.StartIntentSenderForResult()
     ) { }
 
-    Column(
+    Surface(
         modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Bottom,
-        horizontalAlignment = Alignment.CenterHorizontally
+        color = androidx.compose.material3.MaterialTheme.colorScheme.background // Ensure this color is opaque in your theme
     ) {
-        TrackInfoLayout(
-            trackInfo = trackInfo ?: TrackInfo(
-                title = "Unknown",
-                artist = "Unknown",
-                album = "Unknown",
-                duration = 0,
-                uri = "null",
-                id = -1,
-                isFavourite = true,
-            ),
-            modifier = Modifier.fillMaxWidth(),
-            pictureRequired = true,
-            onClick = { navController.navigate(NavData.PlaylistScreen(true)) },
-            onSwipeRTL = { viewModel.skipNext() },
-            onSwipeLTR = { viewModel.skipPrevious() },
-            onCoverClick = { navController.navigate(NavData.PlaylistScreen(true)) }
-        )
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Bottom,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            TrackInfoLayout(
+                trackInfo = trackInfo ?: TrackInfo(
+                    title = "Unknown",
+                    artist = "Unknown",
+                    album = "Unknown",
+                    duration = 0,
+                    uri = "null",
+                    id = -1,
+                    isFavourite = true,
+                ),
+                modifier = Modifier.fillMaxWidth(),
+                pictureRequired = true,
+                onClick = { navController.navigate(NavData.PlaylistScreen(true)) },
+                onSwipeRTL = { viewModel.skipNext() },
+                onSwipeLTR = { viewModel.skipPrevious() },
+                onCoverClick = { navController.navigate(NavData.PlaylistScreen(true)) }
+            )
 
-        Spacer(Modifier.padding(dimensionResource(R.dimen.medium_padding)))
+            Spacer(Modifier.padding(dimensionResource(R.dimen.medium_padding)))
 
-        PlayerControlButtons(
-            modifier = Modifier.fillMaxWidth(),
-            isPlaying = isPlaying,
-            onPlayPauseClick = {
-                if (isPlaying) viewModel.pause()
-                else viewModel.resume()
-            },
-            onPreviousClick = { viewModel.skipPrevious() },
-            onNextClick = { viewModel.skipNext() },
-            onSeek = { position -> viewModel.seekTo(position.toLong()) },
-            onShareClick = { viewModel.shareTrack(activity, trackInfo) },
-            currentDuration = uiState.currentPosition,
-            isFavourite = uiState.isFavorite,
-            onFavoriteClick = {
-                if (trackInfo != null) {
-                    viewModel.deleteTrack(
-                        track = trackInfo,
-                        activity = activity,
-                        launcher = launcher
-                    )
-                }
-            },
-            trackLength = uiState.totalDuration
-        )
-        Spacer(Modifier.padding(dimensionResource(R.dimen.large_size)))
+            PlayerControlButtons(
+                modifier = Modifier.fillMaxWidth(),
+                isPlaying = isPlaying,
+                onPlayPauseClick = {
+                    if (isPlaying) viewModel.pause()
+                    else viewModel.resume()
+                },
+                onPreviousClick = { viewModel.skipPrevious() },
+                onNextClick = { viewModel.skipNext() },
+                onSeek = { position -> viewModel.seekTo(position.toLong()) },
+                onShareClick = { viewModel.shareTrack(activity, trackInfo) },
+                currentDuration = uiState.currentPosition,
+                isFavourite = uiState.isFavorite,
+                onFavoriteClick = {
+                    if (trackInfo != null) {
+                        viewModel.deleteTrack(
+                            track = trackInfo,
+                            activity = activity,
+                            launcher = launcher
+                        )
+                    }
+                },
+                trackLength = uiState.totalDuration
+            )
+            Spacer(Modifier.padding(dimensionResource(R.dimen.large_size)))
+        }
     }
 }

@@ -1,5 +1,7 @@
 package com.raaveinm.chirro.ui
 
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.padding
@@ -22,20 +24,18 @@ fun MainScreen (modifier: Modifier) {
     val navController: NavHostController = rememberNavController()
     val contentPadding = WindowInsets.systemBars.asPaddingValues()
     Scaffold(
-        modifier = modifier
-            .padding(contentPadding),
-        topBar = {
-            TopBar(
-                modifier = Modifier,
-                navController = navController
-            )
-        }
-    ) {
+        modifier = modifier.padding(contentPadding),
+        topBar = { TopBar(modifier = Modifier, navController = navController) }
+    ) { innerPadding ->
 
         NavHost(
             navController = navController,
             startDestination = NavData.PlayerScreen,
-            modifier = Modifier.padding(it)
+            modifier = Modifier.padding(innerPadding),
+            enterTransition = { slideInHorizontally(initialOffsetX = { it }) },
+            exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) },
+            popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) },
+            popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) }
         ) {
             composable<NavData.PlayerScreen> {
                 PlayerScreen(

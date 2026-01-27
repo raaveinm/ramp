@@ -22,7 +22,8 @@ import androidx.compose.ui.unit.dp
 import com.raaveinm.chirro.R
 
 @Composable
-fun EmptyListComposable() {
+fun EmptyListComposable(text: String? = null, stringRes: Int? = null) {
+    val message = text ?: stringResource(stringRes ?: R.string.tracklist_empty)
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -30,7 +31,7 @@ fun EmptyListComposable() {
 
     ) {
         Text(
-            text = stringResource(R.string.tracklist_empty),
+            text = message,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = dimensionResource(R.dimen.medium_padding))

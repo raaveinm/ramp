@@ -27,6 +27,21 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import androidx.core.net.toUri
 
+/**
+ * Main Screen UI management and media queue controls
+ * @param application
+ * @param trackRepository
+ *
+ * @property _uiState
+ * @property uiState
+ * @property isPlaying
+ * @property _allTracks
+ * @property allTracks
+ * @property mediaController
+ * @property playerListener
+ * @property updatePlayerState
+ * @property updateProgress
+ */
 
 class PlayerViewModel(
     application: Application,
@@ -194,5 +209,46 @@ class PlayerViewModel(
         if (context !is Activity)
             chooserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         context.startActivity(chooserIntent)
+    }
+
+    ///////////////////////////////////////////////
+    // Search functionality
+    ///////////////////////////////////////////////
+    private val _searchUiState = MutableStateFlow(SearchBarUiState())
+    val searchUiState = _searchUiState.asStateFlow()
+
+    // Text field handling
+    fun onTextChanged(text: String) {
+        _searchUiState.value = _searchUiState.value.copy(currentText = text)
+        filterTracks(text)
+    }
+
+    fun onSearchToggle() {
+        _searchUiState.value = _searchUiState.value.copy(
+            isSearching = !_searchUiState.value.isSearching)
+    }
+
+    fun clearSearch() {
+        _searchUiState.value = _searchUiState.value.copy(currentText = "")
+    }
+
+    // Filtered tracklist
+    fun filterTracks(query: String) {
+        if (query.isBlank()) {
+            _searchUiState.value = _searchUiState.value.copy(searchResults = emptyList())
+            return
+        }
+
+        val keyWords = query.trim().split("\\s+".toRegex())
+
+        val filteredTracks = _allTracks.value.filter { track ->
+            keyWords.all { keyWord ->
+                track.title.contains(keyWord, ignoreCase = true) ||
+                        track.artist.contains(keyWord, ignoreCase = true) ||
+                        track.album.contains(keyWord, ignoreCase = true)
+            }
+        }
+
+        _searchUiState.value = _searchUiState.value.copy(searchResults = filteredTracks)
     }
 }
