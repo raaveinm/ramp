@@ -5,8 +5,11 @@ import android.app.Activity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,12 +31,11 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxState
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
@@ -42,11 +44,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
@@ -61,8 +65,9 @@ import com.raaveinm.chirro.ui.navigation.NavData
 import com.raaveinm.chirro.ui.veiwmodel.AppViewModelProvider
 import com.raaveinm.chirro.ui.veiwmodel.PlayerViewModel
 import dev.chrisbanes.haze.HazeState
-import dev.chrisbanes.haze.haze
-import dev.chrisbanes.haze.hazeChild
+import dev.chrisbanes.haze.hazeEffect
+import dev.chrisbanes.haze.hazeSource
+import kotlinx.coroutines.launch
 
 @SuppressLint("ConfigurationScreenWidthHeight")
 @Composable
@@ -87,11 +92,11 @@ fun PlaylistScreen(
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartIntentSenderForResult()
     ) { }
+    val scope = rememberCoroutineScope()
 
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background,
-
     ) {
         Box (modifier = Modifier.fillMaxSize()) {
             ///////////////////////////////////////////////
@@ -118,28 +123,27 @@ fun PlaylistScreen(
                 // Playlist
                 ///////////////////////////////////////////////
                 LazyColumn(
-                    modifier = modifier.haze(hazeState),
+                    modifier = modifier.hazeSource(hazeState),
                     state = listState
                 ) {
                     items(
                         items = tracks,
                         key = { track -> track.id }
                     ) { track ->
+                        val isPlaying = uiState.currentTrack?.id == track.id
                         val dismissState = rememberSwipeToDismissBoxState(
-                            confirmValueChange = { dismissValue ->
-                                when (dismissValue) {
-                                    SwipeToDismissBoxValue.EndToStart -> {
-                                        val isDeletedImmediately = viewModel.deleteTrack(
-                                            track = track,
-                                            activity = activity,
-                                            launcher = launcher
-                                        )
-                                        isDeletedImmediately
-                                    }
-
-                                    else -> false
-                                }
+                            initialValue = SwipeToDismissBoxValue.Settled,
+                            positionalThreshold = { totalDistance ->
+                                totalDistance * .01f
                             }
+                        )
+
+                        val animatedColor by animateColorAsState(
+                            targetValue = when (dismissState.targetValue) {
+                                SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.error
+                                else -> MaterialTheme.colorScheme.surface
+                            },
+                            animationSpec = tween(durationMillis = 500)
                         )
 
                         ///////////////////////////////////////////////
@@ -147,44 +151,67 @@ fun PlaylistScreen(
                         ///////////////////////////////////////////////
                         SwipeToDismissBox(
                             state = dismissState,
-                            enableDismissFromStartToEnd = true,
-                            backgroundContent = {
-                                val color = when (dismissState.targetValue) {
-                                    SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.error
-                                    else -> MaterialTheme.colorScheme.surface
+                            enableDismissFromStartToEnd = false,
+                            enableDismissFromEndToStart = true,
+                            onDismiss = {
+                                if (it == SwipeToDismissBoxValue.EndToStart) {
+                                    val isDeleted = viewModel.deleteTrack(track, activity, launcher)
+                                    if (!isDeleted) {
+                                        scope.launch {
+                                            returnState(dismissState)
+                                        }
+                                    }
                                 }
+                            },
+                            backgroundContent = {
                                 Box(
                                     modifier = Modifier
                                         .fillMaxSize()
                                         .padding(horizontal = dimensionResource(R.dimen.small_padding))
-                                        //.padding(bottom = dimensionResource(R.dimen.small_size))
-                                        .background(color, MaterialTheme.shapes.medium),
+                                        .background(animatedColor, MaterialTheme.shapes.medium),
                                     contentAlignment = Alignment.CenterEnd
                                 ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Delete,
-                                        contentDescription = "Delete",
-                                        modifier = Modifier.padding(end = dimensionResource(R.dimen.medium_padding)),
-                                        tint = MaterialTheme.colorScheme.onError
-                                    )
+                                    if (dismissState.targetValue == SwipeToDismissBoxValue.EndToStart) {
+                                        Icon(
+                                            imageVector = Icons.Default.Delete,
+                                            contentDescription = "Delete",
+                                            modifier = Modifier.padding(end = dimensionResource(R.dimen.medium_padding)),
+                                            tint = MaterialTheme.colorScheme.onError
+                                        )
+                                    }
                                 }
                             },
                             content = {
                                 Surface(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(horizontal = dimensionResource(R.dimen.small_padding)),
-                                    //.padding(bottom = dimensionResource(R.dimen.small_size)),
+                                        .padding(horizontal = dimensionResource(R.dimen.small_padding))
+                                        .then(
+                                            if (isPlaying) {
+                                                Modifier
+                                                    .padding(vertical = 4.dp)
+                                                    .clip(RoundedCornerShape(16.dp))
+                                                    .border(
+                                                        width = 1.dp,
+                                                        color = MaterialTheme.colorScheme.onSurface.copy(
+                                                            alpha = 0.3f
+                                                        ),
+                                                        shape = RoundedCornerShape(16.dp)
+                                                    )
+                                            } else Modifier
+                                        ),
                                     shape = MaterialTheme.shapes.medium,
+                                    color = Color.Transparent
                                 ) {
                                     TrackInfoLayout(
                                         modifier = Modifier.fillMaxSize(),
                                         trackInfo = track,
                                         pictureRequired = false,
-                                        containerColor =
-                                        if (track.id != uiState.currentTrack?.id)
+                                        containerColor = if (isPlaying) {
+                                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                                        } else {
                                             MaterialTheme.colorScheme.surface
-                                        else MaterialTheme.colorScheme.onPrimary,
+                                        },
                                         onClick = {
                                             viewModel.playTrack(track)
                                             navController.navigate(NavData.PlayerScreen) {
@@ -206,25 +233,29 @@ fun PlaylistScreen(
                 visible = isFABVisible,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
+
                     .padding(dimensionResource(R.dimen.medium_padding))
             ) {
-                FloatingActionButton(
-                    onClick = {
-                        /* TODO: search functionality */
-                        /*dummy*/
-                        isFABVisible = !isFABVisible
-                    },
-                    shape = MaterialTheme.shapes.medium,
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    elevation = FloatingActionButtonDefaults.elevation(
-                        defaultElevation = 4.dp,
-                        pressedElevation = 8.dp
-                    )
+                Box(
+                    modifier = Modifier
+                        .size(56.dp)
+                        .clip(MaterialTheme.shapes.medium)
+                        .hazeEffect(state = hazeState)
+                        .background(
+                            MaterialTheme.colorScheme.surface.copy(alpha = .05f)
+                        )
+                        .border(
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.02f),
+                            shape = MaterialTheme.shapes.medium
+                        )
+                        .clickable(onClick = { isFABVisible = !isFABVisible }),
+                    contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.Search,
-                        contentDescription = "Search"
+                        contentDescription = "Search",
+                        tint = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
@@ -247,16 +278,15 @@ fun PlaylistScreen(
                         .clickable { isFABVisible = !isFABVisible },
                     contentAlignment = Alignment.Center
                 ) {
-                    val configuration = androidx.compose.ui.platform.LocalConfiguration.current
+                    val configuration = LocalConfiguration.current
                     val screenHeight = configuration.screenHeightDp.dp
 
                     Card(
                         modifier = Modifier
-//                            .padding(horizontal = dimensionResource(R.dimen.small_padding))
                             .fillMaxWidth(.92f)
                             .heightIn(max = screenHeight * .64f)
                             .clip(RoundedCornerShape(16.dp))
-                            .hazeChild(state = hazeState)
+                            .hazeEffect(state = hazeState)
                             .animateContentSize()
                             .clickable(enabled = false) {},
                         colors = CardDefaults.cardColors(
@@ -272,6 +302,8 @@ fun PlaylistScreen(
                             closeScreen = { isFABVisible = !isFABVisible }
                         )
 
+                        Spacer(Modifier.size(dimensionResource(R.dimen.medium_padding)))
+
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -285,16 +317,23 @@ fun PlaylistScreen(
                                     containerColor = Color.Transparent,
                                     onClick = {
                                         viewModel.playTrack(track)
-                                        navController.navigate(NavData.PlayerScreen)
+                                        navController.navigate(NavData.PlayerScreen) {
+                                            popUpTo(NavData.PlayerScreen) {
+                                                this.inclusive = true
+                                            }
+                                        }
                                         isNavigating = true
                                     }
                                 )
                             }
                         }
-                        Spacer(Modifier.size(dimensionResource(R.dimen.medium_padding)))
                     }
                 }
             }
         }
     }
+}
+
+suspend fun returnState(dismissState: SwipeToDismissBoxState){
+    dismissState.snapTo(SwipeToDismissBoxValue.Settled)
 }

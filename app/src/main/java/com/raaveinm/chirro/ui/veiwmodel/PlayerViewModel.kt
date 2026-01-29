@@ -9,6 +9,7 @@ import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.annotation.OptIn
+import androidx.core.net.toUri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
@@ -18,6 +19,7 @@ import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.raaveinm.chirro.data.database.TrackInfo
 import com.raaveinm.chirro.data.repository.TrackRepository
+import com.raaveinm.chirro.domain.Eggs
 import com.raaveinm.chirro.domain.PlaybackService
 import com.raaveinm.chirro.domain.toMediaItem
 import kotlinx.coroutines.delay
@@ -25,7 +27,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import androidx.core.net.toUri
 
 /**
  * Main Screen UI management and media queue controls
@@ -230,10 +231,11 @@ class PlayerViewModel(
 
     fun clearSearch() {
         _searchUiState.value = _searchUiState.value.copy(currentText = "")
+        filterTracks("")
     }
 
     // Filtered tracklist
-    fun filterTracks(query: String) {
+    private fun filterTracks(query: String) {
         if (query.isBlank()) {
             _searchUiState.value = _searchUiState.value.copy(searchResults = emptyList())
             return
@@ -250,5 +252,20 @@ class PlayerViewModel(
         }
 
         _searchUiState.value = _searchUiState.value.copy(searchResults = filteredTracks)
+    }
+
+    ///////////////////////////////////////////////
+    // Easter Eggs
+    ///////////////////////////////////////////////
+    fun backgroundEasterEgg(): Eggs? {
+        val trackName = _uiState.value.currentTrack?.title ?: return null
+        val trackArtist = _uiState.value.currentTrack?.artist ?: return null
+        val keyWordsTitle = listOf("arc")
+        val keyWordsArtist = listOf("embark", "arc")
+        trackName.lowercase()
+        if (keyWordsArtist[0] in trackArtist.lowercase() || keyWordsTitle[0] in trackName.lowercase() && keyWordsArtist.any { it in trackArtist.lowercase() }) {
+            return Eggs.ARC
+        }
+        return null
     }
 }

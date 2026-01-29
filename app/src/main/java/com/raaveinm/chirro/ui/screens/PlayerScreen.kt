@@ -4,24 +4,31 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.raaveinm.chirro.R
 import com.raaveinm.chirro.data.database.TrackInfo
+import com.raaveinm.chirro.domain.Eggs
+import com.raaveinm.chirro.ui.layouts.ArcEasterEgg
 import com.raaveinm.chirro.ui.layouts.PlayerControlButtons
 import com.raaveinm.chirro.ui.layouts.TrackInfoLayout
 import com.raaveinm.chirro.ui.navigation.NavData
@@ -44,9 +51,21 @@ fun PlayerScreen(
     ) { }
 
     Surface(
-        modifier = modifier.fillMaxSize(),
-        color = androidx.compose.material3.MaterialTheme.colorScheme.background // Ensure this color is opaque in your theme
+        modifier = modifier,
+        color = MaterialTheme.colorScheme.background
     ) {
+        val backgroundEasterEgg = viewModel.backgroundEasterEgg()?: Eggs.NULL
+        AnimatedVisibility(backgroundEasterEgg != Eggs.NULL){
+            when (backgroundEasterEgg) {
+                Eggs.ARC -> {
+                    Surface(Modifier
+                        .fillMaxSize()
+                        .zIndex(0f)) { ArcEasterEgg() }
+                }
+                Eggs.NULL -> {}
+
+            }
+        }
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Bottom,
@@ -64,6 +83,7 @@ fun PlayerScreen(
                 ),
                 modifier = Modifier.fillMaxWidth(),
                 pictureRequired = true,
+                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f),
                 onClick = { navController.navigate(NavData.PlaylistScreen(true)) },
                 onSwipeRTL = { viewModel.skipNext() },
                 onSwipeLTR = { viewModel.skipPrevious() },
