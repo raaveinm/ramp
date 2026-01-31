@@ -8,11 +8,15 @@ import com.raaveinm.chirro.data.repository.TrackRepository
 import com.raaveinm.chirro.data.repository.TrackRepositoryImpl
 
 interface AppContainer {
+    val settingsRepository: SettingDataStoreRepository
     val trackRepository: TrackRepository
     val settingRepository: SettingDataStoreRepository
 }
 
-class DefaultAppContainer(private val context: Context): AppContainer {
+class DefaultAppContainer(
+    private val context: Context,
+    override val settingsRepository: SettingDataStoreRepository
+): AppContainer {
 
     override val settingRepository: SettingDataStoreRepository by lazy {
         SettingDataStoreRepository(context.dataStore)

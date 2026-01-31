@@ -41,7 +41,7 @@ class SettingDataStoreRepository(private val dataStore: DataStore<Preferences>) 
     private fun mapOfPreferences(preferences: Preferences): PreferenceList {
         val sortPrimaryOrder = try {
             OrderMediaQueue.valueOf(
-                preferences[PreferencesKeys.SORT_PRIMARY_ORDER] ?: OrderMediaQueue.DEFAULT.name
+                preferences[PreferencesKeys.SORT_PRIMARY_ORDER] ?: OrderMediaQueue.ALBUM.name
             )
         } catch (_: Exception) {
             OrderMediaQueue.ALBUM
@@ -49,7 +49,7 @@ class SettingDataStoreRepository(private val dataStore: DataStore<Preferences>) 
 
         val sortSecondaryOrder = try {
             OrderMediaQueue.valueOf(
-                preferences[PreferencesKeys.SORT_SECONDARY_ORDER] ?: OrderMediaQueue.DEFAULT.name
+                preferences[PreferencesKeys.SORT_SECONDARY_ORDER] ?: OrderMediaQueue.TRACK.name
             )
         } catch (_: Exception) {
             OrderMediaQueue.TRACK
@@ -65,21 +65,21 @@ class SettingDataStoreRepository(private val dataStore: DataStore<Preferences>) 
     ///////////////////////////////////////////////
     // Updating preferences
     ///////////////////////////////////////////////
-    suspend fun updateOrder(
-        primaryOrder: OrderMediaQueue,
-        secondaryOrder: OrderMediaQueue
-    ) {
+    suspend fun updatePrimaryOrder(order: OrderMediaQueue) {
         dataStore.edit { preferences ->
-            if (primaryOrder == OrderMediaQueue.DEFAULT) {
+            if (order == OrderMediaQueue.DEFAULT)
                 preferences[PreferencesKeys.SORT_PRIMARY_ORDER] = OrderMediaQueue.ALBUM.name
-                preferences[PreferencesKeys.SORT_SECONDARY_ORDER] = OrderMediaQueue.ID.name
-            } else {
-                preferences[PreferencesKeys.SORT_PRIMARY_ORDER] = primaryOrder.name
-                if (secondaryOrder == OrderMediaQueue.DEFAULT)
-                    preferences[PreferencesKeys.SORT_SECONDARY_ORDER] = OrderMediaQueue.ID.name
-                else
-                    preferences[PreferencesKeys.SORT_SECONDARY_ORDER] = secondaryOrder.name
-            }
+            else
+                preferences[PreferencesKeys.SORT_PRIMARY_ORDER] = order.name
+        }
+    }
+
+    suspend fun updateSecondaryOrder(order: OrderMediaQueue) {
+        dataStore.edit { preferences ->
+            if (order == OrderMediaQueue.DEFAULT)
+                preferences[PreferencesKeys.SORT_SECONDARY_ORDER] = OrderMediaQueue.TRACK.name
+            else
+                preferences[PreferencesKeys.SORT_SECONDARY_ORDER] = order.name
         }
     }
 }

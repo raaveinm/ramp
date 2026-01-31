@@ -268,5 +268,7 @@ private fun getSortOrder(primary: OrderMediaQueue, secondary: OrderMediaQueue): 
             else -> MediaStore.Audio.Media.TRACK
         }
     }
+    if (secondary == OrderMediaQueue.ALBUM)
+        return "${primary.toSql()} ASC, ${secondary.toSql()} ASC, ${MediaStore.Audio.Media.TRACK} ASC"
     return "${primary.toSql()} ASC, ${secondary.toSql()} ASC"
 }

@@ -15,7 +15,7 @@
         <item>artist</item>
         <item>album</item>
         <item>duration</item>
-        <item>shuffle</item>
+<!--        <item>shuffle</item>-->
         <item>track</item>
     </string-array>
 </resources>

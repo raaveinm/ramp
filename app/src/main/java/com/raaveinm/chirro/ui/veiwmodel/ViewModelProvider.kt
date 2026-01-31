@@ -14,6 +14,11 @@ object AppViewModelProvider {
                 trackRepository = chirroApplication().container.trackRepository
             )
         }
+        initializer {
+            SettingsViewModel(
+                settingsRepository = chirroApplication().container.settingsRepository
+            )
+        }
     }
 }
 

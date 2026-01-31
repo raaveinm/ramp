@@ -82,10 +82,7 @@ fun MainScreen (modifier: Modifier) {
                 }
             }
             composable<NavData.SettingsScreen> {
-                SettingsScreen(
-                    modifier = Modifier,
-                    navController = navController
-                )
+                SettingsScreen(modifier = Modifier)
             }
             composable<NavData.PlaylistScreen> {
                 PlaylistScreen(
