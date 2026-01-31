@@ -10,11 +10,14 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.provider.MediaStore
+import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.core.net.toUri
 import com.raaveinm.chirro.data.database.TrackDao
 import com.raaveinm.chirro.data.database.TrackInfo
+import com.raaveinm.chirro.data.datastore.OrderMediaQueue
+import com.raaveinm.chirro.data.datastore.SettingDataStoreRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -25,7 +28,8 @@ import kotlinx.coroutines.withContext
 
 class TrackRepositoryImpl(
     private val context: Context,
-    private val trackDao: TrackDao
+    private val trackDao: TrackDao,
+    private val settingsRepository: SettingDataStoreRepository
 ) : TrackRepository {
 
     ///////////////////////////////////////////////
@@ -33,36 +37,38 @@ class TrackRepositoryImpl(
     ///////////////////////////////////////////////
     override fun getAllTracks(): Flow<List<TrackInfo>> {
         val favFlow = trackDao.getFavoriteIds()
-        val mediaStoreFlow = callbackFlow {
+        val settingsFlow = settingsRepository.settingsPreferencesFlow
+
+        val mediaStoreTrigger = callbackFlow {
             val observer = object : ContentObserver(Handler(Looper.getMainLooper())) {
-                override fun onChange(selfChange: Boolean) {
-                    trySend(fetchTracksFromMediaStore())
-                }
+                override fun onChange(selfChange: Boolean) { trySend(Unit) }
             }
-        context.contentResolver.registerContentObserver(
-            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-            true, observer
-        )
-
-        trySend(fetchTracksFromMediaStore())
-        awaitClose { context.contentResolver.unregisterContentObserver(observer) }
-
-    }.flowOn(Dispatchers.IO)
-
-        // Combine
-    return mediaStoreFlow.combine(favFlow) { localFiles, favoriteIds ->
-        localFiles.map { track ->
-            track.copy(isFavourite = favoriteIds.contains(track.id))
+            context.contentResolver.registerContentObserver(
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, true, observer
+            )
+            trySend(Unit)
+            awaitClose { context.contentResolver.unregisterContentObserver(observer) }
         }
-    }.flowOn(Dispatchers.Default)
-}
+
+        return combine(settingsFlow, favFlow, mediaStoreTrigger) { settings, favoriteIds, _ ->
+            val localFiles = fetchTracksFromMediaStore(
+                settings.trackPrimaryOrder,
+                settings.trackSecondaryOrder
+            )
+            localFiles.map { track ->
+                track.copy(isFavourite = favoriteIds.contains(track.id))
+            }
+        }.flowOn(Dispatchers.Default)
+    }
 
     ///////////////////////////////////////////////
     // Fetching all songs from MediaStore
     ///////////////////////////////////////////////
-    private fun fetchTracksFromMediaStore(): List<TrackInfo> {
+    private fun fetchTracksFromMediaStore(
+        primaryOrder: OrderMediaQueue,
+        secondaryOrder: OrderMediaQueue
+    ): List<TrackInfo> {
         val mediaList = ArrayList<TrackInfo>()
-
         val projection = arrayOf(
             MediaStore.Audio.Media._ID,
             MediaStore.Audio.Media.TITLE,
@@ -73,7 +79,8 @@ class TrackRepositoryImpl(
         )
 
         val selection = "${MediaStore.Audio.Media.IS_MUSIC} != 0"
-        val sortOrder = "${MediaStore.Audio.Media.ALBUM} ASC, ${MediaStore.Audio.Media.TRACK} ASC" // TODO("add to settings")
+        val sortOrder = getSortOrder(primaryOrder, secondaryOrder)
+        Log.d("MediaStore", "SortOrder: $sortOrder")
 
         try {
             val cursor = context.contentResolver.query(
@@ -247,4 +254,19 @@ class TrackRepositoryImpl(
             }
         }
     }
+}
+
+private fun getSortOrder(primary: OrderMediaQueue, secondary: OrderMediaQueue): String {
+    fun OrderMediaQueue.toSql(): String {
+        return when (this) {
+            OrderMediaQueue.ALBUM -> MediaStore.Audio.Media.ALBUM
+            OrderMediaQueue.ARTIST -> MediaStore.Audio.Media.ARTIST
+            OrderMediaQueue.TITLE -> MediaStore.Audio.Media.TITLE
+            OrderMediaQueue.DURATION -> MediaStore.Audio.Media.DURATION
+            OrderMediaQueue.ID -> MediaStore.Audio.Media._ID
+            OrderMediaQueue.TRACK -> MediaStore.Audio.Media.TRACK
+            else -> MediaStore.Audio.Media.TRACK
+        }
+    }
+    return "${primary.toSql()} ASC, ${secondary.toSql()} ASC"
 }

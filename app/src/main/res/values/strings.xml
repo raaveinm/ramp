@@ -3,4 +3,19 @@
     <string name="service_description">This is service which is used to handle media playback</string>
 
     <string name="tracklist_empty">No media had been found</string>
+
+    <string name="track_order">Track order</string>
+    <string name="track_primary">Track primary order</string>
+    <string name="track_secondary">Track secondary order</string>
+
+    <string-array name="track_order_options">
+        <item>default</item>
+        <item>id</item>
+        <item>title</item>
+        <item>artist</item>
+        <item>album</item>
+        <item>duration</item>
+        <item>shuffle</item>
+        <item>track</item>
+    </string-array>
 </resources>

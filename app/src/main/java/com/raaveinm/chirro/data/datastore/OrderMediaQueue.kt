@@ -7,5 +7,6 @@ enum class OrderMediaQueue {
     ARTIST,
     ALBUM,
     DURATION,
-    SHUFFLE
+    SHUFFLE,
+    TRACK
 }

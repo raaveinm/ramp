@@ -95,7 +95,7 @@ fun PlaylistScreen(
     val scope = rememberCoroutineScope()
 
     Surface(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier,
         color = MaterialTheme.colorScheme.background,
     ) {
         Box (modifier = Modifier.fillMaxSize()) {
@@ -233,7 +233,6 @@ fun PlaylistScreen(
                 visible = isFABVisible,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-
                     .padding(dimensionResource(R.dimen.medium_padding))
             ) {
                 Box(

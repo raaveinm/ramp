@@ -2,6 +2,8 @@ package com.raaveinm.chirro.domain
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.result.ActivityResultLauncher
@@ -50,4 +52,13 @@ fun checkPermission(activity: Activity, launcher: ActivityResultLauncher<String>
             launcher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
         }
     }
+}
+
+fun Context.findActivity(): Activity? {
+    var context = this
+    while (context is ContextWrapper) {
+        if (context is Activity) return context
+        context = context.baseContext
+    }
+    return null
 }

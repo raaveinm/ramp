@@ -1,17 +1,19 @@
 package com.raaveinm.chirro.data.datastore
 
+import android.content.Context
 import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 
 // Constants
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 class SettingDataStoreRepository(private val dataStore: DataStore<Preferences>) {
     private val TAG: String = "UserPreferencesRepo"
@@ -19,7 +21,6 @@ class SettingDataStoreRepository(private val dataStore: DataStore<Preferences>) 
     private object PreferencesKeys {
         val SORT_PRIMARY_ORDER = stringPreferencesKey("sort_order_primary")
         val SORT_SECONDARY_ORDER = stringPreferencesKey("sort_order_secondary")
-        val SEARCH_AS_FAB = booleanPreferencesKey("search_as_fab")
     }
 
     ///////////////////////////////////////////////
@@ -43,7 +44,7 @@ class SettingDataStoreRepository(private val dataStore: DataStore<Preferences>) 
                 preferences[PreferencesKeys.SORT_PRIMARY_ORDER] ?: OrderMediaQueue.DEFAULT.name
             )
         } catch (_: Exception) {
-            OrderMediaQueue.DEFAULT
+            OrderMediaQueue.ALBUM
         }
 
         val sortSecondaryOrder = try {
@@ -51,15 +52,13 @@ class SettingDataStoreRepository(private val dataStore: DataStore<Preferences>) 
                 preferences[PreferencesKeys.SORT_SECONDARY_ORDER] ?: OrderMediaQueue.DEFAULT.name
             )
         } catch (_: Exception) {
-            OrderMediaQueue.DEFAULT
+            OrderMediaQueue.TRACK
         }
 
-        val searchAsFab = preferences[PreferencesKeys.SEARCH_AS_FAB] ?: true
 
         return PreferenceList(
             trackPrimaryOrder = sortPrimaryOrder,
             trackSecondaryOrder = sortSecondaryOrder,
-            isSearchAsFAB = searchAsFab
         )
     }
 
@@ -81,12 +80,6 @@ class SettingDataStoreRepository(private val dataStore: DataStore<Preferences>) 
                 else
                     preferences[PreferencesKeys.SORT_SECONDARY_ORDER] = secondaryOrder.name
             }
-        }
-    }
-
-    suspend fun searchPosition(isSearchAsFAB: Boolean) {
-        dataStore.edit { preferences ->
-            preferences[PreferencesKeys.SEARCH_AS_FAB] = isSearchAsFAB
         }
     }
 }
