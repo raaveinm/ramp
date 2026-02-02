@@ -143,14 +143,14 @@ fun ControlsPreview() {
         PlayerControlButtons(
             modifier = Modifier,
             isPlaying = isPlaying,
-            onPlayPauseClick = { isPlaying = !isPlaying },
+            onPlayPauseClick = { !isPlaying },
             onPreviousClick = {},
             onNextClick = {},
             onSeek = {},
             onShareClick = {},
             currentDuration = 0L,
             isFavourite = isFavourite,
-            onFavoriteClick = { isFavourite = !isFavourite },
+            onFavoriteClick = { !isFavourite },
             trackLength = 2000L
         )
     }

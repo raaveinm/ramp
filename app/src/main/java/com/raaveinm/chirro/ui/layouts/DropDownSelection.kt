@@ -1,5 +1,6 @@
 package com.raaveinm.chirro.ui.layouts
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -38,7 +39,7 @@ fun DropDownSelection(
     options: List<String>,
     selectedOption: String,
     onOptionSelected: (String) -> Unit,
-    hazeStateModifier: Modifier
+    @SuppressLint("ModifierParameter") hazeStateModifier: Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
     val shape = RoundedCornerShape(12.dp)
@@ -46,10 +47,10 @@ fun DropDownSelection(
     val glassBorder = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f)
 
     Box(
-        contentAlignment = Alignment.TopEnd,
+        contentAlignment = Alignment.TopCenter,
         modifier = Modifier
             .wrapContentSize()
-            .wrapContentSize(Alignment.TopEnd)
+            .wrapContentSize(Alignment.TopCenter)
             .defaultMinSize(minWidth = 96.dp)
     ) {
         Row(
@@ -61,7 +62,7 @@ fun DropDownSelection(
                 .border(1.dp, glassBorder, shape)
                 .clickable { expanded = !expanded }
                 .padding(horizontal = 16.dp, vertical = 12.dp)
-                .defaultMinSize(minWidth = 128.dp)
+                .defaultMinSize(minWidth = 96.dp)
         ) {
             Text(
                 text = selectedOption,
@@ -76,14 +77,14 @@ fun DropDownSelection(
             DropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
-                offset = DpOffset(x = 0.dp, y = 8.dp),
+                offset = DpOffset(x = 0.dp, y = 0.dp),
                 shadowElevation = 0.dp,
                 tonalElevation = 0.dp,
                 containerColor = Color.Transparent,
                 modifier = hazeStateModifier
                     .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.1f), shape)
                     .border(1.dp, glassBorder, shape)
-                    .defaultMinSize(128.dp)
+                    .defaultMinSize(96.dp)
             ) {
                 options.forEach { option ->
                     val isSelected = option == selectedOption
@@ -94,7 +95,7 @@ fun DropDownSelection(
                                 text = option,
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.defaultMinSize(128.dp)
+                                modifier = Modifier.defaultMinSize(64.dp)
                             )
                         },
                         onClick = {

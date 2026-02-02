@@ -69,7 +69,7 @@ fun MainScreen (modifier: Modifier) {
                             PlaylistScreen(
                                 modifier = Modifier.weight(.8f),
                                 navController = navController,
-                                navigateToTrack = it.arguments?.getBoolean("isNavigating") ?: false
+                                navigateToTrack = true
                             )
                         }
                     }

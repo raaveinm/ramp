@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.raaveinm.chirro.ui.theme.AppTheme
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
@@ -16,11 +17,12 @@ import kotlinx.coroutines.flow.map
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 class SettingDataStoreRepository(private val dataStore: DataStore<Preferences>) {
-    private val TAG: String = "UserPreferencesRepo"
+    private val tag: String = "UserPreferencesRepo"
 
     private object PreferencesKeys {
         val SORT_PRIMARY_ORDER = stringPreferencesKey("sort_order_primary")
         val SORT_SECONDARY_ORDER = stringPreferencesKey("sort_order_secondary")
+        val CURRENT_THEME = stringPreferencesKey("current_theme")
     }
 
     ///////////////////////////////////////////////
@@ -28,7 +30,7 @@ class SettingDataStoreRepository(private val dataStore: DataStore<Preferences>) 
     ///////////////////////////////////////////////
     val settingsPreferencesFlow: Flow<PreferenceList> = dataStore.data
         .catch { exception ->
-            Log.e(TAG, "$exception")
+            Log.e(tag, "$exception")
             emit(emptyPreferences())
         }
         .map { preferences ->
@@ -55,10 +57,18 @@ class SettingDataStoreRepository(private val dataStore: DataStore<Preferences>) 
             OrderMediaQueue.TRACK
         }
 
+        val currentTheme = try {
+            AppTheme.valueOf(
+                preferences[PreferencesKeys.CURRENT_THEME] ?: AppTheme.DYNAMIC.name
+            )
+        } catch (_: Exception) {
+            AppTheme.DYNAMIC
+        }
 
         return PreferenceList(
             trackPrimaryOrder = sortPrimaryOrder,
             trackSecondaryOrder = sortSecondaryOrder,
+            currentTheme = currentTheme
         )
     }
 
@@ -80,6 +90,12 @@ class SettingDataStoreRepository(private val dataStore: DataStore<Preferences>) 
                 preferences[PreferencesKeys.SORT_SECONDARY_ORDER] = OrderMediaQueue.TRACK.name
             else
                 preferences[PreferencesKeys.SORT_SECONDARY_ORDER] = order.name
+        }
+    }
+
+    suspend fun updateTheme(theme: AppTheme) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.CURRENT_THEME] = theme.name
         }
     }
 }

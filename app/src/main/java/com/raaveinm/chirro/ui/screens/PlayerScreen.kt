@@ -81,7 +81,7 @@ fun PlayerScreen(
                 ),
                 modifier = Modifier.fillMaxWidth(),
                 pictureRequired = true,
-                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f),
+                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
                 onClick = { navController.navigate(NavData.PlaylistScreen(true)) },
                 onSwipeRTL = { viewModel.skipNext() },
                 onSwipeLTR = { viewModel.skipPrevious() },

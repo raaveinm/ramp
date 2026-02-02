@@ -107,7 +107,7 @@ fun PlaylistScreen(
                     uiState.currentTrack?.let { current ->
                         val index = tracks.indexOfFirst { it.id == current.id }
                         if (index > 6) {
-                            listState.animateScrollToItem(index - 6)
+                            listState.scrollToItem(index - 3)
                             isNavigating = false
                             return@LaunchedEffect
                         }

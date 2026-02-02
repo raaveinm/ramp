@@ -78,10 +78,10 @@ fun TrackInfoLayout(
                         detectHorizontalDragGestures(
                             onDragEnd = {
                                 when {
-                                    offsetX > 100 -> onSwipeLTR()
-                                    offsetX < -100 -> onSwipeRTL()
+                                    offsetX > 200 -> onSwipeLTR()
+                                    offsetX < -200 -> onSwipeRTL()
                                 }
-                                offsetX = 0f
+                                offsetX = 10f
                             }
                         ) {
                             change, dragAmount ->
@@ -178,7 +178,6 @@ private fun TextInfo(
             ) {
                 Text(
                     text = trackInfo.title,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
                     style = MaterialTheme.typography.bodyLarge,
                     textAlign = TextAlign.Start,
                     softWrap = true,
@@ -188,7 +187,6 @@ private fun TextInfo(
 
                 Text(
                     text = "${trackInfo.artist} - ${trackInfo.album}",
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
                     style = MaterialTheme.typography.labelSmall,
                     textAlign = TextAlign.Start,
                     softWrap = true,
@@ -199,7 +197,6 @@ private fun TextInfo(
 
             Text(
                 text = formatDuration(trackInfo.duration),
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
                 style = MaterialTheme.typography.labelSmall,
                 textAlign = TextAlign.End,
                 modifier = Modifier.padding(start = 8.dp)

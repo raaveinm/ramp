@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.raaveinm.chirro.data.datastore.OrderMediaQueue
 import com.raaveinm.chirro.data.datastore.SettingDataStoreRepository
+import com.raaveinm.chirro.ui.theme.AppTheme
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,7 +22,8 @@ class SettingsViewModel(
             settingsFlow.collect {
                 _uiState.value = _uiState.value.copy(
                     trackPrimaryOrder = it.trackPrimaryOrder,
-                    trackSecondaryOrder = it.trackSecondaryOrder
+                    trackSecondaryOrder = it.trackSecondaryOrder,
+                    currentTheme = it.currentTheme
                 )
             }
         }
@@ -52,6 +54,12 @@ class SettingsViewModel(
             if (_uiState.value.trackPrimaryOrder == order)
                 settingsRepository.updatePrimaryOrder(_uiState.value.trackSecondaryOrder)
             settingsRepository.updateSecondaryOrder(order)
+        }
+    }
+
+    fun setTheme(theme: AppTheme) {
+        viewModelScope.launch {
+            settingsRepository.updateTheme(theme)
         }
     }
 }

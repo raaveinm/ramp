@@ -71,10 +71,32 @@ class PlayerViewModel(
         observeAllTracks()
 
         viewModelScope.launch {
+            allTracks.collect { newTracks ->
+                updatePlayerQueue(newTracks)
+            }
+        }
+
+        viewModelScope.launch {
             while (true) {
                 if (isPlaying) updateProgress()
                 delay(100)
             }
+        }
+    }
+
+    ///////////////////////////////////////////////
+    // Update player queue
+    ///////////////////////////////////////////////
+    private fun updatePlayerQueue(tracks: List<TrackInfo>) {
+        val controller = mediaController ?: return
+        val currentMediaId = controller.currentMediaItem?.mediaId
+        val newMediaItems = tracks.map { it.toMediaItem() }
+        val currentIndex = tracks.indexOfFirst { it.id.toString() == currentMediaId }
+
+        if (currentIndex != -1) {
+            controller.setMediaItems(newMediaItems, currentIndex, controller.currentPosition)
+        } else {
+            controller.setMediaItems(newMediaItems)
         }
     }
 

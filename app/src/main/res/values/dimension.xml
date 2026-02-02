@@ -9,4 +9,5 @@
     <dimen name="small_size">16.dp</dimen>
     <dimen name="medium_size">24.dp</dimen>
     <dimen name="large_size">32.dp</dimen>
+    <dimen name="extra_large_size">48.dp</dimen>
 </resources>

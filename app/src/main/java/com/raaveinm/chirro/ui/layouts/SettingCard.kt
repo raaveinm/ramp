@@ -1,5 +1,6 @@
 package com.raaveinm.chirro.ui.layouts
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -15,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -43,12 +45,17 @@ fun SettingCard(
                 .fillMaxWidth()
                 .padding(horizontal = dimensionResource(R.dimen.small_padding))
                 .shadow(
-                    elevation = 5.dp,
-                    shape = RoundedCornerShape(10.dp)
+                    elevation = 8.dp,
+                    shape = RoundedCornerShape(24.dp),
+                    ambientColor = 
+                        if (isSystemInDarkTheme())
+                            Color.White//.copy(alpha = 0.5f)
+                        else
+                            Color.DarkGray.copy(alpha = .2f)
                 ),
             shape = RoundedCornerShape(10.dp),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.background
+                containerColor = MaterialTheme.colorScheme.surfaceBright
             ),
             content = content
         )
