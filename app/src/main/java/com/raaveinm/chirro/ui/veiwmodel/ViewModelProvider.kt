@@ -11,7 +11,8 @@ object AppViewModelProvider {
         initializer {
             PlayerViewModel(
                 application = chirroApplication(),
-                trackRepository = chirroApplication().container.trackRepository
+                trackRepository = chirroApplication().container.trackRepository,
+                settingsRepository = chirroApplication().container.settingsRepository
             )
         }
         initializer {

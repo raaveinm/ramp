@@ -7,6 +7,8 @@
     <string name="track_order">Track order</string>
     <string name="track_primary">Track primary order</string>
     <string name="track_secondary">Track secondary order</string>
+    <string name="saved_text">Restore track on application launch</string>
+
 
     <string name="theme">Theme</string>
     <string name="dynamic">Dynamic</string>

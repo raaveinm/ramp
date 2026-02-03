@@ -8,6 +8,8 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.google.gson.Gson
+import com.raaveinm.chirro.data.database.TrackInfo
 import com.raaveinm.chirro.ui.theme.AppTheme
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -23,6 +25,8 @@ class SettingDataStoreRepository(private val dataStore: DataStore<Preferences>) 
         val SORT_PRIMARY_ORDER = stringPreferencesKey("sort_order_primary")
         val SORT_SECONDARY_ORDER = stringPreferencesKey("sort_order_secondary")
         val CURRENT_THEME = stringPreferencesKey("current_theme")
+        val CURRENT_TRACK = stringPreferencesKey("current_track")
+        val IS_SAVED_STATE = stringPreferencesKey("is_saved_state")
     }
 
     ///////////////////////////////////////////////
@@ -65,10 +69,30 @@ class SettingDataStoreRepository(private val dataStore: DataStore<Preferences>) 
             AppTheme.DYNAMIC
         }
 
+        val currentTrack = try {
+            val jsonString = preferences[PreferencesKeys.CURRENT_TRACK]
+            if (jsonString != null) {
+                Gson().fromJson(jsonString, TrackInfo::class.java)
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            Log.v(tag, "Error parsing track: $e")
+            null
+        }
+
+        val isSavedState = try {
+            preferences[PreferencesKeys.IS_SAVED_STATE].toBoolean()
+        } catch (_: Exception) {
+            false
+        }
+
         return PreferenceList(
             trackPrimaryOrder = sortPrimaryOrder,
             trackSecondaryOrder = sortSecondaryOrder,
-            currentTheme = currentTheme
+            currentTheme = currentTheme,
+            currentTrack = currentTrack,
+            isSavedState = isSavedState
         )
     }
 
@@ -96,6 +120,23 @@ class SettingDataStoreRepository(private val dataStore: DataStore<Preferences>) 
     suspend fun updateTheme(theme: AppTheme) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.CURRENT_THEME] = theme.name
+        }
+    }
+
+    suspend fun setSavedState(state: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.IS_SAVED_STATE] = state.toString()
+        }
+    }
+
+    suspend fun updateCurrentTrack(trackInfo: TrackInfo?) {
+        dataStore.edit { preferences ->
+            if (trackInfo == null) {
+                preferences.remove(PreferencesKeys.CURRENT_TRACK)
+            } else {
+                val jsonString = Gson().toJson(trackInfo)
+                preferences[PreferencesKeys.CURRENT_TRACK] = jsonString
+            }
         }
     }
 }

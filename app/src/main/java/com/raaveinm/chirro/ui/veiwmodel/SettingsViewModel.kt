@@ -23,7 +23,8 @@ class SettingsViewModel(
                 _uiState.value = _uiState.value.copy(
                     trackPrimaryOrder = it.trackPrimaryOrder,
                     trackSecondaryOrder = it.trackSecondaryOrder,
-                    currentTheme = it.currentTheme
+                    currentTheme = it.currentTheme,
+                    isSavedState = it.isSavedState,
                 )
             }
         }
@@ -60,6 +61,12 @@ class SettingsViewModel(
     fun setTheme(theme: AppTheme) {
         viewModelScope.launch {
             settingsRepository.updateTheme(theme)
+        }
+    }
+
+    fun setSavedState(state: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.setSavedState(state)
         }
     }
 }

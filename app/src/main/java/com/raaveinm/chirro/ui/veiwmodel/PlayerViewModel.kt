@@ -5,6 +5,8 @@ import android.app.Application
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
+import android.os.PowerManager
 import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
@@ -18,6 +20,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.raaveinm.chirro.data.database.TrackInfo
+import com.raaveinm.chirro.data.datastore.SettingDataStoreRepository
 import com.raaveinm.chirro.data.repository.TrackRepository
 import com.raaveinm.chirro.domain.Eggs
 import com.raaveinm.chirro.domain.PlaybackService
@@ -25,6 +28,8 @@ import com.raaveinm.chirro.domain.toMediaItem
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -46,12 +51,26 @@ import kotlinx.coroutines.launch
 
 class PlayerViewModel(
     application: Application,
-    private val trackRepository: TrackRepository
+    private val trackRepository: TrackRepository,
+    private var settingsRepository: SettingDataStoreRepository
 ) : AndroidViewModel(application) {
-
+    // Ui State
     private val _uiState = MutableStateFlow(PlayerUiState())
     val uiState = _uiState.asStateFlow()
     val isPlaying: Boolean get() = _uiState.value.isPlaying
+    // Power Management
+    private val context = getApplication<Application>()
+    private val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+    private val _isPowerSaveMode = MutableStateFlow(powerManager.isPowerSaveMode)
+    val isPowerSaveMode = _isPowerSaveMode.asStateFlow()
+    private val powerModeReceiver = object : android.content.BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == PowerManager.ACTION_POWER_SAVE_MODE_CHANGED) {
+                _isPowerSaveMode.value = powerManager.isPowerSaveMode
+            }
+        }
+    }
+    // Track resolving
     private val _allTracks = MutableStateFlow<List<TrackInfo>>(emptyList())
     val allTracks = trackRepository.getAllTracks()
         .stateIn(
@@ -67,6 +86,9 @@ class PlayerViewModel(
 //    }
 
     init {
+        val filter = IntentFilter(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED)
+        context.registerReceiver(powerModeReceiver, filter)
+
         initializeController()
         observeAllTracks()
 
@@ -79,7 +101,7 @@ class PlayerViewModel(
         viewModelScope.launch {
             while (true) {
                 if (isPlaying) updateProgress()
-                delay(100)
+                delay(if (isPowerSaveMode.value) 300 else 100)
             }
         }
     }
@@ -100,6 +122,10 @@ class PlayerViewModel(
         }
     }
 
+    ///////////////////////////////////////////////
+    // Init & Restore Session
+    ///////////////////////////////////////////////
+
     @OptIn(UnstableApi::class)
     private fun initializeController() {
         val sessionToken = SessionToken(
@@ -112,9 +138,33 @@ class PlayerViewModel(
                 mediaController = controllerFuture.get()
                 mediaController?.addListener(playerListener)
                 updatePlayerState()
+                restoreSavedState()
             },
             { it.run() }
         )
+    }
+
+    private fun restoreSavedState() {
+        viewModelScope.launch {
+            val controller = mediaController ?: return@launch
+            if (controller.mediaItemCount > 0) return@launch
+            val prefs = settingsRepository.settingsPreferencesFlow.first()
+            if (!prefs.isSavedState || prefs.currentTrack == null) return@launch
+            val savedTrackId = prefs.currentTrack.id
+            val tracks = allTracks.filter { it.isNotEmpty() }.first()
+            val mediaItems = tracks.map { it.toMediaItem() }
+            val index = tracks.indexOfFirst { it.id == savedTrackId }
+
+            if (index != -1) {
+                controller.setMediaItems(mediaItems, index, 0L)
+                controller.prepare()
+                controller.pause()
+            } else {
+                controller.setMediaItems(mediaItems)
+                controller.prepare()
+                controller.pause()
+            }
+        }
     }
 
     private fun observeAllTracks() {
@@ -190,6 +240,11 @@ class PlayerViewModel(
 
     override fun onCleared() {
         super.onCleared()
+        try {
+            context.unregisterReceiver(powerModeReceiver)
+        } catch (e: IllegalArgumentException) {
+            Log.e("PlayerViewModel", "Failed to unregister receiver $e")
+        }
         mediaController?.removeListener(playerListener)
         mediaController?.release()
         mediaController = null
@@ -285,7 +340,10 @@ class PlayerViewModel(
         val keyWordsTitle = listOf("arc")
         val keyWordsArtist = listOf("embark", "arc")
         trackName.lowercase()
-        if (keyWordsArtist[0] in trackArtist.lowercase() || keyWordsTitle[0] in trackName.lowercase() && keyWordsArtist.any { it in trackArtist.lowercase() }) {
+        if (keyWordsArtist[0] in trackArtist.lowercase()
+            || keyWordsTitle[0] in trackName.lowercase()
+            && keyWordsArtist.any { it in trackArtist.lowercase() }
+            ) {
             return Eggs.ARC
         }
         return null

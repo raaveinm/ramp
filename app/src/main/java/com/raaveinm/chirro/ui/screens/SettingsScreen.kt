@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -16,6 +17,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoFixHigh
 import androidx.compose.material.icons.filled.BrightnessMedium
 import androidx.compose.material.icons.filled.Brush
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Contrast
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
@@ -28,6 +31,8 @@ import androidx.compose.material.icons.outlined.LightMode
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -213,6 +218,40 @@ fun SettingsScreen(
                             .zIndex(1f)
                     )
                 }
+
+                HorizontalDivider(Modifier
+                    .padding(horizontal = dimensionResource(R.dimen.medium_padding))
+                    .padding(vertical = dimensionResource(R.dimen.small_padding))
+                )
+
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = dimensionResource(R.dimen.s_medium_padding))
+                        .padding(vertical = dimensionResource(R.dimen.small_padding))
+                ) {
+                    val checked = uiState.isSavedState
+
+                    Text(
+                        text = stringResource(R.string.saved_text),
+                        modifier = Modifier,
+                        style = MaterialTheme.typography.titleSmall
+                    )
+                    Switch(
+                        checked = checked,
+                        onCheckedChange = { viewModel.setSavedState(it)},
+                        thumbContent = {
+                            Icon(
+                                imageVector = if (checked) Icons.Filled.Check
+                                else Icons.Filled.Close,
+                                contentDescription = null,
+                                modifier = Modifier.size(SwitchDefaults.IconSize),
+                            )
+                        }
+                    )
+                }
             }
         }
 
@@ -227,7 +266,9 @@ fun SettingsScreen(
                 .padding(vertical = dimensionResource(R.dimen.medium_padding))
                 .padding(horizontal = dimensionResource(R.dimen.small_padding))
         ) {
-            Column(modifier = Modifier.hazeSource(hazeState).zIndex(.5f)) {
+            Column(modifier = Modifier
+                .hazeSource(hazeState)
+                .zIndex(.5f)) {
                 val themeOptions = listOf(
                     ThemeOption(
                         AppTheme.DARK,

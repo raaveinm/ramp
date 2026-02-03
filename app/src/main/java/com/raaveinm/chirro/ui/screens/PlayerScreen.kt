@@ -4,18 +4,11 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.animation.*
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -48,6 +41,8 @@ fun PlayerScreen(
         contract = ActivityResultContracts.StartIntentSenderForResult()
     ) { }
 
+    var isNextDirection by remember { mutableStateOf(true) }
+
     Surface(
         modifier = modifier,
         color = MaterialTheme.colorScheme.background
@@ -61,7 +56,6 @@ fun PlayerScreen(
                         .zIndex(0f)) { ArcEasterEgg() }
                 }
                 Eggs.NULL -> {}
-
             }
         }
         Column(
@@ -69,8 +63,8 @@ fun PlayerScreen(
             verticalArrangement = Arrangement.Bottom,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            TrackInfoLayout(
-                trackInfo = trackInfo ?: TrackInfo(
+            AnimatedContent(
+                targetState = trackInfo ?: TrackInfo(
                     title = "Unknown",
                     artist = "Unknown",
                     album = "Unknown",
@@ -79,14 +73,37 @@ fun PlayerScreen(
                     id = -1,
                     isFavourite = true,
                 ),
-                modifier = Modifier.fillMaxWidth(),
-                pictureRequired = true,
-                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
-                onClick = { navController.navigate(NavData.PlaylistScreen(true)) },
-                onSwipeRTL = { viewModel.skipNext() },
-                onSwipeLTR = { viewModel.skipPrevious() },
-                onCoverClick = { navController.navigate(NavData.PlaylistScreen(true)) }
-            )
+                label = "TrackTransition",
+                transitionSpec = {
+                    if (isNextDirection) {
+                        (slideInHorizontally { width -> width } + fadeIn()).togetherWith(
+                            slideOutHorizontally { width -> -width } + fadeOut())
+                    } else {
+                        (slideInHorizontally { width -> -width } + fadeIn()).togetherWith(
+                            slideOutHorizontally { width -> width } + fadeOut())
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) { currentTrack ->
+
+                TrackInfoLayout(
+                    trackInfo = currentTrack,
+                    modifier = Modifier.fillMaxWidth(),
+                    pictureRequired = true,
+                    containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
+                    onClick = { navController.navigate(NavData.PlaylistScreen(true)) },
+
+                    onSwipeRTL = {
+                        isNextDirection = true
+                        viewModel.skipNext()
+                    },
+                    onSwipeLTR = {
+                        isNextDirection = false
+                        viewModel.skipPrevious()
+                    },
+                    onCoverClick = { navController.navigate(NavData.PlaylistScreen(true)) }
+                )
+            }
 
             Spacer(Modifier.padding(dimensionResource(R.dimen.medium_padding)))
 
@@ -97,8 +114,14 @@ fun PlayerScreen(
                     if (isPlaying) viewModel.pause()
                     else viewModel.resume()
                 },
-                onPreviousClick = { viewModel.skipPrevious() },
-                onNextClick = { viewModel.skipNext() },
+                onPreviousClick = {
+                    isNextDirection = false
+                    viewModel.skipPrevious()
+                },
+                onNextClick = {
+                    isNextDirection = true
+                    viewModel.skipNext()
+                },
                 onSeek = { position -> viewModel.seekTo(position.toLong()) },
                 onShareClick = { viewModel.shareTrack(activity, trackInfo) },
                 currentDuration = uiState.currentPosition,

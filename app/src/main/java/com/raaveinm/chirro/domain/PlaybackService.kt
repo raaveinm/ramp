@@ -5,6 +5,7 @@ import android.content.Intent
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
+import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.LibraryResult
@@ -16,12 +17,14 @@ import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import com.raaveinm.chirro.data.ChirroApplication
 import com.raaveinm.chirro.MainActivity
+import com.raaveinm.chirro.data.datastore.SettingDataStoreRepository
 import com.raaveinm.chirro.data.repository.TrackRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.util.concurrent.Callable
 
 @UnstableApi
@@ -34,10 +37,14 @@ class PlaybackService : MediaLibraryService() {
 
     private val serviceJob = SupervisorJob()
     private val serviceScope = CoroutineScope(Dispatchers.Main + serviceJob)
+    private lateinit var settingsRepository: SettingDataStoreRepository
 
     override fun onCreate() {
         super.onCreate()
-        trackRepository = (application as ChirroApplication).container.trackRepository
+        val container = (application as ChirroApplication).container
+        trackRepository = container.trackRepository
+        settingsRepository = container.settingsRepository
+        
         notificationProvider = PlaybackNotificationProvider(this)
         setMediaNotificationProvider(notificationProvider)
 
@@ -46,6 +53,12 @@ class PlaybackService : MediaLibraryService() {
             .setAudioAttributes(AudioAttributes.DEFAULT, true)
             .setHandleAudioBecomingNoisy(true)
             .build()
+
+        player.addListener(object : Player.Listener {
+            override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+                saveCurrentState()
+            }
+        })
 
         // Build Session
         session = MediaLibrarySession
@@ -71,6 +84,20 @@ class PlaybackService : MediaLibraryService() {
         player.release()
         serviceJob.cancel()
         super.onDestroy()
+    }
+
+    private fun saveCurrentState() {
+        serviceScope.launch {
+            try {
+                val prefs = settingsRepository.settingsPreferencesFlow.first()
+                if (!prefs.isSavedState) return@launch
+                val currentMediaId = player.currentMediaItem?.mediaId?.toIntOrNull() ?: return@launch
+                val track = trackRepository.getTrackById(currentMediaId)
+                settingsRepository.updateCurrentTrack(track)
+            } catch (e: Exception) {
+                android.util.Log.e("PlaybackService", "Failed to save state: ${e.message}")
+            }
+        }
     }
 
     private inner class LibrarySessionCallback : MediaLibrarySession.Callback {
@@ -120,7 +147,7 @@ class PlaybackService : MediaLibraryService() {
 
         private fun importMediaItems(): LibraryResult<ImmutableList<MediaItem>> {
             return try {
-                val tracks = kotlinx.coroutines.runBlocking {
+                val tracks = runBlocking {
                     trackRepository.getAllTracks().first()
                 }
                 val mediaItems = tracks.map { it.toMediaItem() }
@@ -132,5 +159,9 @@ class PlaybackService : MediaLibraryService() {
                 LibraryResult.ofError(SessionError.ERROR_UNKNOWN)
             }
         }
+    }
+
+    companion object {
+        private const val ROOT_ID = "root"
     }
 }
