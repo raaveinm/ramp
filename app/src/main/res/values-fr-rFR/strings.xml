@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="service_description">Ce service est utilisé pour gérer la lecture des médias</string>
+
+    <string name="tracklist_empty">Aucun média trouvé</string>
+    <string name="search_hint">titre artiste album</string>
+
+    <string name="track_order">Ordre des pistes</string>
+    <string name="track_primary">Ordre principal des pistes</string>
+    <string name="track_secondary">Ordre secondaire des pistes</string>
+    <string name="saved_text">Restaurer la piste au lancement de l\'application</string>
+    <string name="order">Trier par</string>
+
+    <string name="language">Langue</string>
+    <string name="select_language">Choisir la langue</string>
+    <string name="order_asc">Croissant</string>
+    <string name="order_desc">Décroissant</string>
+
+    <string name="theme">Thème</string>
+    <string name="dynamic">Dynamique</string>
+    <string name="light">Clair</string>
+    <string name="dark">Sombre</string>
+    <string name="pink">Rose</string>
+    <string name="high_contrast">Contraste élevé</string>
+    <string name="monochrome">Monochrome</string>
+
+    <string-array name="track_order_options">
+        <item>par défaut</item>
+        <item>id</item>
+        <item>titre</item>
+        <item>artiste</item>
+        <item>album</item>
+        <item>durée</item>
+        <item>n de piste</item>
+        <item>date d\'ajout</item>
+    </string-array>
+</resources>

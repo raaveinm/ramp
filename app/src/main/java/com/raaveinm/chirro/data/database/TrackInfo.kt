@@ -8,7 +8,8 @@ data class TrackInfo(
     val duration: Long,
     val uri: String,
     val cover: String = "none",
-    val isFavourite: Boolean = false
+    val isFavourite: Boolean = false,
+    val date: Long
 ) {
     companion object {
         val EMPTY = TrackInfo(
@@ -17,7 +18,8 @@ data class TrackInfo(
             artist = "",
             album = "",
             duration = 0L,
-            uri = ""
+            uri = "",
+            date = 0L
         )
     }
 }

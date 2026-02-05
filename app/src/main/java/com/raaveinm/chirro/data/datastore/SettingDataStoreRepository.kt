@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -24,6 +25,7 @@ class SettingDataStoreRepository(private val dataStore: DataStore<Preferences>) 
     private object PreferencesKeys {
         val SORT_PRIMARY_ORDER = stringPreferencesKey("sort_order_primary")
         val SORT_SECONDARY_ORDER = stringPreferencesKey("sort_order_secondary")
+        val SORT_ASCENDING = booleanPreferencesKey("sort_ascending")
         val CURRENT_THEME = stringPreferencesKey("current_theme")
         val CURRENT_TRACK = stringPreferencesKey("current_track")
         val IS_SAVED_STATE = stringPreferencesKey("is_saved_state")
@@ -61,6 +63,12 @@ class SettingDataStoreRepository(private val dataStore: DataStore<Preferences>) 
             OrderMediaQueue.TRACK
         }
 
+        val isAsc: Boolean = try {
+            preferences[PreferencesKeys.SORT_ASCENDING].toString().toBoolean()
+        } catch (_: Exception) {
+            true
+        }
+
         val currentTheme = try {
             AppTheme.valueOf(
                 preferences[PreferencesKeys.CURRENT_THEME] ?: AppTheme.DYNAMIC.name
@@ -90,6 +98,7 @@ class SettingDataStoreRepository(private val dataStore: DataStore<Preferences>) 
         return PreferenceList(
             trackPrimaryOrder = sortPrimaryOrder,
             trackSecondaryOrder = sortSecondaryOrder,
+            trackSortAscending = isAsc,
             currentTheme = currentTheme,
             currentTrack = currentTrack,
             isSavedState = isSavedState
@@ -114,6 +123,12 @@ class SettingDataStoreRepository(private val dataStore: DataStore<Preferences>) 
                 preferences[PreferencesKeys.SORT_SECONDARY_ORDER] = OrderMediaQueue.TRACK.name
             else
                 preferences[PreferencesKeys.SORT_SECONDARY_ORDER] = order.name
+        }
+    }
+
+    suspend fun updateSortAscending(ascending: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.SORT_ASCENDING] = ascending
         }
     }
 

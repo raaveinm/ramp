@@ -64,15 +64,7 @@ fun PlayerScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             AnimatedContent(
-                targetState = trackInfo ?: TrackInfo(
-                    title = "Unknown",
-                    artist = "Unknown",
-                    album = "Unknown",
-                    duration = 0,
-                    uri = "null",
-                    id = -1,
-                    isFavourite = true,
-                ),
+                targetState = trackInfo ?: TrackInfo.EMPTY,
                 label = "TrackTransition",
                 transitionSpec = {
                     if (isNextDirection) {

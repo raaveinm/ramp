@@ -72,6 +72,8 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences:1.2.0")
     implementation("androidx.datastore:datastore-preferences-core:1.2.0")
     implementation("com.google.code.gson:gson:2.8.8")
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.compose.ui.text)
     ksp(libs.androidx.room.compiler)
 
     // --- Media & Images ---

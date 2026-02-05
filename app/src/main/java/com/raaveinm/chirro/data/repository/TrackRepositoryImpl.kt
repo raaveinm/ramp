@@ -53,7 +53,8 @@ class TrackRepositoryImpl(
         return combine(settingsFlow, favFlow, mediaStoreTrigger) { settings, favoriteIds, _ ->
             val localFiles = fetchTracksFromMediaStore(
                 settings.trackPrimaryOrder,
-                settings.trackSecondaryOrder
+                settings.trackSecondaryOrder,
+                settings.trackSortAscending
             )
             localFiles.map { track ->
                 track.copy(isFavourite = favoriteIds.contains(track.id))
@@ -66,7 +67,8 @@ class TrackRepositoryImpl(
     ///////////////////////////////////////////////
     private fun fetchTracksFromMediaStore(
         primaryOrder: OrderMediaQueue,
-        secondaryOrder: OrderMediaQueue
+        secondaryOrder: OrderMediaQueue,
+        isAsc: Boolean
     ): List<TrackInfo> {
         val mediaList = ArrayList<TrackInfo>()
         val projection = arrayOf(
@@ -75,11 +77,12 @@ class TrackRepositoryImpl(
             MediaStore.Audio.Media.ARTIST,
             MediaStore.Audio.Media.ALBUM,
             MediaStore.Audio.Media.DURATION,
-            MediaStore.Audio.Media.ALBUM_ID
+            MediaStore.Audio.Media.ALBUM_ID,
+            MediaStore.Audio.Media.DATE_ADDED
         )
 
         val selection = "${MediaStore.Audio.Media.IS_MUSIC} != 0"
-        val sortOrder = getSortOrder(primaryOrder, secondaryOrder)
+        val sortOrder = getSortOrder(primaryOrder, secondaryOrder, isAsc)
         Log.d("MediaStore", "SortOrder: $sortOrder")
 
         try {
@@ -98,6 +101,7 @@ class TrackRepositoryImpl(
                 val albumColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)
                 val durationColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
                 val albumIdColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)
+                val dateAddedColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED)
 
                 while (c.moveToNext()) {
                     val id = c.getLong(idColumn)
@@ -106,6 +110,7 @@ class TrackRepositoryImpl(
                     val album = c.getString(albumColumn) ?: "Unknown Album"
                     val duration = c.getLong(durationColumn)
                     val albumId = c.getLong(albumIdColumn)
+                    val dateAdded = c.getLong(dateAddedColumn)
 
                     val contentUri = ContentUris.withAppendedId(
                         MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
@@ -126,7 +131,8 @@ class TrackRepositoryImpl(
                             duration = duration,
                             uri = contentUri,
                             cover = coverUri,
-                            isFavourite = false
+                            isFavourite = false,
+                            date = dateAdded
                         )
                     )
                 }
@@ -179,7 +185,8 @@ class TrackRepositoryImpl(
             MediaStore.Audio.Media.ARTIST,
             MediaStore.Audio.Media.ALBUM,
             MediaStore.Audio.Media.DURATION,
-            MediaStore.Audio.Media.DATA
+            MediaStore.Audio.Media.DATA,
+            MediaStore.Audio.Media.DATE_ADDED
         )
 
         val cursor = resolver.query(
@@ -198,6 +205,7 @@ class TrackRepositoryImpl(
                 val albumColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)
                 val durationColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
                 val dataColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
+                val dateAddedColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED)
 
                 val id = c.getLong(idColumn)
                 val title = c.getString(titleColumn)
@@ -205,6 +213,7 @@ class TrackRepositoryImpl(
                 val album = c.getString(albumColumn)
                 val duration = c.getLong(durationColumn)
                 val trackUri = c.getString(dataColumn)
+                val dateAdded = c.getLong(dateAddedColumn)
 
                 return TrackInfo( //TODO("REPLACE HARDCODE")
                     id = id,
@@ -213,7 +222,8 @@ class TrackRepositoryImpl(
                     album = album ?: "Unknown Album",
                     duration = duration,
                     uri = trackUri ?: "",
-                    isFavourite = false
+                    isFavourite = false,
+                    date = dateAdded
                 )
             }
         }
@@ -256,7 +266,11 @@ class TrackRepositoryImpl(
     }
 }
 
-private fun getSortOrder(primary: OrderMediaQueue, secondary: OrderMediaQueue): String {
+private fun getSortOrder(
+    primary: OrderMediaQueue,
+    secondary: OrderMediaQueue,
+    isAsc: Boolean
+): String {
     fun OrderMediaQueue.toSql(): String {
         return when (this) {
             OrderMediaQueue.ALBUM -> MediaStore.Audio.Media.ALBUM
@@ -265,10 +279,13 @@ private fun getSortOrder(primary: OrderMediaQueue, secondary: OrderMediaQueue): 
             OrderMediaQueue.DURATION -> MediaStore.Audio.Media.DURATION
             OrderMediaQueue.ID -> MediaStore.Audio.Media._ID
             OrderMediaQueue.TRACK -> MediaStore.Audio.Media.TRACK
+            OrderMediaQueue.DATE_ADDED -> MediaStore.Audio.Media.DATE_ADDED
             else -> MediaStore.Audio.Media.TRACK
         }
     }
+
+    val asc = if (isAsc) "ASC" else "DESC"
     if (secondary == OrderMediaQueue.ALBUM)
-        return "${primary.toSql()} ASC, ${secondary.toSql()} ASC, ${MediaStore.Audio.Media.TRACK} ASC"
-    return "${primary.toSql()} ASC, ${secondary.toSql()} ASC"
+        return "${primary.toSql()} $asc, ${secondary.toSql()} $asc, ${MediaStore.Audio.Media.TRACK} $asc"
+    return "${primary.toSql()} $asc, ${secondary.toSql()} $asc"
 }

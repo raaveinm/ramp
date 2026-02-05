@@ -1,5 +1,6 @@
 package com.raaveinm.chirro.ui.screens
 
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -31,6 +33,9 @@ import androidx.compose.material.icons.outlined.LightMode
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -45,14 +50,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.raaveinm.chirro.R
 import com.raaveinm.chirro.ui.layouts.DropDownSelection
 import com.raaveinm.chirro.ui.layouts.SettingCard
 import com.raaveinm.chirro.ui.theme.AppTheme
 import com.raaveinm.chirro.ui.theme.ThemeOption
+import com.raaveinm.chirro.ui.theme.languageMap
 import com.raaveinm.chirro.ui.veiwmodel.AppViewModelProvider
 import com.raaveinm.chirro.ui.veiwmodel.SettingsViewModel
 import dev.chrisbanes.haze.HazeState
@@ -64,12 +72,13 @@ fun SettingsScreen(
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
+    val hazeState: HazeState = remember { HazeState(true) }
     Column(
         modifier = modifier
+            .hazeSource(state = hazeState)
             .verticalScroll(rememberScrollState())
             .fillMaxSize()
     ) {
-        val hazeState = remember { HazeState(true) }
         val uiState = viewModel.uiState.collectAsState().value
 
         // TODO("Colors and visualization")
@@ -178,22 +187,23 @@ fun SettingsScreen(
                 ) {
                     Text(
                         text = stringResource(R.string.track_primary),
-                        modifier = Modifier,
+                        modifier = Modifier.weight(1f),
                         style = MaterialTheme.typography.titleSmall
                     )
                     DropDownSelection(
                         options = options,
                         selectedOption = selectedPrimary,
-                        onOptionSelected = { viewModel.setTrackPrimaryOrder(it) },
+                        onOptionSelected = { viewModel.setTrackPrimaryOrder(options.indexOf(it)) },
                         hazeStateModifier = Modifier
                             .hazeEffect(hazeState)
                             .zIndex(1f)
                     )
                 }
 
-                HorizontalDivider(Modifier
-                    .padding(horizontal = dimensionResource(R.dimen.medium_padding))
-                    .padding(vertical = dimensionResource(R.dimen.small_padding))
+                HorizontalDivider(
+                    Modifier
+                        .padding(horizontal = dimensionResource(R.dimen.medium_padding))
+                        .padding(vertical = dimensionResource(R.dimen.small_padding))
                 )
 
                 Row(
@@ -206,22 +216,23 @@ fun SettingsScreen(
                 ) {
                     Text(
                         text = stringResource(R.string.track_secondary),
-                        modifier = Modifier,
+                        modifier = Modifier.weight(2f),
                         style = MaterialTheme.typography.titleSmall
                     )
                     DropDownSelection(
                         options = options,
                         selectedOption = selectedSecondary,
-                        onOptionSelected = { viewModel.setTrackSecondaryOrder(it) },
+                        onOptionSelected = { viewModel.setTrackSecondaryOrder(options.indexOf(it)) },
                         hazeStateModifier = Modifier
                             .hazeEffect(hazeState)
                             .zIndex(1f)
                     )
                 }
 
-                HorizontalDivider(Modifier
-                    .padding(horizontal = dimensionResource(R.dimen.medium_padding))
-                    .padding(vertical = dimensionResource(R.dimen.small_padding))
+                HorizontalDivider(
+                    Modifier
+                        .padding(horizontal = dimensionResource(R.dimen.medium_padding))
+                        .padding(vertical = dimensionResource(R.dimen.small_padding))
                 )
 
                 Row(
@@ -236,12 +247,13 @@ fun SettingsScreen(
 
                     Text(
                         text = stringResource(R.string.saved_text),
-                        modifier = Modifier,
+                        modifier = Modifier.weight(5f),
                         style = MaterialTheme.typography.titleSmall
                     )
                     Switch(
                         checked = checked,
-                        onCheckedChange = { viewModel.setSavedState(it)},
+                        modifier = Modifier.weight(1f),
+                        onCheckedChange = { viewModel.setSavedState(it) },
                         thumbContent = {
                             Icon(
                                 imageVector = if (checked) Icons.Filled.Check
@@ -251,6 +263,48 @@ fun SettingsScreen(
                             )
                         }
                     )
+                }
+
+                HorizontalDivider(
+                    Modifier
+                        .padding(horizontal = dimensionResource(R.dimen.medium_padding))
+                        .padding(vertical = dimensionResource(R.dimen.small_padding))
+                )
+
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = dimensionResource(R.dimen.s_medium_padding))
+                        .padding(vertical = dimensionResource(R.dimen.small_padding))
+                ) {
+                    val opt = listOf(
+                        stringResource(R.string.order_asc),
+                        stringResource(R.string.order_desc)
+                    )
+                    val selectedIndex = if (uiState.trackSortAscending) 0 else 1
+
+                    Text(
+                        text = stringResource(R.string.order),
+                        modifier = Modifier.wrapContentSize(),
+                        style = MaterialTheme.typography.titleSmall
+                    )
+
+                    SingleChoiceSegmentedButtonRow {
+                        opt.forEachIndexed { index, label ->
+                            SegmentedButton(
+                                shape = SegmentedButtonDefaults.itemShape(
+                                    index = index,
+                                    count = opt.size
+                                ),
+                                onClick = { viewModel.setTrackSortAscending(!uiState.trackSortAscending) },
+                                selected = index == selectedIndex,
+                                label = { Text(label) },
+//                                modifier = Modifier.weight(1f),
+                                )
+                        }
+                    }
                 }
             }
         }
@@ -342,6 +396,61 @@ fun SettingsScreen(
                             .padding(horizontal = dimensionResource(R.dimen.medium_padding))
                             .padding(vertical = dimensionResource(R.dimen.small_padding))
                         )
+                }
+            }
+        }
+
+        ///////////////////////////////////////////////
+        // Language
+        ///////////////////////////////////////////////
+        SettingCard(
+            title = stringResource(R.string.language),
+            modifier = Modifier
+                .fillMaxWidth()
+                .hazeSource(state = hazeState)
+                .padding(vertical = dimensionResource(R.dimen.medium_padding))
+                .padding(horizontal = dimensionResource(R.dimen.small_padding))
+        ) {
+            Column(
+                modifier = Modifier
+                    .hazeSource(state = hazeState)
+                    .zIndex(.5f)
+            ) {
+                val currentAppLocales = AppCompatDelegate.getApplicationLocales()
+                val currentLocale = if (!currentAppLocales.isEmpty) currentAppLocales[0]
+                else java.util.Locale.getDefault()
+                val languageCode = currentLocale?.language ?: "en"
+                val selectedOption = languageMap[languageCode] ?: "English"
+                val options = languageMap.values.toList()
+
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = dimensionResource(R.dimen.s_medium_padding))
+                        .padding(vertical = dimensionResource(R.dimen.small_padding))
+                ) {
+                    Text(
+                        text = stringResource(R.string.select_language),
+                        modifier = Modifier.weight(1f),
+                        style = MaterialTheme.typography.titleSmall
+                    )
+
+                    DropDownSelection(
+                        options = options,
+                        selectedOption = selectedOption,
+                        onOptionSelected = { displayName ->
+                            val selectedCode = languageMap.entries.firstOrNull {
+                                it.value == displayName
+                            }?.key ?: "en"
+                            val appLocale = LocaleListCompat.forLanguageTags(selectedCode)
+                            AppCompatDelegate.setApplicationLocales(appLocale)
+                        },
+                        hazeStateModifier = Modifier
+                            .hazeEffect(hazeState)
+                            .zIndex(1f)
+                    )
                 }
             }
         }

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="service_description">Ця служба використовується для керування відтворенням медіафайлів</string>
+
+    <string name="tracklist_empty">Медіафайлів не знайдено</string>
+    <string name="search_hint">назва виконавець альбом</string>
+
+    <string name="track_order">Порядок треків</string>
+    <string name="track_primary">Основний порядок треків</string>
+    <string name="track_secondary">Вторинний порядок треків</string>
+    <string name="saved_text">Відновлювати трек під час запуску програми</string>
+    <string name="order">Сортувати за</string>
+
+    <string name="language">Мова</string>
+    <string name="select_language">Виберіть мову</string>
+    <string name="order_asc">зростанням</string>
+    <string name="order_desc">спаданням</string>
+
+    <string name="theme">Тема</string>
+    <string name="dynamic">Динамічна</string>
+    <string name="light">Світла</string>
+    <string name="dark">Темна</string>
+    <string name="pink">Рожева</string>
+    <string name="high_contrast">Висококонтрастна</string>
+    <string name="monochrome">Монохромна</string>
+
+    <string-array name="track_order_options">
+        <item>за замовчуванням</item>
+        <item>id</item>
+        <item>назва</item>
+        <item>виконавець</item>
+        <item>альбом</item>
+        <item>тривалість</item>
+        <item>номер треку</item>
+        <item>дата додавання</item>
+    </string-array>
+</resources>

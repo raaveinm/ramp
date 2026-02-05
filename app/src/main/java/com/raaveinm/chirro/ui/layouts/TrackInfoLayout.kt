@@ -219,7 +219,8 @@ fun TrackInfoLayoutPreview() {
             uri = "Uri",
             cover = "Cover",
             duration = 100000,
-            isFavourite = false
+            isFavourite = false,
+            date = 100000
         ),
         onClick = {}
     )

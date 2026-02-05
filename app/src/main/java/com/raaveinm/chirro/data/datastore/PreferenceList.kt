@@ -6,6 +6,7 @@ import com.raaveinm.chirro.ui.theme.AppTheme
 data class PreferenceList(
     val trackPrimaryOrder: OrderMediaQueue = OrderMediaQueue.ALBUM,
     val trackSecondaryOrder: OrderMediaQueue = OrderMediaQueue.ID,
+    val trackSortAscending: Boolean = true,
     val currentTheme: AppTheme = AppTheme.DYNAMIC,
     val currentTrack: TrackInfo? = null,
     val isSavedState: Boolean = false

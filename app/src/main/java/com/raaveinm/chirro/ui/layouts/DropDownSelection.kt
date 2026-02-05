@@ -67,7 +67,8 @@ fun DropDownSelection(
             Text(
                 text = selectedOption,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1
             )
         }
 
