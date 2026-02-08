@@ -1,4 +1,4 @@
-package com.raaveinm.chirro.domain
+package com.raaveinm.chirro.data.values
 
 //const val NOTIFICATION_CHANNEL_ID = "chirro_channel"
 //const val NOTIFICATION_CHANNEL_NAME = "Chirro Playback"

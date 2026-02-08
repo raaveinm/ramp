@@ -103,13 +103,14 @@ fun PlaylistScreen(
             // Jump To Current Track
             ///////////////////////////////////////////////
             if (isNavigating) {
-                LaunchedEffect(key1 = uiState.currentTrack) {
-                    uiState.currentTrack?.let { current ->
-                        val index = tracks.indexOfFirst { it.id == current.id }
-                        if (index > 6) {
-                            listState.scrollToItem(index - 3)
-                            isNavigating = false
-                            return@LaunchedEffect
+                LaunchedEffect(uiState.currentTrack, tracks) {
+                    if (isNavigating && tracks.isNotEmpty()) {
+                        uiState.currentTrack?.let { current ->
+                            val index = tracks.indexOfFirst { it.id == current.id }
+                            if (index != -1) {
+                                listState.scrollToItem((index - 3).coerceAtLeast(0))
+                                isNavigating = false
+                            }
                         }
                     }
                 }
@@ -207,6 +208,7 @@ fun PlaylistScreen(
                                         modifier = Modifier.fillMaxSize(),
                                         trackInfo = track,
                                         pictureRequired = false,
+                                        sidePictureRequired = true,
                                         containerColor = if (isPlaying) {
                                             MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
                                         } else {
@@ -313,6 +315,7 @@ fun PlaylistScreen(
                                     modifier = Modifier.fillMaxWidth(),
                                     trackInfo = track,
                                     pictureRequired = false,
+                                    sidePictureRequired = !viewModel.isPowerSaveMode.value,
                                     containerColor = Color.Transparent,
                                     onClick = {
                                         viewModel.playTrack(track)

@@ -12,7 +12,7 @@ internal abstract class TrackDatabase: RoomDatabase() {
         @Volatile private var instance: TrackDatabase? = null
         fun getDatabase(context: Context): TrackDatabase = instance ?: synchronized(this){
             Room.databaseBuilder(context, TrackDatabase::class.java, "track_database")
-                .fallbackToDestructiveMigration(false)
+                .fallbackToDestructiveMigration(true)
                 .build().also { instance = it }
         }
     }

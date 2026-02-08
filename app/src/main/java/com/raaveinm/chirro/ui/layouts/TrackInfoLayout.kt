@@ -4,16 +4,35 @@ import android.annotation.SuppressLint
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MusicNote
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -21,15 +40,17 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.min
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import com.raaveinm.chirro.R
-import com.raaveinm.chirro.data.database.TrackInfo
+import com.raaveinm.chirro.data.values.TrackInfo
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
@@ -39,6 +60,7 @@ fun TrackInfoLayout(
     modifier: Modifier = Modifier,
     trackInfo: TrackInfo,
     pictureRequired: Boolean = true,
+    sidePictureRequired: Boolean = false,
     containerColor: Color? = null,
     onClick: () -> Unit,
     onSwipeRTL: () -> Unit = {},
@@ -124,7 +146,8 @@ fun TrackInfoLayout(
                     .padding(top = dimensionResource(R.dimen.large_size)),
                 trackInfo = trackInfo,
                 containerColor = containerColor,
-                onClick = onClick
+                onClick = onClick,
+                pictureRequired = sidePictureRequired
             )
         }
     } else {
@@ -135,7 +158,8 @@ fun TrackInfoLayout(
             modifier = modifier,
             trackInfo = trackInfo,
             containerColor = containerColor,
-            onClick = onClick
+            onClick = onClick,
+            pictureRequired = sidePictureRequired
         )
     }
 }
@@ -147,6 +171,7 @@ fun TrackInfoLayout(
 private fun TextInfo(
     modifier: Modifier = Modifier,
     trackInfo: TrackInfo,
+    pictureRequired: Boolean,
     containerColor: Color? = null,
     onClick: () -> Unit
 ){
@@ -167,11 +192,44 @@ private fun TextInfo(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            if (pictureRequired) {
+                SubcomposeAsyncImage(
+                    model = ImageRequest
+                        .Builder(LocalContext.current)
+                        .data(trackInfo.cover)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = "Album Art",
+                    modifier = Modifier
+                        .padding(end = dimensionResource(R.dimen.small_padding))
+                        .requiredSize(min(
+                            dimensionResource(R.dimen.extra_large_size),
+                            dimensionResource(R.dimen.extra_large_size)))
+                        .aspectRatio(1f)
+                        .clip(shape = MaterialTheme.shapes.small),
+                    contentScale = ContentScale.Crop,
+                    error = {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.DarkGray),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Image(
+                                imageVector = Icons.Default.MusicNote,
+                                contentDescription = null,
+                                colorFilter = ColorFilter.tint(Color.White),
+                                modifier = Modifier.size(dimensionResource(R.dimen.small_size))
+                            )
+                        }
+                    }
+                )
+            }
             Column(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = trackInfo.title,
+                    text = trackInfo.title.ifEmpty { stringResource(id = R.string.unknown) },
                     style = MaterialTheme.typography.bodyLarge,
                     textAlign = TextAlign.Start,
                     softWrap = true,
@@ -180,7 +238,8 @@ private fun TextInfo(
                 )
 
                 Text(
-                    text = "${trackInfo.artist} - ${trackInfo.album}",
+                    text = trackInfo.artist.ifEmpty { stringResource(id = R.string.unknown) } +
+                    if (trackInfo.album.isNotEmpty()) " - ${trackInfo.album}" else "",
                     style = MaterialTheme.typography.labelSmall,
                     textAlign = TextAlign.Start,
                     softWrap = true,
@@ -223,5 +282,17 @@ fun TrackInfoLayoutPreview() {
             date = 100000
         ),
         onClick = {}
+    )
+}
+
+@Preview
+@Composable
+fun TrackInfoLayoutPreviewNoPicture() {
+    TrackInfoLayout(
+        modifier = Modifier,
+        trackInfo = TrackInfo.EMPTY,
+        onClick = {},
+        pictureRequired = false,
+        sidePictureRequired = true
     )
 }

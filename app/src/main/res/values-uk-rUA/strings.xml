@@ -13,8 +13,15 @@
 
     <string name="language">Мова</string>
     <string name="select_language">Виберіть мову</string>
-    <string name="order_asc">зростанням</string>
-    <string name="order_desc">спаданням</string>
+    <string name="app_behaviour">Поведінка додатка</string>
+    <string name="shuffle_mode">Режим перемішування</string>
+
+
+    <string name="order_asc">зрост</string>
+    <string name="order_desc">спад</string>
+
+    <string name="shuffle_on">увімк.</string>
+    <string name="shuffle_off">вимк.</string>
 
     <string name="theme">Тема</string>
     <string name="dynamic">Динамічна</string>
@@ -23,6 +30,8 @@
     <string name="pink">Рожева</string>
     <string name="high_contrast">Висококонтрастна</string>
     <string name="monochrome">Монохромна</string>
+
+    <string name="unknown">невідомо</string>
 
     <string-array name="track_order_options">
         <item>за замовчуванням</item>

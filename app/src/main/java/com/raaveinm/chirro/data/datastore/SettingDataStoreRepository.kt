@@ -10,7 +10,8 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.google.gson.Gson
-import com.raaveinm.chirro.data.database.TrackInfo
+import com.raaveinm.chirro.data.values.TrackInfo
+import com.raaveinm.chirro.data.values.OrderMediaQueue
 import com.raaveinm.chirro.ui.theme.AppTheme
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -29,6 +30,7 @@ class SettingDataStoreRepository(private val dataStore: DataStore<Preferences>) 
         val CURRENT_THEME = stringPreferencesKey("current_theme")
         val CURRENT_TRACK = stringPreferencesKey("current_track")
         val IS_SAVED_STATE = stringPreferencesKey("is_saved_state")
+        val IS_SHUFFLE_MODE = booleanPreferencesKey("is_shuffle_mode")
     }
 
     ///////////////////////////////////////////////
@@ -95,13 +97,20 @@ class SettingDataStoreRepository(private val dataStore: DataStore<Preferences>) 
             false
         }
 
+        val isShuffleMode = try {
+            preferences[PreferencesKeys.IS_SHUFFLE_MODE].toString().toBoolean()
+        } catch (_: Exception) {
+            false
+        }
+
         return PreferenceList(
             trackPrimaryOrder = sortPrimaryOrder,
             trackSecondaryOrder = sortSecondaryOrder,
             trackSortAscending = isAsc,
             currentTheme = currentTheme,
             currentTrack = currentTrack,
-            isSavedState = isSavedState
+            isSavedState = isSavedState,
+            isShuffleMode = isShuffleMode
         )
     }
 
@@ -152,6 +161,12 @@ class SettingDataStoreRepository(private val dataStore: DataStore<Preferences>) 
                 val jsonString = Gson().toJson(trackInfo)
                 preferences[PreferencesKeys.CURRENT_TRACK] = jsonString
             }
+        }
+    }
+
+    suspend fun setShuffleMode(shuffleMode: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.IS_SHUFFLE_MODE] = shuffleMode
         }
     }
 }

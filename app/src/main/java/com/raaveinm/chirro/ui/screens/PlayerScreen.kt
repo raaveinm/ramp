@@ -17,8 +17,8 @@ import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.raaveinm.chirro.R
-import com.raaveinm.chirro.data.database.TrackInfo
-import com.raaveinm.chirro.domain.Eggs
+import com.raaveinm.chirro.data.values.TrackInfo
+import com.raaveinm.chirro.data.values.Eggs
 import com.raaveinm.chirro.ui.layouts.ArcEasterEgg
 import com.raaveinm.chirro.ui.layouts.PlayerControlButtons
 import com.raaveinm.chirro.ui.layouts.TrackInfoLayout

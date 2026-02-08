@@ -18,6 +18,20 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        externalNativeBuild {
+            cmake {
+                cppFlags += ""
+                abiFilters += listOf("arm64-v8a", "x86_64")
+            }
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.22.1"
+        }
     }
 
     buildTypes {
@@ -71,17 +85,17 @@ dependencies {
     implementation("androidx.room:room-rxjava3:2.8.4")
     implementation("androidx.datastore:datastore-preferences:1.2.0")
     implementation("androidx.datastore:datastore-preferences-core:1.2.0")
-    implementation("com.google.code.gson:gson:2.8.8")
+    implementation("com.google.code.gson:gson:2.13.2")
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.compose.ui.text)
     ksp(libs.androidx.room.compiler)
 
     // --- Media & Images ---
     implementation(libs.androidx.media)
-    implementation("androidx.media3:media3-exoplayer:1.9.1")
-    implementation("androidx.media3:media3-ui:1.9.1")
-    implementation("androidx.media3:media3-session:1.9.1")
-    implementation("androidx.media3:media3-common:1.9.1")
+    implementation("androidx.media3:media3-exoplayer:1.9.2")
+    implementation("androidx.media3:media3-ui:1.9.2")
+    implementation("androidx.media3:media3-session:1.9.2")
+    implementation("androidx.media3:media3-common:1.9.2")
     implementation("io.coil-kt:coil-compose:2.7.0")
 
     // --- Background Tasks ---

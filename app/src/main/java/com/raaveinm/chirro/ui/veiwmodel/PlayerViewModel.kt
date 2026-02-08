@@ -19,18 +19,16 @@ import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
-import com.raaveinm.chirro.data.database.TrackInfo
 import com.raaveinm.chirro.data.datastore.SettingDataStoreRepository
 import com.raaveinm.chirro.data.repository.TrackRepository
-import com.raaveinm.chirro.domain.Eggs
+import com.raaveinm.chirro.data.values.Eggs
+import com.raaveinm.chirro.data.values.TrackInfo
 import com.raaveinm.chirro.domain.PlaybackService
 import com.raaveinm.chirro.domain.toMediaItem
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 /**
@@ -58,6 +56,7 @@ class PlayerViewModel(
     private val _uiState = MutableStateFlow(PlayerUiState())
     val uiState = _uiState.asStateFlow()
     val isPlaying: Boolean get() = _uiState.value.isPlaying
+
     // Power Management
     private val context = getApplication<Application>()
     private val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
@@ -70,15 +69,13 @@ class PlayerViewModel(
             }
         }
     }
+
     // Track resolving
     private val _allTracks = MutableStateFlow<List<TrackInfo>>(emptyList())
-    val allTracks = trackRepository.getAllTracks()
-        .stateIn(
-            scope = viewModelScope,
-            started = kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(10000),
-            initialValue = emptyList()
-        )
+    val allTracks = _allTracks.asStateFlow()
+    private val _controllerReady = MutableStateFlow(false)
     private var mediaController: MediaController? = null
+
 //    fun onFavoriteClicked(track: TrackInfo) {
 //        viewModelScope.launch {
 //            trackRepository.toggleFavorite(track)
@@ -93,12 +90,6 @@ class PlayerViewModel(
         observeAllTracks()
 
         viewModelScope.launch {
-            allTracks.collect { newTracks ->
-                updatePlayerQueue(newTracks)
-            }
-        }
-
-        viewModelScope.launch {
             while (true) {
                 if (isPlaying) updateProgress()
                 delay(if (isPowerSaveMode.value) 300 else 100)
@@ -111,9 +102,27 @@ class PlayerViewModel(
     ///////////////////////////////////////////////
     private fun updatePlayerQueue(tracks: List<TrackInfo>) {
         val controller = mediaController ?: return
+
+        if (controller.shuffleModeEnabled) {
+            controller.shuffleModeEnabled = false
+        }
+
+        if (controller.mediaItemCount == tracks.size) {
+            var isSynced = true
+            for (i in tracks.indices) {
+                if (controller.getMediaItemAt(i).mediaId != tracks[i].id.toString()) {
+                    isSynced = false
+                    break
+                }
+            }
+            if (isSynced) return
+        }
+
         val currentMediaId = controller.currentMediaItem?.mediaId
         val newMediaItems = tracks.map { it.toMediaItem() }
-        val currentIndex = tracks.indexOfFirst { it.id.toString() == currentMediaId }
+        val currentIndex = if (currentMediaId != null) {
+            tracks.indexOfFirst { it.id.toString() == currentMediaId }
+        } else -1
 
         if (currentIndex != -1) {
             controller.setMediaItems(newMediaItems, currentIndex, controller.currentPosition)
@@ -136,45 +145,56 @@ class PlayerViewModel(
         controllerFuture.addListener(
             {
                 mediaController = controllerFuture.get()
+                mediaController?.shuffleModeEnabled = false
                 mediaController?.addListener(playerListener)
                 updatePlayerState()
-                restoreSavedState()
+                _controllerReady.value = true
+
+                syncInitialState()
             },
             { it.run() }
         )
     }
 
-    private fun restoreSavedState() {
+    private fun syncInitialState() {
         viewModelScope.launch {
             val controller = mediaController ?: return@launch
             if (controller.mediaItemCount > 0) return@launch
-            val prefs = settingsRepository.settingsPreferencesFlow.first()
-            if (!prefs.isSavedState || prefs.currentTrack == null) return@launch
-            val savedTrackId = prefs.currentTrack.id
-            val tracks = allTracks.filter { it.isNotEmpty() }.first()
-            val mediaItems = tracks.map { it.toMediaItem() }
-            val index = tracks.indexOfFirst { it.id == savedTrackId }
+            val tracks = _allTracks.value.takeIf { it.isNotEmpty() } ?: return@launch
 
-            if (index != -1) {
-                controller.setMediaItems(mediaItems, index, 0L)
+            val prefs = settingsRepository.settingsPreferencesFlow.first()
+            val savedTrackId = prefs.currentTrack?.id
+            val shouldRestore = prefs.isSavedState && savedTrackId != null
+
+            val mediaItems = tracks.map { it.toMediaItem() }
+
+            if (shouldRestore) {
+                val index = tracks.indexOfFirst { it.id == savedTrackId }
+                if (index != -1) {
+                    controller.setMediaItems(mediaItems, index, 0L)
+                } else {
+                    controller.setMediaItems(mediaItems)
+                }
                 controller.prepare()
                 controller.pause()
             } else {
                 controller.setMediaItems(mediaItems)
                 controller.prepare()
-                controller.pause()
             }
         }
     }
 
     private fun observeAllTracks() {
         viewModelScope.launch {
-            trackRepository.getAllTracks().collect { tracks ->
-                _allTracks.value = tracks
-                if (tracks.isNotEmpty()) {
-                    updatePlayerState()
+            trackRepository.getAllTracks()
+                .collect { processedTracks ->
+                    this@PlayerViewModel._allTracks.value = processedTracks
+
+                    if (processedTracks.isNotEmpty()) {
+                        updatePlayerQueue(processedTracks)
+                        updatePlayerState()
+                    }
                 }
-            }
         }
     }
 
@@ -195,12 +215,12 @@ class PlayerViewModel(
 
     fun playTrack(track: TrackInfo) {
         mediaController?.let { controller ->
-            val allMediaItems = _allTracks.value.map { it.toMediaItem() }
-            val startIndex = allMediaItems.indexOfFirst { it.mediaId == track.id.toString() }
+            val currentList = _allTracks.value
+            val allMediaItems = currentList.map { it.toMediaItem() }
+            val startIndex = currentList.indexOfFirst { it.id == track.id }
 
             if (startIndex != -1) {
                 controller.setMediaItems(allMediaItems, startIndex, 0L)
-
                 controller.prepare()
                 controller.play()
             }
@@ -343,7 +363,7 @@ class PlayerViewModel(
         if (keyWordsArtist[0] in trackArtist.lowercase()
             || keyWordsTitle[0] in trackName.lowercase()
             && keyWordsArtist.any { it in trackArtist.lowercase() }
-            ) {
+        ) {
             return Eggs.ARC
         }
         return null

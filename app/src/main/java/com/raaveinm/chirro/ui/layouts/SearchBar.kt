@@ -3,6 +3,8 @@ package com.raaveinm.chirro.ui.layouts
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -16,8 +18,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.unit.min
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.raaveinm.chirro.R
 import com.raaveinm.chirro.ui.veiwmodel.PlayerViewModel
 
 @Composable
@@ -36,6 +41,7 @@ fun SearchBar(
     ) {
         IconButton(
             onClick = { closeScreen() },
+            modifier = Modifier.weight(1f)
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -46,7 +52,7 @@ fun SearchBar(
         OutlinedTextField(
             value = searchQuery,
             onValueChange = { viewModel.onTextChanged(it) },
-            modifier = Modifier,
+            modifier = Modifier.weight(6f),
             trailingIcon = {
                 if (searchQuery.isNotEmpty()) {
                     IconButton(
@@ -67,6 +73,7 @@ fun SearchBar(
 
         IconButton(
             onClick = { viewModel.onSearchToggle() },
+            modifier = Modifier.weight(1f)
         ) {
             Icon(
                 imageVector = Icons.Default.Search,

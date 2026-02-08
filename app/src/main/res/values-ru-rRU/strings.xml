@@ -13,16 +13,25 @@
 
     <string name="language">Язык</string>
     <string name="select_language">Выберите язык</string>
-    <string name="order_asc">Возрастанию</string>
-    <string name="order_desc">Убыванию</string>
+    <string name="app_behaviour">Поведение приложения</string>
+    <string name="shuffle_mode">Режим перемешивания</string>
 
-    <string name="theme">Стилизация</string>
+
+    <string name="order_asc">возраст.</string>
+    <string name="order_desc">убываниe</string>
+
+    <string name="shuffle_on">вкл.</string>
+    <string name="shuffle_off">выкл.</string>
+
+    <string name="theme">Тема</string>
     <string name="dynamic">Динамическая</string>
     <string name="light">Светлая</string>
     <string name="dark">Темная</string>
     <string name="pink">Розовая</string>
     <string name="high_contrast">Повышенный контраст</string>
     <string name="monochrome">Монохром</string>
+
+    <string name="unknown">невідомо</string>
 
     <string-array name="track_order_options">
         <item>стандартн.</item>
@@ -31,7 +40,6 @@
         <item>исполнитель</item>
         <item>альбом</item>
         <item>длительность</item>
-        <!--        <item>shuffle</item>-->
         <item>порядок</item>
         <item>добавлен</item>
     </string-array>

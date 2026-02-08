@@ -1,4 +1,4 @@
-package com.raaveinm.chirro.data.datastore
+package com.raaveinm.chirro.data.values
 
 enum class OrderMediaQueue {
     DEFAULT,
@@ -7,7 +7,6 @@ enum class OrderMediaQueue {
     ARTIST,
     ALBUM,
     DURATION,
-//    SHUFFLE,
     TRACK,
     DATE_ADDED
 }

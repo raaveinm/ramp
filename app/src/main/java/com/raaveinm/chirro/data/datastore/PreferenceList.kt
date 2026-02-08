@@ -1,6 +1,7 @@
 package com.raaveinm.chirro.data.datastore
 
-import com.raaveinm.chirro.data.database.TrackInfo
+import com.raaveinm.chirro.data.values.TrackInfo
+import com.raaveinm.chirro.data.values.OrderMediaQueue
 import com.raaveinm.chirro.ui.theme.AppTheme
 
 data class PreferenceList(
@@ -9,5 +10,6 @@ data class PreferenceList(
     val trackSortAscending: Boolean = true,
     val currentTheme: AppTheme = AppTheme.DYNAMIC,
     val currentTrack: TrackInfo? = null,
-    val isSavedState: Boolean = false
+    val isSavedState: Boolean = false,
+    val isShuffleMode: Boolean = false
 )

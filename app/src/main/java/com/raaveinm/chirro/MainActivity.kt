@@ -27,8 +27,13 @@ class MainActivity : AppCompatActivity() {
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean -> if (!isGranted) { finish() } }
 
+    @OptIn(UnstableApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val serviceIntent = Intent(this, PlaybackService::class.java)
+        startService(serviceIntent)
+
         enableEdgeToEdge()
         setContent {
             val viewModel: SettingsViewModel = viewModel(factory = AppViewModelProvider.Factory)
@@ -47,19 +52,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     ///////////////////////////////////////////////
-    // Permission check & service start
+    // Permission check
     ///////////////////////////////////////////////
-    @OptIn(UnstableApi::class)
     override fun onStart() {
         super.onStart()
-
         com.raaveinm.chirro.domain.checkPermission(
             activity = this,
             launcher = requestPermissionLauncher
         )
-
-        val serviceIntent = Intent(this, PlaybackService::class.java)
-        startService(serviceIntent)
     }
 
     ///////////////////////////////////////////////

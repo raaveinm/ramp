@@ -57,11 +57,7 @@ fun TopBar(
                     iconRightDescription = "toPlaylist",
                     iconLeft = Icons.AutoMirrored.Filled.ArrowBack,
                     iconRight = Icons.AutoMirrored.Filled.QueueMusic,
-                    iconLeftAction = {
-                        navController.navigate(NavData.PlayerScreen) {
-                            popUpTo(NavData.PlayerScreen) { this.inclusive = true }
-                        }
-                    },
+                    iconLeftAction = { navController.popBackStack() },
                     iconRightAction = {
                         navController.navigate(NavData.PlaylistScreen(false)) {
                             popUpTo(NavData.PlayerScreen) { this.inclusive = false }
@@ -79,11 +75,7 @@ fun TopBar(
                     iconRightDescription = "toSettings",
                     iconLeft = Icons.AutoMirrored.Filled.ArrowBack,
                     iconRight = Icons.Default.Settings,
-                    iconLeftAction = {
-                        navController.navigate(NavData.PlayerScreen) {
-                            popUpTo(NavData.PlayerScreen) { this.inclusive = true }
-                        }
-                    },
+                    iconLeftAction = { navController.popBackStack() },
                     iconRightAction = {
                         navController.navigate(NavData.SettingsScreen) {
                             popUpTo(NavData.PlayerScreen) { this.inclusive = false }

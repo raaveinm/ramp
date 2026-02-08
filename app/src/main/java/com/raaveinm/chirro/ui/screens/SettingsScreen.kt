@@ -1,6 +1,8 @@
 package com.raaveinm.chirro.ui.screens
 
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -41,16 +43,12 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.core.os.LocaleListCompat
@@ -81,81 +79,7 @@ fun SettingsScreen(
     ) {
         val uiState = viewModel.uiState.collectAsState().value
 
-        // TODO("Colors and visualization")
         // TODO("set custom unknown cover")
-        // TODO("language")
-
-        ///////////////////////////////////////////////
-        // Settings sample card
-        ///////////////////////////////////////////////
-        SettingCard(
-            title = "Title",
-            modifier = Modifier
-                .fillMaxWidth()
-                .hazeSource(state = hazeState)
-                .padding(horizontal = dimensionResource(R.dimen.small_padding))
-                .zIndex(.5f)
-        ) {
-
-            Column(
-                modifier = Modifier.hazeSource(state = hazeState)
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = dimensionResource(R.dimen.s_medium_padding))
-                        .padding(vertical = dimensionResource(R.dimen.medium_padding))
-                ) {
-                    Text(
-                        text = "Test",
-                        modifier = Modifier,
-                        style = MaterialTheme.typography.titleSmall
-                    )
-                    val options = listOf("Option 1", "Option 2", "Option 3")
-                    var selectedOption by remember { mutableStateOf(options[1]) }
-                    DropDownSelection(
-                        options = options,
-                        selectedOption = selectedOption,
-                        onOptionSelected = { selectedOption = it },
-                        hazeStateModifier = Modifier
-                            .hazeEffect(hazeState)
-                            .zIndex(1f)
-                    )
-                }
-
-                HorizontalDivider(Modifier
-                    .padding(horizontal = dimensionResource(R.dimen.medium_padding))
-                    .padding(vertical = dimensionResource(R.dimen.small_padding))
-                )
-
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = dimensionResource(R.dimen.s_medium_padding))
-                        .padding(bottom = dimensionResource(R.dimen.small_padding))
-                ) {
-                    Text(
-                        text = "Test",
-                        modifier = Modifier,
-                        style = MaterialTheme.typography.titleSmall
-                    )
-                    val options = listOf("Option 3", "Option 4", "Option 5")
-                    var selectedOption by remember { mutableStateOf(options[1]) }
-                    DropDownSelection(
-                        options = options,
-                        selectedOption = selectedOption,
-                        onOptionSelected = { selectedOption = it },
-                        hazeStateModifier = Modifier
-                            .hazeEffect(hazeState)
-                            .zIndex(1f)
-                    )
-                }
-            }
-        }
 
         ///////////////////////////////////////////////
         // Track Order
@@ -172,104 +96,12 @@ fun SettingsScreen(
                 modifier = Modifier
                     .hazeSource(state = hazeState)
                     .zIndex(.5f)
+                    .animateContentSize()
             ) {
                 val options = stringArrayResource(R.array.track_order_options).toList()
                 val selectedPrimary = options[uiState.trackPrimaryOrder.ordinal]
                 val selectedSecondary = options[uiState.trackSecondaryOrder.ordinal]
-
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = dimensionResource(R.dimen.s_medium_padding))
-                        .padding(vertical = dimensionResource(R.dimen.small_padding))
-                ) {
-                    Text(
-                        text = stringResource(R.string.track_primary),
-                        modifier = Modifier.weight(1f),
-                        style = MaterialTheme.typography.titleSmall
-                    )
-                    DropDownSelection(
-                        options = options,
-                        selectedOption = selectedPrimary,
-                        onOptionSelected = { viewModel.setTrackPrimaryOrder(options.indexOf(it)) },
-                        hazeStateModifier = Modifier
-                            .hazeEffect(hazeState)
-                            .zIndex(1f)
-                    )
-                }
-
-                HorizontalDivider(
-                    Modifier
-                        .padding(horizontal = dimensionResource(R.dimen.medium_padding))
-                        .padding(vertical = dimensionResource(R.dimen.small_padding))
-                )
-
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = dimensionResource(R.dimen.s_medium_padding))
-                        .padding(vertical = dimensionResource(R.dimen.small_padding))
-                ) {
-                    Text(
-                        text = stringResource(R.string.track_secondary),
-                        modifier = Modifier.weight(2f),
-                        style = MaterialTheme.typography.titleSmall
-                    )
-                    DropDownSelection(
-                        options = options,
-                        selectedOption = selectedSecondary,
-                        onOptionSelected = { viewModel.setTrackSecondaryOrder(options.indexOf(it)) },
-                        hazeStateModifier = Modifier
-                            .hazeEffect(hazeState)
-                            .zIndex(1f)
-                    )
-                }
-
-                HorizontalDivider(
-                    Modifier
-                        .padding(horizontal = dimensionResource(R.dimen.medium_padding))
-                        .padding(vertical = dimensionResource(R.dimen.small_padding))
-                )
-
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = dimensionResource(R.dimen.s_medium_padding))
-                        .padding(vertical = dimensionResource(R.dimen.small_padding))
-                ) {
-                    val checked = uiState.isSavedState
-
-                    Text(
-                        text = stringResource(R.string.saved_text),
-                        modifier = Modifier.weight(5f),
-                        style = MaterialTheme.typography.titleSmall
-                    )
-                    Switch(
-                        checked = checked,
-                        modifier = Modifier.weight(1f),
-                        onCheckedChange = { viewModel.setSavedState(it) },
-                        thumbContent = {
-                            Icon(
-                                imageVector = if (checked) Icons.Filled.Check
-                                else Icons.Filled.Close,
-                                contentDescription = null,
-                                modifier = Modifier.size(SwitchDefaults.IconSize),
-                            )
-                        }
-                    )
-                }
-
-                HorizontalDivider(
-                    Modifier
-                        .padding(horizontal = dimensionResource(R.dimen.medium_padding))
-                        .padding(vertical = dimensionResource(R.dimen.small_padding))
-                )
+                val isShuffleMode = uiState.isShuffleMode
 
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -280,13 +112,13 @@ fun SettingsScreen(
                         .padding(vertical = dimensionResource(R.dimen.small_padding))
                 ) {
                     val opt = listOf(
-                        stringResource(R.string.order_asc),
-                        stringResource(R.string.order_desc)
+                        stringResource(R.string.shuffle_on),
+                        stringResource(R.string.shuffle_off)
                     )
-                    val selectedIndex = if (uiState.trackSortAscending) 0 else 1
+                    val selectedIndex = if (uiState.isShuffleMode) 0 else 1
 
                     Text(
-                        text = stringResource(R.string.order),
+                        text = stringResource(R.string.shuffle_mode),
                         modifier = Modifier.wrapContentSize(),
                         style = MaterialTheme.typography.titleSmall
                     )
@@ -298,11 +130,131 @@ fun SettingsScreen(
                                     index = index,
                                     count = opt.size
                                 ),
-                                onClick = { viewModel.setTrackSortAscending(!uiState.trackSortAscending) },
+                                onClick = { viewModel.setShuffleMode(!uiState.isShuffleMode) },
                                 selected = index == selectedIndex,
                                 label = { Text(label) },
 //                                modifier = Modifier.weight(1f),
-                                )
+                            )
+                        }
+                    }
+                }
+
+                AnimatedVisibility(
+                    visible = !isShuffleMode,
+                    modifier = Modifier.padding(vertical = dimensionResource(R.dimen.small_padding))
+                ) {
+                    Column {
+
+                        HorizontalDivider(
+                            Modifier
+                                .padding(horizontal = dimensionResource(R.dimen.medium_padding))
+                                .padding(vertical = dimensionResource(R.dimen.small_padding))
+                        )
+
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = dimensionResource(R.dimen.s_medium_padding))
+                                .padding(vertical = dimensionResource(R.dimen.small_padding))
+                        ) {
+                            Text(
+                                text = stringResource(R.string.track_primary),
+                                modifier = Modifier.weight(1f),
+                                style = MaterialTheme.typography.titleSmall
+                            )
+                            DropDownSelection(
+                                options = options,
+                                selectedOption = selectedPrimary,
+                                onOptionSelected = {
+                                    viewModel.setTrackPrimaryOrder(
+                                        options.indexOf(
+                                            it
+                                        )
+                                    )
+                                },
+                                hazeStateModifier = Modifier
+                                    .hazeEffect(hazeState)
+                                    .zIndex(1f)
+                            )
+                        }
+
+                        HorizontalDivider(
+                            Modifier
+                                .padding(horizontal = dimensionResource(R.dimen.medium_padding))
+                                .padding(vertical = dimensionResource(R.dimen.small_padding))
+                        )
+
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = dimensionResource(R.dimen.s_medium_padding))
+                                .padding(vertical = dimensionResource(R.dimen.small_padding))
+                        ) {
+                            Text(
+                                text = stringResource(R.string.track_secondary),
+                                modifier = Modifier.weight(2f),
+                                style = MaterialTheme.typography.titleSmall
+                            )
+                            DropDownSelection(
+                                options = options,
+                                selectedOption = selectedSecondary,
+                                onOptionSelected = {
+                                    viewModel.setTrackSecondaryOrder(
+                                        options.indexOf(
+                                            it
+                                        )
+                                    )
+                                },
+                                hazeStateModifier = Modifier
+                                    .hazeEffect(hazeState)
+                                    .zIndex(1f)
+                            )
+                        }
+
+                        HorizontalDivider(
+                            Modifier
+                                .padding(horizontal = dimensionResource(R.dimen.medium_padding))
+                                .padding(vertical = dimensionResource(R.dimen.small_padding))
+                        )
+
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = dimensionResource(R.dimen.s_medium_padding))
+                                .padding(vertical = dimensionResource(R.dimen.small_padding))
+                        ) {
+                            val opt = listOf(
+                                stringResource(R.string.order_asc),
+                                stringResource(R.string.order_desc)
+                            )
+                            val selectedIndex = if (uiState.trackSortAscending) 0 else 1
+
+                            Text(
+                                text = stringResource(R.string.order),
+                                modifier = Modifier.wrapContentSize(),
+                                style = MaterialTheme.typography.titleSmall
+                            )
+
+                            SingleChoiceSegmentedButtonRow {
+                                opt.forEachIndexed { index, label ->
+                                    SegmentedButton(
+                                        shape = SegmentedButtonDefaults.itemShape(
+                                            index = index,
+                                            count = opt.size
+                                        ),
+                                        onClick = { viewModel.setTrackSortAscending(!uiState.trackSortAscending) },
+                                        selected = index == selectedIndex,
+                                        label = { Text(label) },
+//                                modifier = Modifier.weight(1f),
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -396,6 +348,54 @@ fun SettingsScreen(
                             .padding(horizontal = dimensionResource(R.dimen.medium_padding))
                             .padding(vertical = dimensionResource(R.dimen.small_padding))
                         )
+                }
+            }
+        }
+
+        ///////////////////////////////////////////////
+        // Application behaviour
+        ///////////////////////////////////////////////
+        SettingCard(
+            title = stringResource(R.string.app_behaviour),
+            modifier = Modifier
+                .fillMaxWidth()
+                .hazeSource(state = hazeState)
+                .padding(vertical = dimensionResource(R.dimen.medium_padding))
+                .padding(horizontal = dimensionResource(R.dimen.small_padding))
+        ) {
+            Column(
+                modifier = Modifier
+                    .hazeSource(state = hazeState)
+                    .zIndex(.5f)
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = dimensionResource(R.dimen.s_medium_padding))
+                        .padding(vertical = dimensionResource(R.dimen.small_padding))
+                ) {
+                    val checked = uiState.isSavedState
+
+                    Text(
+                        text = stringResource(R.string.saved_text),
+                        modifier = Modifier.weight(5f),
+                        style = MaterialTheme.typography.titleSmall
+                    )
+                    Switch(
+                        checked = checked,
+                        modifier = Modifier.weight(1f),
+                        onCheckedChange = { viewModel.setSavedState(it) },
+                        thumbContent = {
+                            Icon(
+                                imageVector = if (checked) Icons.Filled.Check
+                                else Icons.Filled.Close,
+                                contentDescription = null,
+                                modifier = Modifier.size(SwitchDefaults.IconSize),
+                            )
+                        }
+                    )
                 }
             }
         }

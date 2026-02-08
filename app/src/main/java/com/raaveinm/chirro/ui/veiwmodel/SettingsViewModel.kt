@@ -2,7 +2,7 @@ package com.raaveinm.chirro.ui.veiwmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.raaveinm.chirro.data.datastore.OrderMediaQueue
+import com.raaveinm.chirro.data.values.OrderMediaQueue
 import com.raaveinm.chirro.data.datastore.SettingDataStoreRepository
 import com.raaveinm.chirro.ui.theme.AppTheme
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,6 +26,7 @@ class SettingsViewModel(
                     trackSortAscending = it.trackSortAscending,
                     currentTheme = it.currentTheme,
                     isSavedState = it.isSavedState,
+                    isShuffleMode = it.isShuffleMode
                 )
             }
         }
@@ -34,6 +35,12 @@ class SettingsViewModel(
     ///////////////////////////////////////////////
     // Track Order
     ///////////////////////////////////////////////
+    fun setShuffleMode(shuffleMode: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.setShuffleMode(shuffleMode)
+        }
+    }
+
     fun setTrackPrimaryOrder(id: Int) {
         val mediaQueue = when (id) {
             0 -> OrderMediaQueue.DEFAULT
@@ -87,6 +94,10 @@ class SettingsViewModel(
             settingsRepository.updateTheme(theme)
         }
     }
+
+    ///////////////////////////////////////////////
+    // Application behaviour
+    ///////////////////////////////////////////////
 
     fun setSavedState(state: Boolean) {
         viewModelScope.launch {

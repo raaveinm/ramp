@@ -15,15 +15,22 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.core.net.toUri
 import com.raaveinm.chirro.data.database.TrackDao
-import com.raaveinm.chirro.data.database.TrackInfo
-import com.raaveinm.chirro.data.datastore.OrderMediaQueue
+import com.raaveinm.chirro.data.values.TrackInfo
+import com.raaveinm.chirro.data.values.OrderMediaQueue
 import com.raaveinm.chirro.data.datastore.SettingDataStoreRepository
+import com.raaveinm.chirro.domain.shuffled
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.withContext
 
 class TrackRepositoryImpl(
@@ -32,12 +39,21 @@ class TrackRepositoryImpl(
     private val settingsRepository: SettingDataStoreRepository
 ) : TrackRepository {
 
+    private val repoScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val sharedTracksFlow: SharedFlow<List<TrackInfo>> = createSharedTracksFlow()
+
     ///////////////////////////////////////////////
     // Fetching favourites and combine with all songs
     ///////////////////////////////////////////////
-    override fun getAllTracks(): Flow<List<TrackInfo>> {
+    private fun createSharedTracksFlow(): SharedFlow<List<TrackInfo>> {
         val favFlow = trackDao.getFavoriteIds()
         val settingsFlow = settingsRepository.settingsPreferencesFlow
+            .distinctUntilChanged { old, new ->
+                old.trackPrimaryOrder == new.trackPrimaryOrder &&
+                        old.trackSecondaryOrder == new.trackSecondaryOrder &&
+                        old.trackSortAscending == new.trackSortAscending &&
+                        old.isShuffleMode == new.isShuffleMode
+            }
 
         val mediaStoreTrigger = callbackFlow {
             val observer = object : ContentObserver(Handler(Looper.getMainLooper())) {
@@ -56,10 +72,24 @@ class TrackRepositoryImpl(
                 settings.trackSecondaryOrder,
                 settings.trackSortAscending
             )
-            localFiles.map { track ->
+
+            val processedFiles = if (settings.isShuffleMode)
+                localFiles.shuffled()
+            else
+                localFiles
+
+            processedFiles.map { track ->
                 track.copy(isFavourite = favoriteIds.contains(track.id))
             }
-        }.flowOn(Dispatchers.Default)
+        }.flowOn(Dispatchers.IO).shareIn(
+            scope = repoScope,
+            started = SharingStarted.Lazily,
+            replay = 1
+        )
+    }
+
+    override fun getAllTracks(): Flow<List<TrackInfo>> {
+        return sharedTracksFlow
     }
 
     ///////////////////////////////////////////////
@@ -105,9 +135,9 @@ class TrackRepositoryImpl(
 
                 while (c.moveToNext()) {
                     val id = c.getLong(idColumn)
-                    val title = c.getString(titleColumn) ?: "Unknown"
-                    val artist = c.getString(artistColumn) ?: "Unknown Artist"
-                    val album = c.getString(albumColumn) ?: "Unknown Album"
+                    val title = c.getString(titleColumn) ?: ""
+                    val artist = c.getString(artistColumn) ?: ""
+                    val album = c.getString(albumColumn) ?: ""
                     val duration = c.getLong(durationColumn)
                     val albumId = c.getLong(albumIdColumn)
                     val dateAdded = c.getLong(dateAddedColumn)
@@ -215,11 +245,11 @@ class TrackRepositoryImpl(
                 val trackUri = c.getString(dataColumn)
                 val dateAdded = c.getLong(dateAddedColumn)
 
-                return TrackInfo( //TODO("REPLACE HARDCODE")
+                return TrackInfo(
                     id = id,
-                    title = title ?: "Unknown",
-                    artist = artist ?: "Unknown Artist",
-                    album = album ?: "Unknown Album",
+                    title = title ?: "",
+                    artist = artist ?: "",
+                    album = album ?: "",
                     duration = duration,
                     uri = trackUri ?: "",
                     isFavourite = false,

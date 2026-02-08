@@ -11,7 +11,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
-import com.raaveinm.chirro.data.database.TrackInfo
+import com.raaveinm.chirro.data.values.TrackInfo
 
 fun TrackInfo.toMediaItem(): MediaItem {
     return MediaItem.Builder()

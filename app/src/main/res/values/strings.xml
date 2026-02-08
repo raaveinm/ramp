@@ -9,12 +9,19 @@
     <string name="track_primary">Track primary order</string>
     <string name="track_secondary">Track secondary order</string>
     <string name="saved_text">Restore track on application launch</string>
+
     <string name="order">Order by</string>
     <string name="language">Language</string>
     <string name="select_language">Select Language</string>
+    <string name="app_behaviour">Application behaviour</string>
+    <string name="shuffle_mode">Shuffle mode</string>
 
-    <string name="order_asc">Ascending</string>
-    <string name="order_desc">Descending</string>
+
+    <string name="order_asc">Ascend</string>
+    <string name="order_desc">Descend</string>
+
+    <string name="shuffle_on">enabled</string>
+    <string name="shuffle_off">disabled</string>
 
     <string name="theme">Theme</string>
     <string name="dynamic">Dynamic</string>
@@ -24,6 +31,8 @@
     <string name="high_contrast">High contrast</string>
     <string name="monochrome">Monochrome</string>
 
+    <string name="unknown">unknown</string>
+
     <string-array name="track_order_options">
         <item>default</item>
         <item>id</item>
@@ -31,7 +40,6 @@
         <item>artist</item>
         <item>album</item>
         <item>duration</item>
-<!--        <item>shuffle</item>-->
         <item>track</item>
         <item>date added</item>
     </string-array>

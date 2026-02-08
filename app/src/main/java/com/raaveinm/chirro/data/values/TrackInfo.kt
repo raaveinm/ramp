@@ -1,4 +1,4 @@
-package com.raaveinm.chirro.data.database
+package com.raaveinm.chirro.data.values
 
 data class TrackInfo(
     val id: Long,
