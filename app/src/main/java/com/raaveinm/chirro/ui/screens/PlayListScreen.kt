@@ -8,11 +8,16 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,15 +33,20 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxState
 import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -49,7 +59,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
@@ -59,6 +78,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.raaveinm.chirro.R
 import com.raaveinm.chirro.ui.layouts.EmptyListComposable
+import com.raaveinm.chirro.ui.layouts.PlayerMinimized
 import com.raaveinm.chirro.ui.layouts.SearchBar
 import com.raaveinm.chirro.ui.layouts.TrackInfoLayout
 import com.raaveinm.chirro.ui.navigation.NavData
@@ -69,13 +89,15 @@ import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("ConfigurationScreenWidthHeight")
 @Composable
 fun PlaylistScreen(
     navController: NavController,
     modifier: Modifier = Modifier,
     viewModel: PlayerViewModel = viewModel(factory = AppViewModelProvider.Factory),
-    navigateToTrack: Boolean = false
+    navigateToTrack: Boolean = false,
+    scrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 ) {
     ///////////////////////////////////////////////
     // Variables
@@ -89,6 +111,19 @@ fun PlaylistScreen(
     var isFABVisible by remember { mutableStateOf(true) }
     val searchUiState by viewModel.searchUiState.collectAsState()
     val hazeState = remember { HazeState() }
+    var isFabVisibleOnScroll by remember { mutableStateOf(true) }
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                if (available.y < -15) {
+                    isFabVisibleOnScroll = false
+                } else if (available.y > 15) {
+                    isFabVisibleOnScroll = true
+                }
+                return Offset.Zero
+            }
+        }
+    }
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartIntentSenderForResult()
     ) { }
@@ -124,8 +159,27 @@ fun PlaylistScreen(
                 // Playlist
                 ///////////////////////////////////////////////
                 LazyColumn(
-                    modifier = modifier.hazeSource(hazeState),
-                    state = listState
+                    modifier = modifier
+                        .nestedScroll(scrollBehavior.nestedScrollConnection)
+                        .hazeSource(hazeState)
+                        .nestedScroll(nestedScrollConnection)
+                        .padding(bottom = dimensionResource(R.dimen.medium_padding))
+                        .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+                        .drawWithContent {
+                            drawContent()
+                            val fadeHeightPx = 125.dp.toPx()
+                            val colors = listOf(Color.Black, Color.Transparent)
+                            val colorStops = listOf(1f - (fadeHeightPx / size.height), 1f)
+
+                            drawRect(
+                                brush = Brush.verticalGradient(
+                                    colorStops = colorStops.zip(colors).toTypedArray()
+                                ),
+                                blendMode = BlendMode.DstIn
+                            )
+                        },
+                    state = listState,
+                    contentPadding = PaddingValues(bottom = dimensionResource(R.dimen.extra_large_size))
                 ) {
                     items(
                         items = tracks,
@@ -232,10 +286,13 @@ fun PlaylistScreen(
             // Search FAB
             ///////////////////////////////////////////////
             AnimatedVisibility(
-                visible = isFABVisible,
+                visible = isFABVisible && isFabVisibleOnScroll,
+                enter = slideInVertically(initialOffsetY = { it * 2 }) + fadeIn(),
+                exit = slideOutVertically(targetOffsetY = { it * 2 }) + fadeOut(),
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .padding(dimensionResource(R.dimen.medium_padding))
+                    .padding(bottom = 90.dp, end = dimensionResource(R.dimen.medium_padding))
+                    .zIndex(2f)
             ) {
                 Box(
                     modifier = Modifier
@@ -260,7 +317,6 @@ fun PlaylistScreen(
                     )
                 }
             }
-
             ///////////////////////////////////////////////
             // Search Card
             ///////////////////////////////////////////////
@@ -332,6 +388,24 @@ fun PlaylistScreen(
                     }
                 }
             }
+
+            PlayerMinimized(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .hazeEffect(hazeState)
+                    .padding(horizontal = dimensionResource(R.dimen.small_padding))
+                    .zIndex(2.5f),
+                trackInfo = uiState.currentTrack,
+                previousTrack = { viewModel.skipPrevious() },
+                nextTrack = { viewModel.skipNext() },
+                playPause = {
+                    if (viewModel.isPlaying) viewModel.pause()
+                    else viewModel.resume() },
+                playPauseIcon =
+                    if (viewModel.isPlaying) Icons.Default.Pause
+                    else Icons.Default.PlayArrow
+            )
         }
     }
 }

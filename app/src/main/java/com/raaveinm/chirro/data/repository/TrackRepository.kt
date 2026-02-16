@@ -11,4 +11,5 @@ interface TrackRepository {
     suspend fun getTrackById(id: Int): TrackInfo
     suspend fun toggleFavorite(track: TrackInfo)
     fun deleteTrack(trackId: Long, activity: Activity, launcher: ActivityResultLauncher<IntentSenderRequest>) : Boolean
+    suspend fun getTracksPaged(page: Int, pageSize: Int): List<TrackInfo>
 }

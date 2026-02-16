@@ -28,7 +28,10 @@ import com.raaveinm.chirro.domain.toMediaItem
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 /**
@@ -90,10 +93,15 @@ class PlayerViewModel(
         observeAllTracks()
 
         viewModelScope.launch {
-            while (true) {
-                if (isPlaying) updateProgress()
-                delay(if (isPowerSaveMode.value) 300 else 100)
-            }
+            uiState.map { it.isPlaying }
+                .distinctUntilChanged()
+                .collectLatest { isPlaying ->
+                    while (isPlaying) {
+                        updateProgress()
+                        val delayMs = if (isPowerSaveMode.value) 300L else 100L
+                        delay(delayMs)
+                    }
+                }
         }
     }
 

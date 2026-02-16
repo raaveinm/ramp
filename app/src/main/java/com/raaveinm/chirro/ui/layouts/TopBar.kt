@@ -6,13 +6,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.QueueMusic
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -27,86 +29,93 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
-import com.raaveinm.chirro.R.dimen.medium_padding
 import com.raaveinm.chirro.R.dimen.medium_size
 import com.raaveinm.chirro.ui.navigation.NavData
 
+@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("RestrictedApi")
 @Composable
 fun TopBar(
     modifier: Modifier,
-    navController: NavController
+    navController: NavController,
+    scrollBehavior: TopAppBarScrollBehavior? = null
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentNav = navBackStackEntry?.destination?.route
     val currentDestination = navBackStackEntry?.destination
 
-    Row(
-        modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Log.d("rrr", currentNav.toString())
-        when {
-            ///////////////////////////////////////////////
-            // SettingsScreen
-            ///////////////////////////////////////////////
-            currentDestination?.hasRoute<NavData.SettingsScreen>() == true -> {
-                TopIcons(
-                    iconLeftDescription = "backStack",
-                    iconRightDescription = "toPlaylist",
-                    iconLeft = Icons.AutoMirrored.Filled.ArrowBack,
-                    iconRight = Icons.AutoMirrored.Filled.QueueMusic,
-                    iconLeftAction = { navController.popBackStack() },
-                    iconRightAction = {
-                        navController.navigate(NavData.PlaylistScreen(false)) {
-                            popUpTo(NavData.PlayerScreen) { this.inclusive = false }
-                        }
+    CenterAlignedTopAppBar(
+        modifier = modifier.fillMaxWidth(),
+        scrollBehavior = scrollBehavior,
+        title = {
+            Row(
+                Modifier.fillMaxWidth(.95f),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Log.d("rrr", currentNav.toString())
+                when {
+                    ///////////////////////////////////////////////
+                    // SettingsScreen
+                    ///////////////////////////////////////////////
+                    currentDestination?.hasRoute<NavData.SettingsScreen>() == true -> {
+                        TopIcons(
+                            iconLeftDescription = "backStack",
+                            iconRightDescription = "toPlaylist",
+                            iconLeft = Icons.AutoMirrored.Filled.ArrowBack,
+                            iconRight = Icons.AutoMirrored.Filled.QueueMusic,
+                            iconLeftAction = { navController.popBackStack() },
+                            iconRightAction = {
+                                navController.navigate(NavData.PlaylistScreen(false)) {
+                                    popUpTo(NavData.PlayerScreen) { this.inclusive = false }
+                                }
+                            }
+                        )
                     }
-                )
-            }
 
-            ///////////////////////////////////////////////
-            // PlaylistScreen
-            ///////////////////////////////////////////////
-            currentDestination?.hasRoute<NavData.PlaylistScreen>() == true -> {
-                TopIcons(
-                    iconLeftDescription = "backStack",
-                    iconRightDescription = "toSettings",
-                    iconLeft = Icons.AutoMirrored.Filled.ArrowBack,
-                    iconRight = Icons.Default.Settings,
-                    iconLeftAction = { navController.popBackStack() },
-                    iconRightAction = {
-                        navController.navigate(NavData.SettingsScreen) {
-                            popUpTo(NavData.PlayerScreen) { this.inclusive = false }
-                        }
+                    ///////////////////////////////////////////////
+                    // PlaylistScreen
+                    ///////////////////////////////////////////////
+                    currentDestination?.hasRoute<NavData.PlaylistScreen>() == true -> {
+                        TopIcons(
+                            iconLeftDescription = "backStack",
+                            iconRightDescription = "toSettings",
+                            iconLeft = Icons.AutoMirrored.Filled.ArrowBack,
+                            iconRight = Icons.Default.Settings,
+                            iconLeftAction = { navController.popBackStack() },
+                            iconRightAction = {
+                                navController.navigate(NavData.SettingsScreen) {
+                                    popUpTo(NavData.PlayerScreen) { this.inclusive = false }
+                                }
+                            }
+                        )
                     }
-                )
-            }
 
-            ///////////////////////////////////////////////
-            // PlayerScreen
-            ///////////////////////////////////////////////
-            else -> {
-                TopIcons(
-                    iconLeftDescription = "toSettings",
-                    iconRightDescription = "toPlaylist",
-                    iconLeft = Icons.Default.Settings,
-                    iconRight = Icons.AutoMirrored.Filled.QueueMusic,
-                    iconLeftAction = {
-                        navController.navigate(NavData.SettingsScreen) {
-                            popUpTo(NavData.PlayerScreen) { this.inclusive = false }
-                        }
-                    },
-                    iconRightAction = {
-                        navController.navigate(NavData.PlaylistScreen(false)) {
-                            popUpTo(NavData.PlayerScreen) { this.inclusive = false }
-                        }
+                    ///////////////////////////////////////////////
+                    // PlayerScreen
+                    ///////////////////////////////////////////////
+                    else -> {
+                        TopIcons(
+                            iconLeftDescription = "toSettings",
+                            iconRightDescription = "toPlaylist",
+                            iconLeft = Icons.Default.Settings,
+                            iconRight = Icons.AutoMirrored.Filled.QueueMusic,
+                            iconLeftAction = {
+                                navController.navigate(NavData.SettingsScreen) {
+                                    popUpTo(NavData.PlayerScreen) { this.inclusive = false }
+                                }
+                            },
+                            iconRightAction = {
+                                navController.navigate(NavData.PlaylistScreen(false)) {
+                                    popUpTo(NavData.PlayerScreen) { this.inclusive = false }
+                                }
+                            }
+                        )
                     }
-                )
+                }
             }
         }
-    }
+    )
 }
 
 @Composable
@@ -119,7 +128,6 @@ private fun TopIcons(
     iconRightAction: () -> Unit,
 ) {
     IconButton(
-        modifier = Modifier.padding(horizontal = dimensionResource(medium_padding)),
         onClick = iconLeftAction
     ) {
 
@@ -132,7 +140,6 @@ private fun TopIcons(
     }
 
     IconButton(
-        modifier = Modifier.padding(horizontal = dimensionResource(medium_padding)),
         onClick = iconRightAction
     ) {
         Icon(
@@ -144,15 +151,17 @@ private fun TopIcons(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
 fun TopBarPreview(){
     TopBar(
         modifier = Modifier,
-        navController = rememberNavController()
+        navController = rememberNavController(),
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
 fun OnSettingsScreenPreview() {
@@ -168,10 +177,11 @@ fun OnSettingsScreenPreview() {
 
     TopBar(
         modifier = Modifier,
-        navController = navController
+        navController = navController,
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
 fun OnPlaylistScreenPreview() {
@@ -187,6 +197,6 @@ fun OnPlaylistScreenPreview() {
 
     TopBar(
         modifier = Modifier,
-        navController = navController
+        navController = navController,
     )
 }

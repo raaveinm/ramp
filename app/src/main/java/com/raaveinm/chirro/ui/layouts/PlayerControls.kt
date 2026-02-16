@@ -112,7 +112,7 @@ fun PlayerControlButtons(
                     .padding(vertical = dimensionResource(R.dimen.small_padding))
             ) {
                 Icon(
-                    imageVector =Icons.Default.Delete,
+                    imageVector = Icons.Default.Delete,
 //                        if (isFavourite) Icons.Default.Favorite
 //                    else Icons.Default.FavoriteBorder ,
                     contentDescription = "next",

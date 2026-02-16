@@ -140,16 +140,20 @@ class PlaybackService : MediaLibraryService() {
             // Using Guava Futures to bridge Coroutines -> ListenableFuture
             return Futures.submit(
                 Callable {
-                    importMediaItems()
+                    importMediaItems(page, pageSize)
                 }
             ) { command -> serviceScope.launch(Dispatchers.IO) { command.run() } }
         }
 
-        private fun importMediaItems(): LibraryResult<ImmutableList<MediaItem>> {
+        private fun importMediaItems(
+            page: Int,
+            pageSize: Int
+        ): LibraryResult<ImmutableList<MediaItem>> {
             return try {
                 val tracks = runBlocking {
-                    trackRepository.getAllTracks().first()
+                    trackRepository.getTracksPaged(page, pageSize)
                 }
+
                 val mediaItems = tracks.map { it.toMediaItem() }
                 LibraryResult.ofItemList(
                     ImmutableList.copyOf(mediaItems),

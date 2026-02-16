@@ -4,16 +4,17 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBars
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -27,15 +28,27 @@ import com.raaveinm.chirro.ui.navigation.NavData
 import com.raaveinm.chirro.ui.screens.PlayerScreen
 import com.raaveinm.chirro.ui.screens.PlaylistScreen
 import com.raaveinm.chirro.ui.screens.SettingsScreen
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.hazeEffect
+import dev.chrisbanes.haze.hazeSource
 
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen (modifier: Modifier) {
     val navController: NavHostController = rememberNavController()
-    val contentPadding = WindowInsets.statusBars.asPaddingValues()
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+    val hazeState = remember { HazeState() }
+
     Scaffold(
-        modifier = modifier.padding(contentPadding),
-        topBar = { TopBar(modifier = Modifier, navController = navController) }
+        modifier = modifier
+            .hazeSource(hazeState),
+        topBar = {
+            TopBar(
+                modifier = Modifier.hazeEffect(hazeState),
+                navController = navController,
+                scrollBehavior = scrollBehavior
+            )
+        }
     ) { innerPadding ->
 
         NavHost(
@@ -48,6 +61,10 @@ fun MainScreen (modifier: Modifier) {
             popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) }
         ) {
             composable<NavData.PlayerScreen> {
+                LaunchedEffect(Unit) {
+                    scrollBehavior.state.heightOffset = 0f
+                    scrollBehavior.state.contentOffset = 0f
+                }
                 val context = LocalContext.current
                 val activity = context.findActivity()
                 val windowWidthClass = if (activity != null) {
@@ -67,7 +84,7 @@ fun MainScreen (modifier: Modifier) {
                                 navController = navController
                             )
                             PlaylistScreen(
-                                modifier = Modifier.weight(.8f),
+                                modifier = Modifier.weight(.8f).hazeSource(hazeState),
                                 navController = navController,
                                 navigateToTrack = true
                             )
@@ -82,13 +99,14 @@ fun MainScreen (modifier: Modifier) {
                 }
             }
             composable<NavData.SettingsScreen> {
-                SettingsScreen(modifier = Modifier)
+                SettingsScreen(modifier = Modifier, scrollBehavior = scrollBehavior)
             }
             composable<NavData.PlaylistScreen> {
                 PlaylistScreen(
-                    modifier = Modifier,
+                    modifier = Modifier.hazeSource(hazeState),
                     navController = navController,
-                    navigateToTrack = it.arguments?.getBoolean("isNavigating") ?: false
+                    navigateToTrack = it.arguments?.getBoolean("isNavigating") ?: false,
+                    scrollBehavior = scrollBehavior
                 )
             }
         }

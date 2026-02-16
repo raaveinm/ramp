@@ -29,7 +29,9 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.withContext
 
@@ -46,14 +48,15 @@ class TrackRepositoryImpl(
     // Fetching favourites and combine with all songs
     ///////////////////////////////////////////////
     private fun createSharedTracksFlow(): SharedFlow<List<TrackInfo>> {
+        val sortSettingsFlow = settingsRepository.settingsPreferencesFlow
+            .map { Triple(it.trackPrimaryOrder, it.trackSecondaryOrder, it.trackSortAscending) }
+            .distinctUntilChanged()
+
+        val shuffleModeFlow = settingsRepository.settingsPreferencesFlow
+            .map { it.isShuffleMode }
+            .distinctUntilChanged()
+
         val favFlow = trackDao.getFavoriteIds()
-        val settingsFlow = settingsRepository.settingsPreferencesFlow
-            .distinctUntilChanged { old, new ->
-                old.trackPrimaryOrder == new.trackPrimaryOrder &&
-                        old.trackSecondaryOrder == new.trackSecondaryOrder &&
-                        old.trackSortAscending == new.trackSortAscending &&
-                        old.isShuffleMode == new.isShuffleMode
-            }
 
         val mediaStoreTrigger = callbackFlow {
             val observer = object : ContentObserver(Handler(Looper.getMainLooper())) {
@@ -66,18 +69,15 @@ class TrackRepositoryImpl(
             awaitClose { context.contentResolver.unregisterContentObserver(observer) }
         }
 
-        return combine(settingsFlow, favFlow, mediaStoreTrigger) { settings, favoriteIds, _ ->
-            val localFiles = fetchTracksFromMediaStore(
-                settings.trackPrimaryOrder,
-                settings.trackSecondaryOrder,
-                settings.trackSortAscending
+        val fetchedTracksFlow = combine(mediaStoreTrigger, sortSettingsFlow) { _, sortParams ->
+            fetchTracksFromMediaStore(
+                primaryOrder = sortParams.first,
+                secondaryOrder = sortParams.second,
+                isAsc = sortParams.third
             )
-
-            val processedFiles = if (settings.isShuffleMode)
-                localFiles.shuffled()
-            else
-                localFiles
-
+        }.flowOn(Dispatchers.IO)
+        return combine(fetchedTracksFlow, favFlow, shuffleModeFlow) { tracks, favoriteIds, isShuffle ->
+            val processedFiles = if (isShuffle) tracks.shuffled() else tracks
             processedFiles.map { track ->
                 track.copy(isFavourite = favoriteIds.contains(track.id))
             }
@@ -98,7 +98,9 @@ class TrackRepositoryImpl(
     private fun fetchTracksFromMediaStore(
         primaryOrder: OrderMediaQueue,
         secondaryOrder: OrderMediaQueue,
-        isAsc: Boolean
+        isAsc: Boolean,
+        limit: Int = Int.MAX_VALUE,
+        offset: Int = 0
     ): List<TrackInfo> {
         val mediaList = ArrayList<TrackInfo>()
         val projection = arrayOf(
@@ -115,13 +117,17 @@ class TrackRepositoryImpl(
         val sortOrder = getSortOrder(primaryOrder, secondaryOrder, isAsc)
         Log.d("MediaStore", "SortOrder: $sortOrder")
 
+        val finalSortOrder = if (limit != Int.MAX_VALUE)
+            "$sortOrder LIMIT $limit OFFSET $offset" else sortOrder
+
+
         try {
             val cursor = context.contentResolver.query(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                 projection,
                 selection,
                 null,
-                sortOrder
+                finalSortOrder
             )
 
             cursor?.use { c ->
@@ -171,6 +177,32 @@ class TrackRepositoryImpl(
             e.printStackTrace()
         }
         return mediaList
+    }
+
+    override suspend fun getTracksPaged(page: Int, pageSize: Int): List<TrackInfo> {
+        val prefs = settingsRepository.settingsPreferencesFlow.first()
+
+        val offset = page * pageSize
+
+        return if (prefs.isShuffleMode) {
+            val allTracks = fetchTracksFromMediaStore(prefs.trackPrimaryOrder, prefs.trackSecondaryOrder, prefs.trackSortAscending)
+            allTracks.shuffled().drop(offset).take(pageSize)
+
+        } else {
+
+            val rawTracks = fetchTracksFromMediaStore(
+                primaryOrder = prefs.trackPrimaryOrder,
+                secondaryOrder = prefs.trackSecondaryOrder,
+                isAsc = prefs.trackSortAscending,
+                limit = pageSize,
+                offset = offset
+            )
+
+            val favIds = trackDao.getFavoriteIds().first()
+            rawTracks.map { track ->
+                track.copy(isFavourite = favIds.contains(track.id))
+            }
+        }
     }
 
     ///////////////////////////////////////////////
