@@ -2,9 +2,9 @@
 <project version="4">
   <component name="deploymentTargetSelector">
     <selectionStates>
-      <SelectionState runConfigName="Chirro.app">
+      <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-05-07T20:13:33.774179Z">
+        <DropdownSelection timestamp="2026-02-04T22:06:42.338106Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="PhysicalDevice" identifier="serial=1dc1e4d1" />

@@ -1,13 +1,13 @@
 # Folders
-/.idea
-/.gradle
-/.kotlin
+/.idea/
+/.gradle/
+/.kotlin/
+/build
 .gradle
 
 # Properties
 /local.properties
 /captures
-/build
 
 # Files
 *.apk

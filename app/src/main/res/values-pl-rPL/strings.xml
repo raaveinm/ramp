@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="service_description">Usługa używana do obsługi odtwarzania multimediów</string>
+
+    <string name="tracklist_empty">Nie znaleziono żadnych utworów</string>
+    <string name="search_hint">nazwa wykonawca album</string>
+
+    <string name="track_order">Kolejność utworów</string>
+    <string name="track_primary">Główna kolejność utworów</string>
+    <string name="track_secondary">Dodatkowa kolejność utworów</string>
+    <string name="saved_text">Przywróć utwór po uruchomieniu aplikacji</string>
+    <string name="order">Sortuj według</string>
+
+    <string name="language">Język</string>
+    <string name="select_language">Wybierz język</string>
+    <string name="app_behaviour">Zachowanie aplikacji</string>
+    <string name="shuffle_mode">Tryb mieszania</string>
+
+
+    <string name="order_asc">Rosnąco</string>
+    <string name="order_desc">Malejąco</string>
+
+    <string name="shuffle_on">włączone</string>
+    <string name="shuffle_off">wyłączone</string>
+
+    <string name="theme">Motyw</string>
+    <string name="dynamic">Dynamiczny</string>
+    <string name="light">Jasny</string>
+    <string name="dark">Ciemny</string>
+    <string name="pink">Różowy</string>
+    <string name="high_contrast">Wysoki kontrast</string>
+    <string name="monochrome">Monochromatyczny</string>
+
+    <string name="unknown">nieznany</string>
+
+    <string-array name="track_order_options">
+        <item>domyślnie</item>
+        <item>id</item>
+        <item>tytuł</item>
+        <item>artysta</item>
+        <item>album</item>
+        <item>czas trwania</item>
+        <item>nr utworu</item>
+        <item>data dodania</item>
+    </string-array>
+</resources>

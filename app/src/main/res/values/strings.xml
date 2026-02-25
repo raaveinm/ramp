@@ -1,8 +1,46 @@
 <resources>
-    <string name="app_name">chirro</string>
-    <string name="channel_name">Audio Playback</string>
-    <string name="channel_description">Shows notification for audio playback controls</string>
-    <string name="notification_initial_text">Initializing playback…</string>
-    <string name="notification_default_title">Unknown Track</string>
-    <string name="notification_default_artist">Unknown Artist</string>
+    <string name="app_name" translatable="false">chirro</string>
+    <string name="service_description">This is service which is used to handle media playback</string>
+
+    <string name="tracklist_empty">No media had been found</string>
+    <string name="search_hint">name artist album</string>
+
+    <string name="track_order">Track order</string>
+    <string name="track_primary">Track primary order</string>
+    <string name="track_secondary">Track secondary order</string>
+    <string name="saved_text">Restore track on application launch</string>
+
+    <string name="order">Order by</string>
+    <string name="language">Language</string>
+    <string name="select_language">Select Language</string>
+    <string name="app_behaviour">Application behaviour</string>
+    <string name="shuffle_mode">Shuffle mode</string>
+
+
+    <string name="order_asc">Ascend</string>
+    <string name="order_desc">Descend</string>
+
+    <string name="shuffle_on">enabled</string>
+    <string name="shuffle_off">disabled</string>
+
+    <string name="theme">Theme</string>
+    <string name="dynamic">Dynamic</string>
+    <string name="light">Light</string>
+    <string name="dark">Dark</string>
+    <string name="pink">Pink</string>
+    <string name="high_contrast">High contrast</string>
+    <string name="monochrome">Monochrome</string>
+
+    <string name="unknown">unknown</string>
+
+    <string-array name="track_order_options">
+        <item>default</item>
+        <item>id</item>
+        <item>title</item>
+        <item>artist</item>
+        <item>album</item>
+        <item>duration</item>
+        <item>track</item>
+        <item>date added</item>
+    </string-array>
 </resources>

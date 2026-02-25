@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="service_description">Dieser Dienst wird zur Steuerung der Medienwiedergabe verwendet</string>
+
+    <string name="tracklist_empty">Keine Medien gefunden</string>
+    <string name="search_hint">Titel Interpret Album</string>
+
+    <string name="track_order">Titelreihenfolge</string>
+    <string name="track_primary">Primäre Sortierung</string>
+    <string name="track_secondary">Sekundäre Sortierung</string>
+    <string name="saved_text">Titel bei App-Start wiederherstellen</string>
+    <string name="order">Sortieren nach</string>
+
+    <string name="language">Sprache</string>
+    <string name="select_language">Sprache wählen</string>
+    <string name="app_behaviour">App-Verhalten</string>
+    <string name="shuffle_mode">Zufallswiedergabe</string>
+
+    <string name="order_asc">Aufstieg</string>
+    <string name="order_desc">Absteig</string>
+
+    <string name="shuffle_on">ein</string>
+    <string name="shuffle_off">aus</string>
+
+    <string name="theme">Design</string>
+    <string name="dynamic">Dynamisch</string>
+    <string name="light">Hell</string>
+    <string name="dark">Dunkel</string>
+    <string name="pink">Rosa</string>
+    <string name="high_contrast">Hoher Kontrast</string>
+    <string name="monochrome">Monochrom</string>
+
+    <string name="unknown">unbekannt</string>
+
+    <string-array name="track_order_options">
+        <item>Standard</item>
+        <item>ID</item>
+        <item>Titel</item>
+        <item>Künstler</item>
+        <item>Album</item>
+        <item>Dauer</item>
+        <item>Track-Nummer</item>
+        <item>Hinzugefügt am</item>
+    </string-array>
+</resources>

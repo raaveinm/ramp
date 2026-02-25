@@ -2,21 +2,36 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    id("com.google.devtools.ksp")
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
 }
 
 android {
     namespace = "com.raaveinm.chirro"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.raaveinm.chirro"
-        minSdk = 33
-        targetSdk = 35
+        minSdk = 28
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        externalNativeBuild {
+            cmake {
+                cppFlags += ""
+                abiFilters += listOf("arm64-v8a", "x86_64")
+            }
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.22.1"
+        }
     }
 
     buildTypes {
@@ -32,61 +47,69 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = "11"
+
+    kotlin {
+        jvmToolchain(11)
     }
+
     buildFeatures {
         compose = true
     }
 }
 
+//noinspection UseTomlInstead
 dependencies {
-
+    // --- Core & Compose UI ---
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.fragment.ktx)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.foundation)
+    implementation("androidx.compose.ui:ui-text-google-fonts:1.10.3")
+    implementation("androidx.compose.material:material-icons-extended:1.7.8")
+    implementation("dev.chrisbanes.haze:haze:1.7.2")
+    implementation("androidx.palette:palette-ktx:1.0.0")
+
+    // --- Lifecycle & Navigation ---
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.compose.material3.window.size.class1)
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.10.0")
+    implementation("androidx.navigation:navigation-compose:2.9.7")
+
+    // --- Data & Storage (Room) ---
+    implementation(libs.androidx.room.ktx)
+    implementation("androidx.room:room-runtime:2.8.4")
+    implementation("androidx.room:room-rxjava3:2.8.4")
+    implementation("androidx.datastore:datastore-preferences:1.2.0")
+    implementation("androidx.datastore:datastore-preferences-core:1.2.0")
+    implementation("com.google.code.gson:gson:2.13.2")
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.compose.ui.text)
+    ksp(libs.androidx.room.compiler)
+
+    // --- Media & Images ---
+    implementation(libs.androidx.media)
+    implementation("androidx.media3:media3-exoplayer:1.9.2")
+    implementation("androidx.media3:media3-ui:1.9.2")
+    implementation("androidx.media3:media3-session:1.9.2")
+    implementation("androidx.media3:media3-common:1.9.2")
+    implementation("io.coil-kt:coil-compose:2.7.0")
+
+    // --- Background Tasks ---
+    implementation("androidx.work:work-gcm:2.11.1")
+
+    // --- Testing ---
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
+
+    // --- Debug ---
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-
-    implementation (libs.media3.exoplayer)
-    implementation (libs.media3.exoplayer.dash)
-    implementation (libs.media3.ui)
-    implementation (libs.androidx.material.icons.extended)
-
-    implementation(libs.androidx.media3.exoplayer)
-    implementation(libs.androidx.media3.exoplayer.dash)
-    implementation(libs.androidx.compose.ui.util)
-    implementation(libs.androidx.media3.ui)
-    implementation (libs.androidx.media.compat)
-    implementation (libs.androidx.media3.common)
-    implementation (libs.androidx.media3.session)
-    implementation (libs.media3.session)
-
-    implementation(libs.androidx.lifecycle.viewmodel.compose)
-
-    implementation (libs.accompanist.permissions.vlatestversion)
-
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.ktx)
-    implementation(libs.androidx.room.rxjava3)
-    implementation(libs.androidx.room.guava)
-    implementation(libs.androidx.room.paging)
-    ksp(libs.androidx.room.compiler)
-
-    implementation(libs.androidx.navigation.compose)
-
-    implementation(libs.coil.compose)
-    implementation(libs.coil.network.okhttp)
-
 }
