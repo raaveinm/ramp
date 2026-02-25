@@ -5,7 +5,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -64,10 +64,13 @@ fun TrackInfoLayout(
     onClick: () -> Unit,
     onSwipeRTL: () -> Unit = {},
     onSwipeLTR: () -> Unit = {},
+    onSwipeUp: (() -> Unit)? = null,
+    onSwipeDown: (() -> Unit)? = null,
     onCoverClick: () -> Unit = {}
 ) {
     if (pictureRequired) {
         val offsetX = remember { Animatable(0f) }
+        val offsetY = remember { Animatable(0f) }
         val scope = rememberCoroutineScope()
 
         Column(
@@ -87,21 +90,26 @@ fun TrackInfoLayout(
                     .shadow(16.dp, RoundedCornerShape(16.dp))
                     .clickable { onCoverClick() }
                     .pointerInput(Unit) {
-                        detectHorizontalDragGestures(
+                        detectDragGestures(
                             onDragEnd = {
-                                if (offsetX.value > 200) {
+                                if (offsetX.value > 200)
                                     onSwipeLTR()
-                                } else if (offsetX.value < -200) {
+                                else if (offsetX.value < -200)
                                     onSwipeRTL()
-                                }
-                                scope.launch {
-                                    offsetX.animateTo(0f)
-                                }
+
+                                if (offsetY.value > 200 && onSwipeDown != null)
+                                    onSwipeDown()
+                                else if (offsetY.value < -200 && onSwipeUp != null)
+                                    onSwipeUp()
+
+                                scope.launch { offsetX.animateTo(0f) }
+                                scope.launch { offsetY.animateTo(0f) }
                             }
                         ) { change, dragAmount ->
                             change.consume()
                             scope.launch {
-                                offsetX.snapTo(offsetX.value + dragAmount)
+                                offsetX.snapTo(offsetX.value + dragAmount.x)
+                                offsetY.snapTo(offsetY.value + dragAmount.y)
                             }
                         }
                     },

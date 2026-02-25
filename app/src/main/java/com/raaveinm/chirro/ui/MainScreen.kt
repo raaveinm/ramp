@@ -2,11 +2,12 @@ package com.raaveinm.chirro.ui
 
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
@@ -14,20 +15,29 @@ import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.raaveinm.chirro.domain.findActivity
 import com.raaveinm.chirro.ui.layouts.TopBar
+import com.raaveinm.chirro.ui.layouts.rememberDominantColor
 import com.raaveinm.chirro.ui.navigation.NavData
 import com.raaveinm.chirro.ui.screens.PlayerScreen
 import com.raaveinm.chirro.ui.screens.PlaylistScreen
 import com.raaveinm.chirro.ui.screens.SettingsScreen
+import com.raaveinm.chirro.ui.veiwmodel.AppViewModelProvider
+import com.raaveinm.chirro.ui.veiwmodel.PlayerViewModel
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
@@ -38,13 +48,23 @@ fun MainScreen (modifier: Modifier) {
     val navController: NavHostController = rememberNavController()
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val hazeState = remember { HazeState() }
+    val playerViewModel: PlayerViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    val uiState by playerViewModel.uiState.collectAsState()
+    val backgroundColor by rememberDominantColor(
+        imageUri = uiState.currentTrack?.cover,
+        defaultColor = MaterialTheme.colorScheme.background
+    )
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val isPlayerScreen = navBackStackEntry?.destination?.hasRoute<NavData.PlayerScreen>() == true
+    val activeBackgroundColor = if (isPlayerScreen) backgroundColor.copy(.085f) else Color.Transparent
 
     Scaffold(
-        modifier = modifier
-            .hazeSource(hazeState),
+        modifier = modifier,
         topBar = {
             TopBar(
-                modifier = Modifier.hazeEffect(hazeState),
+                modifier = Modifier.hazeEffect(state = hazeState) {
+                    noiseFactor = 0f
+                },
                 navController = navController,
                 scrollBehavior = scrollBehavior
             )
@@ -54,7 +74,7 @@ fun MainScreen (modifier: Modifier) {
         NavHost(
             navController = navController,
             startDestination = NavData.PlayerScreen,
-            modifier = Modifier.padding(innerPadding),
+            modifier = Modifier.hazeSource(hazeState),
             enterTransition = { slideInHorizontally(initialOffsetX = { it }) },
             exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) },
             popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) },
@@ -80,7 +100,7 @@ fun MainScreen (modifier: Modifier) {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             PlayerScreen(
-                                modifier = Modifier.weight(1f),
+                                modifier = Modifier.weight(1f).background(activeBackgroundColor),
                                 navController = navController
                             )
                             PlaylistScreen(
@@ -92,21 +112,26 @@ fun MainScreen (modifier: Modifier) {
                     }
                     else -> {
                         PlayerScreen(
-                            modifier = Modifier,
+                            modifier = Modifier.background(color = activeBackgroundColor),
                             navController = navController
                         )
                     }
                 }
             }
             composable<NavData.SettingsScreen> {
-                SettingsScreen(modifier = Modifier, scrollBehavior = scrollBehavior)
+                SettingsScreen(
+                    modifier = Modifier,
+                    scrollBehavior = scrollBehavior,
+                    innerPadding = innerPadding
+                )
             }
             composable<NavData.PlaylistScreen> {
                 PlaylistScreen(
                     modifier = Modifier.hazeSource(hazeState),
                     navController = navController,
                     navigateToTrack = it.arguments?.getBoolean("isNavigating") ?: false,
-                    scrollBehavior = scrollBehavior
+                    scrollBehavior = scrollBehavior,
+                    innerPadding = innerPadding
                 )
             }
         }

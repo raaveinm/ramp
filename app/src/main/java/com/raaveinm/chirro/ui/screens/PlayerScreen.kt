@@ -11,6 +11,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -28,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.zIndex
@@ -39,6 +41,7 @@ import com.raaveinm.chirro.data.values.TrackInfo
 import com.raaveinm.chirro.ui.layouts.ArcEasterEgg
 import com.raaveinm.chirro.ui.layouts.PlayerControlButtons
 import com.raaveinm.chirro.ui.layouts.TrackInfoLayout
+import com.raaveinm.chirro.ui.layouts.rememberDominantColor
 import com.raaveinm.chirro.ui.navigation.NavData
 import com.raaveinm.chirro.ui.veiwmodel.AppViewModelProvider
 import com.raaveinm.chirro.ui.veiwmodel.PlayerViewModel
@@ -63,7 +66,7 @@ fun PlayerScreen(
 
     Surface(
         modifier = modifier,
-        color = MaterialTheme.colorScheme.background
+        color = Color.Transparent
     ) {
         val backgroundEasterEgg = viewModel.backgroundEasterEgg()?: Eggs.NULL
         AnimatedVisibility(backgroundEasterEgg != Eggs.NULL){
@@ -110,6 +113,9 @@ fun PlayerScreen(
                     onSwipeLTR = {
                         isNextDirection = false
                         viewModel.skipPrevious()
+                    },
+                    onSwipeUp = {
+                        navController.navigate(NavData.PlaylistScreen(true))
                     },
                     onCoverClick = { navController.navigate(NavData.PlaylistScreen(true)) }
                 )

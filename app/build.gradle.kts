@@ -68,9 +68,10 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.foundation)
-    implementation("androidx.compose.ui:ui-text-google-fonts:1.10.2")
+    implementation("androidx.compose.ui:ui-text-google-fonts:1.10.3")
     implementation("androidx.compose.material:material-icons-extended:1.7.8")
-    implementation("dev.chrisbanes.haze:haze:1.7.1")
+    implementation("dev.chrisbanes.haze:haze:1.7.2")
+    implementation("androidx.palette:palette-ktx:1.0.0")
 
     // --- Lifecycle & Navigation ---
     implementation(libs.androidx.lifecycle.runtime.ktx)

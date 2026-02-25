@@ -46,6 +46,8 @@ fun PlayerMinimized(
     previousTrack: () -> Unit = {},
     nextTrack: () -> Unit = {},
     playPause: () -> Unit = {},
+    onCoverClick: (() -> Unit)?,
+    onSurfaceClick:  (() -> Unit)?,
     playPauseIcon: ImageVector
 ) {
     val track = trackInfo ?: TrackInfo.EMPTY
@@ -61,7 +63,8 @@ fun PlayerMinimized(
         Row(
             modifier = Modifier
                 .weight(1f)
-                .padding(horizontal = dimensionResource(R.dimen.medium_padding)),
+                .padding(horizontal = dimensionResource(R.dimen.medium_padding))
+                .clickable(onSurfaceClick != null) { if (onSurfaceClick != null) onSurfaceClick() },
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ) {
@@ -76,7 +79,8 @@ fun PlayerMinimized(
                         )
                     )
                     .aspectRatio(1f)
-                    .clip(shape = MaterialTheme.shapes.small),
+                    .clip(shape = MaterialTheme.shapes.small)
+                    .clickable(onCoverClick != null) { if (onCoverClick != null) onCoverClick() },
                 contentScale = ContentScale.Crop,
                 error = {
                     Box(
@@ -177,6 +181,8 @@ fun PlayerMinimizedPreview() {
         previousTrack = {},
         nextTrack = {},
         playPause = {},
+        null,
+        null,
         playPauseIcon = Icons.Default.Pause
     )
 }

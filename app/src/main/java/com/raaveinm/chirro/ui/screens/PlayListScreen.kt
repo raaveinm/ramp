@@ -97,7 +97,8 @@ fun PlaylistScreen(
     modifier: Modifier = Modifier,
     viewModel: PlayerViewModel = viewModel(factory = AppViewModelProvider.Factory),
     navigateToTrack: Boolean = false,
-    scrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+    scrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
+    innerPadding: PaddingValues = PaddingValues()
 ) {
     ///////////////////////////////////////////////
     // Variables
@@ -143,7 +144,9 @@ fun PlaylistScreen(
                         uiState.currentTrack?.let { current ->
                             val index = tracks.indexOfFirst { it.id == current.id }
                             if (index != -1) {
-                                listState.scrollToItem((index - 3).coerceAtLeast(0))
+                                if (!viewModel.isPowerSaveMode.value)
+                                    listState.animateScrollToItem((index - 3).coerceAtLeast(0))
+                                else listState.scrollToItem((index - 3).coerceAtLeast(0))
                                 isNavigating = false
                             }
                         }
@@ -163,23 +166,32 @@ fun PlaylistScreen(
                         .nestedScroll(scrollBehavior.nestedScrollConnection)
                         .hazeSource(hazeState)
                         .nestedScroll(nestedScrollConnection)
-                        .padding(bottom = dimensionResource(R.dimen.medium_padding))
                         .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
                         .drawWithContent {
                             drawContent()
-                            val fadeHeightPx = 125.dp.toPx()
-                            val colors = listOf(Color.Black, Color.Transparent)
-                            val colorStops = listOf(1f - (fadeHeightPx / size.height), 1f)
+
+                            val fadeHeightPx = 72.dp.toPx()
+                            val topFadeStop = fadeHeightPx / size.height
+                            val bottomFadeStop = 1f - (fadeHeightPx / size.height)
+
+                            val fadeBrush = Brush.verticalGradient(
+                                0f to Color.Transparent,
+                                topFadeStop to Color.Black,
+                                bottomFadeStop to Color.Black,
+                                1f to Color.Transparent
+                            )
 
                             drawRect(
-                                brush = Brush.verticalGradient(
-                                    colorStops = colorStops.zip(colors).toTypedArray()
-                                ),
+                                brush = fadeBrush,
                                 blendMode = BlendMode.DstIn
                             )
-                        },
+                        }
+                        .padding(bottom = dimensionResource(R.dimen.medium_padding)),
                     state = listState,
-                    contentPadding = PaddingValues(bottom = dimensionResource(R.dimen.extra_large_size))
+                    contentPadding = PaddingValues(
+                        bottom = dimensionResource(R.dimen.extra_large_size),
+                        top = innerPadding.calculateTopPadding()
+                    )
                 ) {
                     items(
                         items = tracks,
@@ -401,7 +413,10 @@ fun PlaylistScreen(
                 nextTrack = { viewModel.skipNext() },
                 playPause = {
                     if (viewModel.isPlaying) viewModel.pause()
-                    else viewModel.resume() },
+                    else viewModel.resume()
+                },
+                onCoverClick = { isNavigating = true },
+                onSurfaceClick = { navController.popBackStack() },
                 playPauseIcon =
                     if (viewModel.isPlaying) Icons.Default.Pause
                     else Icons.Default.PlayArrow
