@@ -5,6 +5,7 @@
     <string name="tracklist_empty">Keine Medien gefunden</string>
     <string name="search_hint">Titel Interpret Album</string>
 
+    <string name="unknown_error">unbekannter Fehler</string>
     <string name="track_order">Titelreihenfolge</string>
     <string name="track_primary">Primäre Sortierung</string>
     <string name="track_secondary">Sekundäre Sortierung</string>
@@ -16,6 +17,7 @@
     <string name="app_behaviour">App-Verhalten</string>
     <string name="shuffle_mode">Zufallswiedergabe</string>
 
+    <string name="is_dynamic_color">Umgebungs-Hintergrundfarbe</string>
     <string name="order_asc">Aufstieg</string>
     <string name="order_desc">Absteig</string>
 

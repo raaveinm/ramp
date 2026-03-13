@@ -5,6 +5,7 @@
     <string name="tracklist_empty">Медиа не обнаружено</string>
 
     <string name="search_hint">название исполнитель альбом</string>
+    <string name="unknown_error">что-то пошло не так</string>
     <string name="track_order">Составление трек листа</string>
     <string name="track_primary">Первичный приоритет</string>
     <string name="track_secondary">Альтернативный приоритет</string>
@@ -17,6 +18,7 @@
     <string name="shuffle_mode">Режим перемешивания</string>
 
 
+    <string name="is_dynamic_color">Атмосферный фон</string>
     <string name="order_asc">возраст.</string>
     <string name="order_desc">убываниe</string>
 

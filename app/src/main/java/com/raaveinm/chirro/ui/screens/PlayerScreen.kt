@@ -11,7 +11,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -22,6 +21,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,7 +41,6 @@ import com.raaveinm.chirro.data.values.TrackInfo
 import com.raaveinm.chirro.ui.layouts.ArcEasterEgg
 import com.raaveinm.chirro.ui.layouts.PlayerControlButtons
 import com.raaveinm.chirro.ui.layouts.TrackInfoLayout
-import com.raaveinm.chirro.ui.layouts.rememberDominantColor
 import com.raaveinm.chirro.ui.navigation.NavData
 import com.raaveinm.chirro.ui.veiwmodel.AppViewModelProvider
 import com.raaveinm.chirro.ui.veiwmodel.PlayerViewModel
@@ -55,6 +54,8 @@ fun PlayerScreen(
     viewModel: PlayerViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val progressionUiState by viewModel.progressionUiState.collectAsState()
+    
     val trackInfo: TrackInfo? = uiState.currentTrack
     val isPlaying = uiState.isPlaying
     val activity = LocalContext.current as Activity
@@ -63,6 +64,13 @@ fun PlayerScreen(
     ) { }
 
     var isNextDirection by remember { mutableStateOf(true) }
+
+    DisposableEffect(Unit) {
+        viewModel.setPlayerScreenVisibility(true)
+        onDispose {
+            viewModel.setPlayerScreenVisibility(false)
+        }
+    }
 
     Surface(
         modifier = modifier,
@@ -140,7 +148,8 @@ fun PlayerScreen(
                 },
                 onSeek = { position -> viewModel.seekTo(position.toLong()) },
                 onShareClick = { viewModel.shareTrack(activity, trackInfo) },
-                currentDuration = uiState.currentPosition,
+                currentDuration = progressionUiState.currentPosition,
+                trackLength = progressionUiState.totalDuration,
                 isFavourite = uiState.isFavorite,
                 onFavoriteClick = {
                     if (trackInfo != null) {
@@ -150,8 +159,7 @@ fun PlayerScreen(
                             launcher = launcher
                         )
                     }
-                },
-                trackLength = uiState.totalDuration
+                }
             )
             Spacer(Modifier.padding(dimensionResource(R.dimen.large_size)))
         }

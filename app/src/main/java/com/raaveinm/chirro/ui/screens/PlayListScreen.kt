@@ -178,7 +178,7 @@ fun PlaylistScreen(
                                 0f to Color.Transparent,
                                 topFadeStop to Color.Black,
                                 bottomFadeStop to Color.Black,
-                                1f to Color.Transparent
+                                .95f to Color.Transparent
                             )
 
                             drawRect(
@@ -248,6 +248,10 @@ fun PlaylistScreen(
                                     }
                                 }
                             },
+
+                            ///////////////////////////////////////////////
+                            // Track info
+                            ///////////////////////////////////////////////
                             content = {
                                 Surface(
                                     modifier = Modifier

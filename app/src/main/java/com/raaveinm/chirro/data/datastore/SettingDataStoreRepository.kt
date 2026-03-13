@@ -10,11 +10,12 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.google.gson.Gson
-import com.raaveinm.chirro.data.values.TrackInfo
 import com.raaveinm.chirro.data.values.OrderMediaQueue
+import com.raaveinm.chirro.data.values.TrackInfo
 import com.raaveinm.chirro.ui.theme.AppTheme
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 
 // Constants
@@ -31,23 +32,122 @@ class SettingDataStoreRepository(private val dataStore: DataStore<Preferences>) 
         val CURRENT_TRACK = stringPreferencesKey("current_track")
         val IS_SAVED_STATE = stringPreferencesKey("is_saved_state")
         val IS_SHUFFLE_MODE = booleanPreferencesKey("is_shuffle_mode")
+        val BACKGROUND_DYNAMIC_COLOR = booleanPreferencesKey("background_dynamic_color")
     }
 
     ///////////////////////////////////////////////
     // Getting preferences flow
     ///////////////////////////////////////////////
+    @Deprecated(message = "preferred separate flows")
     val settingsPreferencesFlow: Flow<PreferenceList> = dataStore.data
         .catch { exception ->
             Log.e(tag, "$exception")
             emit(emptyPreferences())
         }
+        .map { preferences -> mapOfPreferences(preferences) }
+
+    val uiSettingsFlow: Flow<UiPreferences> = dataStore.data
+        .catch {
+            Log.e(tag, "$it")
+            emit(emptyPreferences())
+        }
         .map { preferences ->
-            mapOfPreferences(preferences)
+            val currentTheme = try {
+                AppTheme.valueOf(
+                    preferences[PreferencesKeys.CURRENT_THEME] ?: AppTheme.DYNAMIC.name
+                )
+            } catch (e: Exception) {
+                Log.w(tag, "Failed to read sort order: $e")
+                AppTheme.DYNAMIC
+            }
+            val backgroundDynamicColor = try {
+                preferences[PreferencesKeys.BACKGROUND_DYNAMIC_COLOR].toString().toBoolean()
+            } catch (e: Exception) {
+                Log.w(tag, "Failed to read sort order: $e")
+                true
+            }
+            UiPreferences(
+                currentTheme = currentTheme,
+                backgroundDynamicColor = backgroundDynamicColor
+            )
         }
 
+    val playbackStateFlow: Flow<PlaybackState> = dataStore.data
+        .catch { exception ->
+            Log.e(tag, "$exception")
+            emit(emptyPreferences())
+        }
+        .map { preferences ->
+            val isSavedState = try {
+                preferences[PreferencesKeys.IS_SAVED_STATE]?.toBoolean() ?: false
+            } catch (_: Exception) { false }
+
+            val currentTrack = try {
+                val jsonString = preferences[PreferencesKeys.CURRENT_TRACK]
+                if (jsonString != null) {
+                    Gson().fromJson(jsonString, TrackInfo::class.java)
+                } else null
+            } catch (e: Exception) {
+                Log.e(tag, "Error parsing track: $e")
+                null
+            }
+
+            PlaybackState(
+                currentTrack = currentTrack,
+                isSavedState = isSavedState
+            )
+        }
+        .distinctUntilChanged()
+
+    val settingsFlow: Flow<SettingsList> = dataStore.data
+        .catch { exception ->
+            Log.e(tag, "$exception")
+            emit(emptyPreferences())
+        }
+        .map { preferences ->
+            val sortPrimaryOrder = try {
+                OrderMediaQueue.valueOf(
+                    preferences[PreferencesKeys.SORT_PRIMARY_ORDER] ?: OrderMediaQueue.ALBUM.name
+                )
+            } catch (e: Exception) {
+                Log.w(tag, "Failed to read sort order: $e")
+                OrderMediaQueue.ALBUM
+            }
+
+            val sortSecondaryOrder = try {
+                OrderMediaQueue.valueOf(
+                    preferences[PreferencesKeys.SORT_SECONDARY_ORDER] ?: OrderMediaQueue.TRACK.name
+                )
+            } catch (e: Exception) {
+                Log.w(tag, "Failed to read sort order: $e")
+                OrderMediaQueue.TRACK
+            }
+            val isAsc: Boolean = try {
+                preferences[PreferencesKeys.SORT_ASCENDING].toString().toBoolean()
+            } catch (e: Exception) {
+                Log.w(tag, "Failed to read sort order: $e")
+                true
+            }
+            val isShuffleMode = try {
+                preferences[PreferencesKeys.IS_SHUFFLE_MODE].toString().toBoolean()
+            } catch (e: Exception) {
+                Log.w(tag, "Failed to read sort order: $e")
+                false
+            }
+
+            SettingsList(
+                trackPrimaryOrder = sortPrimaryOrder,
+                trackSecondaryOrder = sortSecondaryOrder,
+                trackSortAscending = isAsc,
+                isShuffleMode = isShuffleMode,
+            )
+        }
+        .distinctUntilChanged()
+
     ///////////////////////////////////////////////
-    // Fetching preferences list
+    // #DEPRECATED Fetching preferences list
     ///////////////////////////////////////////////
+
     private fun mapOfPreferences(preferences: Preferences): PreferenceList {
         val sortPrimaryOrder = try {
             OrderMediaQueue.valueOf(
@@ -147,9 +247,14 @@ class SettingDataStoreRepository(private val dataStore: DataStore<Preferences>) 
         }
     }
 
-    suspend fun setSavedState(state: Boolean) {
+    suspend fun setSavedState(state: Boolean, trackInfo: TrackInfo?) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.IS_SAVED_STATE] = state.toString()
+            if (!state) preferences.remove(PreferencesKeys.CURRENT_TRACK)
+            else {
+                val jsonString = Gson().toJson(trackInfo)
+                preferences[PreferencesKeys.CURRENT_TRACK] = jsonString
+            }
         }
     }
 
@@ -167,6 +272,12 @@ class SettingDataStoreRepository(private val dataStore: DataStore<Preferences>) 
     suspend fun setShuffleMode(shuffleMode: Boolean) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.IS_SHUFFLE_MODE] = shuffleMode
+        }
+    }
+
+    suspend fun setBackgroundDynamicColor(state: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.BACKGROUND_DYNAMIC_COLOR] = state
         }
     }
 }

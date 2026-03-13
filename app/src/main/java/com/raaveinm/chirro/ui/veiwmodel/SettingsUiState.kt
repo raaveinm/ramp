@@ -9,5 +9,6 @@ data class SettingsUiState(
     val trackSortAscending: Boolean = true,
     val currentTheme: AppTheme = AppTheme.DYNAMIC,
     val isSavedState: Boolean = false,
-    val isShuffleMode: Boolean = false
+    val isShuffleMode: Boolean = false,
+    val backgroundDynamicColor: Boolean = true
 )

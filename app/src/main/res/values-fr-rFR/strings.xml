@@ -5,6 +5,7 @@
     <string name="tracklist_empty">Aucun média trouvé</string>
     <string name="search_hint">titre artiste album</string>
 
+    <string name="unknown_error">bougette</string>
     <string name="track_order">Ordre des pistes</string>
     <string name="track_primary">Ordre principal des pistes</string>
     <string name="track_secondary">Ordre secondaire des pistes</string>
@@ -16,6 +17,7 @@
     <string name="app_behaviour">Comportement de l\'application</string>
     <string name="shuffle_mode">Mode aléatoire</string>
 
+    <string name="is_dynamic_color">Couleur de fond ambiante</string>
     <string name="order_asc">Croissant</string>
     <string name="order_desc">Décroissant</string>
 

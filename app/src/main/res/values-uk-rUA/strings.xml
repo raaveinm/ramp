@@ -5,6 +5,7 @@
     <string name="tracklist_empty">Медіафайлів не знайдено</string>
     <string name="search_hint">назва виконавець альбом</string>
 
+    <string name="unknown_error">невідома помилка</string>
     <string name="track_order">Порядок треків</string>
     <string name="track_primary">Основний порядок треків</string>
     <string name="track_secondary">Вторинний порядок треків</string>
@@ -17,6 +18,7 @@
     <string name="shuffle_mode">Режим перемішування</string>
 
 
+    <string name="is_dynamic_color">Атмосферне тло</string>
     <string name="order_asc">зрост</string>
     <string name="order_desc">спад</string>
 

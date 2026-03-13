@@ -26,9 +26,11 @@ import com.raaveinm.chirro.data.values.TrackInfo
 import com.raaveinm.chirro.domain.PlaybackService
 import com.raaveinm.chirro.domain.toMediaItem
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -46,7 +48,6 @@ import kotlinx.coroutines.launch
  * @property allTracks
  * @property mediaController
  * @property playerListener
- * @property updatePlayerState
  * @property updateProgress
  */
 
@@ -57,8 +58,11 @@ class PlayerViewModel(
 ) : AndroidViewModel(application) {
     // Ui State
     private val _uiState = MutableStateFlow(PlayerUiState())
+    private val _progressionUiState = MutableStateFlow(ProgressBarUiState())
     val uiState = _uiState.asStateFlow()
+    val progressionUiState = _progressionUiState.asStateFlow()
     val isPlaying: Boolean get() = _uiState.value.isPlaying
+    val dynamicColor: Flow<Boolean> get() = settingsRepository.uiSettingsFlow.map { it.backgroundDynamicColor }
 
     // Power Management
     private val context = getApplication<Application>()
@@ -78,6 +82,12 @@ class PlayerViewModel(
     val allTracks = _allTracks.asStateFlow()
     private val _controllerReady = MutableStateFlow(false)
     private var mediaController: MediaController? = null
+    private val _isPlayerScreenActive = MutableStateFlow(false)
+
+    fun setPlayerScreenVisibility(isVisible: Boolean) {
+        _isPlayerScreenActive.value = isVisible
+        if (isVisible) updateProgress()
+    }
 
 //    fun onFavoriteClicked(track: TrackInfo) {
 //        viewModelScope.launch {
@@ -93,15 +103,18 @@ class PlayerViewModel(
         observeAllTracks()
 
         viewModelScope.launch {
-            uiState.map { it.isPlaying }
-                .distinctUntilChanged()
-                .collectLatest { isPlaying ->
-                    while (isPlaying) {
-                        updateProgress()
-                        val delayMs = if (isPowerSaveMode.value) 300L else 100L
-                        delay(delayMs)
-                    }
+            combine(
+                uiState.map { it.isPlaying }.distinctUntilChanged(),
+                _isPlayerScreenActive
+            ) { isPlaying, isActive ->
+                isPlaying && isActive
+            }.collectLatest { shouldUpdate ->
+                while (shouldUpdate) {
+                    updateProgress()
+                    val delayMs = if (isPowerSaveMode.value) 300L else 100L
+                    delay(delayMs)
                 }
+            }
         }
     }
 
@@ -155,9 +168,9 @@ class PlayerViewModel(
                 mediaController = controllerFuture.get()
                 mediaController?.shuffleModeEnabled = false
                 mediaController?.addListener(playerListener)
-                updatePlayerState()
+                updateCurrentTrack()
+                updatePlayState()
                 _controllerReady.value = true
-
                 syncInitialState()
             },
             { it.run() }
@@ -170,7 +183,7 @@ class PlayerViewModel(
             if (controller.mediaItemCount > 0) return@launch
             val tracks = _allTracks.value.takeIf { it.isNotEmpty() } ?: return@launch
 
-            val prefs = settingsRepository.settingsPreferencesFlow.first()
+            val prefs = settingsRepository.playbackStateFlow.first()
             val savedTrackId = prefs.currentTrack?.id
             val shouldRestore = prefs.isSavedState && savedTrackId != null
 
@@ -200,7 +213,7 @@ class PlayerViewModel(
 
                     if (processedTracks.isNotEmpty()) {
                         updatePlayerQueue(processedTracks)
-                        updatePlayerState()
+                        updateCurrentTrack()
                     }
                 }
         }
@@ -210,13 +223,16 @@ class PlayerViewModel(
     private val playerListener = object : Player.Listener {
         override fun onEvents(player: Player, events: Player.Events) {
             super.onEvents(player, events)
+
+            if (events.contains(Player.EVENT_MEDIA_ITEM_TRANSITION))
+                updateCurrentTrack()
             if (events.containsAny(
                     Player.EVENT_PLAYBACK_STATE_CHANGED,
-                    Player.EVENT_MEDIA_ITEM_TRANSITION,
                     Player.EVENT_IS_PLAYING_CHANGED
                 )
             ) {
-                updatePlayerState()
+                updateCurrentTrack()
+                updatePlayState()
             }
         }
     }
@@ -237,12 +253,12 @@ class PlayerViewModel(
 
     fun pause() {
         mediaController?.pause()
-        updatePlayerState()
+        updatePlayState()
     }
 
     fun resume() {
         mediaController?.play()
-        updatePlayerState()
+        updatePlayState()
     }
 
     fun skipNext() = this.mediaController?.seekToNextMediaItem()
@@ -252,16 +268,23 @@ class PlayerViewModel(
         updateProgress()
     }
 
-    private fun updatePlayerState() {
+    private fun updateCurrentTrack() {
         _uiState.value = _uiState.value.copy(
-            isPlaying = mediaController?.isPlaying ?: false,
-            currentTrack = mediaController?.currentMediaItem?.toTrackInfo(),
+            currentTrack = mediaController?.currentMediaItem?.toTrackInfo()
+        )
+        _progressionUiState.value = _progressionUiState.value.copy(
             totalDuration = mediaController?.duration?.coerceAtLeast(0) ?: 0L
         )
     }
 
-    private fun updateProgress() {
+    private fun updatePlayState() {
         _uiState.value = _uiState.value.copy(
+            isPlaying = mediaController?.isPlaying ?: false
+        )
+    }
+
+    private fun updateProgress() {
+        _progressionUiState.value = _progressionUiState.value.copy(
             currentPosition = mediaController?.currentPosition?.coerceAtLeast(0) ?: 0L
         )
     }

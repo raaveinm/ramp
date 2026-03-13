@@ -56,7 +56,10 @@ fun MainScreen (modifier: Modifier) {
     )
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val isPlayerScreen = navBackStackEntry?.destination?.hasRoute<NavData.PlayerScreen>() == true
-    val activeBackgroundColor = if (isPlayerScreen) backgroundColor.copy(.085f) else Color.Transparent
+    val isDynamicColors = playerViewModel.dynamicColor.collectAsState(initial = false).value
+    val activeBackgroundColor =
+        if (isPlayerScreen && isDynamicColors) backgroundColor.copy(.085f)
+        else Color.Transparent
 
     Scaffold(
         modifier = modifier,

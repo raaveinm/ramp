@@ -24,7 +24,7 @@ import com.raaveinm.chirro.R
 
 @Composable
 fun EmptyListComposable(text: String? = null, stringRes: Int? = null) {
-    val message = text ?: stringResource(stringRes ?: R.string.tracklist_empty)
+    val message = text ?: stringResource(stringRes ?: R.string.unknown_error)
     Column(
         modifier = Modifier
             .fillMaxWidth()

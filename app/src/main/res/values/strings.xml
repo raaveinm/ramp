@@ -5,6 +5,8 @@
     <string name="tracklist_empty">No media had been found</string>
     <string name="search_hint">name artist album</string>
 
+    <string name="unknown_error">Unknown error</string>
+
     <string name="track_order">Track order</string>
     <string name="track_primary">Track primary order</string>
     <string name="track_secondary">Track secondary order</string>
@@ -15,6 +17,7 @@
     <string name="select_language">Select Language</string>
     <string name="app_behaviour">Application behaviour</string>
     <string name="shuffle_mode">Shuffle mode</string>
+    <string name="is_dynamic_color">Ambient background color</string>
 
 
     <string name="order_asc">Ascend</string>

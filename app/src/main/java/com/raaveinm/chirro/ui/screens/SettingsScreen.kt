@@ -65,6 +65,7 @@ import com.raaveinm.chirro.ui.theme.AppTheme
 import com.raaveinm.chirro.ui.theme.ThemeOption
 import com.raaveinm.chirro.ui.theme.languageMap
 import com.raaveinm.chirro.ui.veiwmodel.AppViewModelProvider
+import com.raaveinm.chirro.ui.veiwmodel.PlayerViewModel
 import com.raaveinm.chirro.ui.veiwmodel.SettingsViewModel
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeEffect
@@ -75,6 +76,7 @@ import dev.chrisbanes.haze.hazeSource
 fun SettingsScreen(
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    playerViewModel: PlayerViewModel = viewModel(factory = AppViewModelProvider.Factory),
     scrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
     innerPadding: PaddingValues
 ) {
@@ -363,7 +365,7 @@ fun SettingsScreen(
         }
 
         ///////////////////////////////////////////////
-        // Application behaviour
+        // Application behavior
         ///////////////////////////////////////////////
         SettingCard(
             title = stringResource(R.string.app_behaviour),
@@ -396,7 +398,43 @@ fun SettingsScreen(
                     Switch(
                         checked = checked,
                         modifier = Modifier.weight(1f),
-                        onCheckedChange = { viewModel.setSavedState(it) },
+                        onCheckedChange = { viewModel.setSavedState(it, playerViewModel.uiState.value.currentTrack) },
+                        thumbContent = {
+                            Icon(
+                                imageVector = if (checked) Icons.Filled.Check
+                                else Icons.Filled.Close,
+                                contentDescription = null,
+                                modifier = Modifier.size(SwitchDefaults.IconSize),
+                            )
+                        }
+                    )
+                }
+
+                HorizontalDivider(
+                    Modifier
+                        .padding(horizontal = dimensionResource(R.dimen.medium_padding))
+                        .padding(vertical = dimensionResource(R.dimen.small_padding))
+                )
+
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = dimensionResource(R.dimen.s_medium_padding))
+                        .padding(vertical = dimensionResource(R.dimen.small_padding))
+                ) {
+                    val checked = uiState.backgroundDynamicColor
+
+                    Text(
+                        text = stringResource(R.string.is_dynamic_color),
+                        modifier = Modifier.weight(5f),
+                        style = MaterialTheme.typography.titleSmall
+                    )
+                    Switch(
+                        checked = checked,
+                        modifier = Modifier.weight(1f),
+                        onCheckedChange = { viewModel.setBackgroundDynamicColor(it) },
                         thumbContent = {
                             Icon(
                                 imageVector = if (checked) Icons.Filled.Check

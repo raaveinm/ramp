@@ -4,10 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.raaveinm.chirro.data.values.OrderMediaQueue
 import com.raaveinm.chirro.data.datastore.SettingDataStoreRepository
+import com.raaveinm.chirro.data.values.TrackInfo
 import com.raaveinm.chirro.ui.theme.AppTheme
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(
@@ -15,7 +17,20 @@ class SettingsViewModel(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(SettingsUiState())
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
-    val settingsFlow = settingsRepository.settingsPreferencesFlow
+    val settingsFlow = combine(
+        settingsRepository.settingsFlow,
+        settingsRepository.playbackStateFlow,
+        settingsRepository.uiSettingsFlow) { settings, playback, uiSettings ->
+        SettingsUiState(
+            trackPrimaryOrder = settings.trackPrimaryOrder,
+            trackSecondaryOrder = settings.trackSecondaryOrder,
+            trackSortAscending = settings.trackSortAscending,
+            currentTheme = uiSettings.currentTheme,
+            isSavedState = playback.isSavedState,
+            isShuffleMode = settings.isShuffleMode,
+            backgroundDynamicColor = uiSettings.backgroundDynamicColor
+        )
+    }
 
     init {
         viewModelScope.launch {
@@ -26,7 +41,8 @@ class SettingsViewModel(
                     trackSortAscending = it.trackSortAscending,
                     currentTheme = it.currentTheme,
                     isSavedState = it.isSavedState,
-                    isShuffleMode = it.isShuffleMode
+                    isShuffleMode = it.isShuffleMode,
+                    backgroundDynamicColor = it.backgroundDynamicColor
                 )
             }
         }
@@ -96,12 +112,18 @@ class SettingsViewModel(
     }
 
     ///////////////////////////////////////////////
-    // Application behaviour
+    // Application behavior
     ///////////////////////////////////////////////
 
-    fun setSavedState(state: Boolean) {
+    fun setSavedState(state: Boolean, trackInfo: TrackInfo? = null) {
         viewModelScope.launch {
-            settingsRepository.setSavedState(state)
+            settingsRepository.setSavedState(state, trackInfo)
+        }
+    }
+
+    fun setBackgroundDynamicColor(state: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.setBackgroundDynamicColor(state)
         }
     }
 }
