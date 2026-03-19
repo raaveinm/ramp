@@ -11,15 +11,18 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
@@ -44,6 +47,7 @@ import com.raaveinm.chirro.ui.layouts.TrackInfoLayout
 import com.raaveinm.chirro.ui.navigation.NavData
 import com.raaveinm.chirro.ui.veiwmodel.AppViewModelProvider
 import com.raaveinm.chirro.ui.veiwmodel.PlayerViewModel
+import dev.chrisbanes.haze.hazeEffect
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("ContextCastToActivity")
@@ -51,6 +55,7 @@ import com.raaveinm.chirro.ui.veiwmodel.PlayerViewModel
 fun PlayerScreen(
     navController: NavHostController,
     modifier: Modifier = Modifier,
+    hazeModifier: Modifier = Modifier,
     viewModel: PlayerViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -133,6 +138,7 @@ fun PlayerScreen(
 
             PlayerControlButtons(
                 modifier = Modifier.fillMaxWidth(),
+                dropDownModifier = hazeModifier,
                 isPlaying = isPlaying,
                 onPlayPauseClick = {
                     if (isPlaying) viewModel.pause()
@@ -151,15 +157,48 @@ fun PlayerScreen(
                 currentDuration = progressionUiState.currentPosition,
                 trackLength = progressionUiState.totalDuration,
                 isFavourite = uiState.isFavorite,
-                onFavoriteClick = {
-                    if (trackInfo != null) {
-                        viewModel.deleteTrack(
-                            track = trackInfo,
-                            activity = activity,
-                            launcher = launcher
+                extendedMenu = {
+                    Column {
+                        Text(
+                            text = viewModel.sleepTimerEndTime?.toString() ?: "00:00",
                         )
+                        Button(
+                            onClick = {
+                                if (trackInfo != null) {
+                                    viewModel.deleteTrack(
+                                        track = trackInfo,
+                                        activity = activity,
+                                        launcher = launcher
+                                    )
+                                }
+                            },
+                            shape = MaterialTheme.shapes.small
+                        ) {
+                            Text(
+                                text = "Delete Track",
+                                modifier = Modifier.background(Color.Transparent)
+                            )
+                        }
+                        Button(
+                            onClick = {viewModel.startSleepTimer(2)},
+                            shape = MaterialTheme.shapes.small
+                        ) {
+                            Text(
+                                text = "Start Sleep Timer",
+                                modifier = Modifier.background(Color.Transparent)
+                            )
+                        }
+                        Button(
+                            onClick = {viewModel.stopSleepTimer()},
+                            shape = MaterialTheme.shapes.small
+                        ) {
+                            Text(
+                                text = "Cancel Sleep Timer",
+                                modifier = Modifier.background(Color.Transparent)
+                            )
+                        }
                     }
-                }
+                },
             )
             Spacer(Modifier.padding(dimensionResource(R.dimen.large_size)))
         }

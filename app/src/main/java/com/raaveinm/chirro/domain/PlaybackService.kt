@@ -2,6 +2,7 @@ package com.raaveinm.chirro.domain
 
 import android.app.PendingIntent
 import android.content.Intent
+import android.os.Bundle
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
@@ -11,7 +12,9 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.LibraryResult
 import androidx.media3.session.MediaLibraryService
 import androidx.media3.session.MediaSession
+import androidx.media3.session.SessionCommand
 import androidx.media3.session.SessionError
+import androidx.media3.session.SessionResult
 import com.google.common.collect.ImmutableList
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
@@ -34,6 +37,7 @@ class PlaybackService : MediaLibraryService() {
     private lateinit var session: MediaLibrarySession
     private lateinit var trackRepository: TrackRepository
     private lateinit var notificationProvider: PlaybackNotificationProvider
+    private lateinit var sleepTimer: SleepTimer
 
     private val serviceJob = SupervisorJob()
     private val serviceScope = CoroutineScope(Dispatchers.Main + serviceJob)
@@ -44,7 +48,7 @@ class PlaybackService : MediaLibraryService() {
         val container = (application as ChirroApplication).container
         trackRepository = container.trackRepository
         settingsRepository = container.settingsRepository
-        
+
         notificationProvider = PlaybackNotificationProvider(this)
         setMediaNotificationProvider(notificationProvider)
 
@@ -59,6 +63,8 @@ class PlaybackService : MediaLibraryService() {
                 saveCurrentState()
             }
         })
+
+        sleepTimer = SleepTimer(player)
 
         // Build Session
         session = MediaLibrarySession
@@ -77,7 +83,7 @@ class PlaybackService : MediaLibraryService() {
     }
 
     override fun onGetSession(controllerInfo: MediaSession.ControllerInfo)
-    : MediaLibrarySession { return session }
+            : MediaLibrarySession { return session }
 
     override fun onDestroy() {
         session.release()
@@ -100,7 +106,55 @@ class PlaybackService : MediaLibraryService() {
         }
     }
 
+    ///////////////////////////////////////////////
+    // Alarm Manager (Sleep timer)
+    ///////////////////////////////////////////////
     private inner class LibrarySessionCallback : MediaLibrarySession.Callback {
+
+        override fun onConnect(
+            session: MediaSession,
+            controller: MediaSession.ControllerInfo
+        ): MediaSession.ConnectionResult {
+            val sessionCommand = SessionCommand(START_SLEEP_TIMER, Bundle.EMPTY)
+            val sessionCommand2 = SessionCommand(STOP_SLEEP_TIMER, Bundle.EMPTY)
+            val availableSessionCommands = MediaSession.ConnectionResult.DEFAULT_SESSION_COMMANDS.buildUpon()
+                .add(sessionCommand)
+                .add(sessionCommand2)
+                .build()
+            return MediaSession.ConnectionResult.AcceptedResultBuilder(session)
+                .setAvailableSessionCommands(availableSessionCommands)
+                .build()
+        }
+
+        override fun onCustomCommand(
+            session: MediaSession,
+            controller: MediaSession.ControllerInfo,
+            customCommand: SessionCommand,
+            args: Bundle
+        ): ListenableFuture<SessionResult> {
+            when (customCommand.customAction) {
+                START_SLEEP_TIMER -> {
+                    val seconds = args.getLong(EXTRA_SECONDS, 0L)
+                    if (seconds > 0) {
+                        sleepTimer.startCountdown(seconds)
+                        val resultExtras = Bundle().apply {
+                            sleepTimer.getEndTime()?.let { putLong("END_TIME", it) }
+                        }
+                        return Futures.immediateFuture(
+                            SessionResult(SessionResult.RESULT_SUCCESS, resultExtras)
+                        )
+                    }
+                }
+                STOP_SLEEP_TIMER -> {
+                    sleepTimer.stopCountdown()
+                    return Futures.immediateFuture(SessionResult(SessionResult.RESULT_SUCCESS))
+                }
+            }
+            return super.onCustomCommand(session, controller, customCommand, args)
+        }
+
+        ///////////////////////////////////////////////
+        ///////////////////////////////////////////////
 
         override fun onGetLibraryRoot(
             session: MediaLibrarySession,
@@ -167,5 +221,8 @@ class PlaybackService : MediaLibraryService() {
 
     companion object {
         private const val ROOT_ID = "root"
+        const val START_SLEEP_TIMER = "START_SLEEP_TIMER"
+        const val STOP_SLEEP_TIMER = "STOP_SLEEP_TIMER"
+        const val EXTRA_SECONDS = "EXTRA_SECONDS"
     }
 }

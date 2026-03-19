@@ -6,6 +6,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Bundle
 import android.os.PowerManager
 import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
@@ -18,7 +19,10 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
+import androidx.media3.session.SessionCommand
+import androidx.media3.session.SessionResult
 import androidx.media3.session.SessionToken
+import com.google.common.util.concurrent.MoreExecutors
 import com.raaveinm.chirro.data.datastore.SettingDataStoreRepository
 import com.raaveinm.chirro.data.repository.TrackRepository
 import com.raaveinm.chirro.data.values.Eggs
@@ -63,6 +67,8 @@ class PlayerViewModel(
     val progressionUiState = _progressionUiState.asStateFlow()
     val isPlaying: Boolean get() = _uiState.value.isPlaying
     val dynamicColor: Flow<Boolean> get() = settingsRepository.uiSettingsFlow.map { it.backgroundDynamicColor }
+    private val _sleepTimerEndTimeMs = MutableStateFlow<Long?>(null)
+    val sleepTimerEndTime = _sleepTimerEndTimeMs.asStateFlow().value
 
     // Power Management
     private val context = getApplication<Application>()
@@ -398,5 +404,39 @@ class PlayerViewModel(
             return Eggs.ARC
         }
         return null
+    }
+
+    ///////////////////////////////////////////////
+    // Alarm Manager (Sleep Timer)
+    ///////////////////////////////////////////////
+    @OptIn(UnstableApi::class)
+    fun startSleepTimer(seconds: Long) {
+        val bundle = Bundle().apply {
+            putLong(PlaybackService.EXTRA_SECONDS, seconds)
+        }
+
+        val future = mediaController?.sendCustomCommand(
+            SessionCommand(PlaybackService.START_SLEEP_TIMER, Bundle.EMPTY),
+            bundle
+        )
+
+        future?.addListener({
+            val result = future.get()
+            if (result.resultCode == SessionResult.RESULT_SUCCESS) {
+                val endTime = result.extras.getLong("EXTRA_END_TIME_MS", -1L)
+                if (endTime != -1L) {
+                    _sleepTimerEndTimeMs.value = endTime
+                }
+            }
+        }, MoreExecutors.directExecutor())
+    }
+
+    @OptIn(UnstableApi::class)
+    fun stopSleepTimer() {
+        mediaController?.sendCustomCommand(
+            SessionCommand(PlaybackService.STOP_SLEEP_TIMER, Bundle.EMPTY),
+            Bundle.EMPTY
+        )
+        _sleepTimerEndTimeMs.value = null
     }
 }

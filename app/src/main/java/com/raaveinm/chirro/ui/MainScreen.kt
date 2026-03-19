@@ -115,7 +115,11 @@ fun MainScreen (modifier: Modifier) {
                     }
                     else -> {
                         PlayerScreen(
-                            modifier = Modifier.background(color = activeBackgroundColor),
+                            modifier = Modifier
+                                .background(color = activeBackgroundColor)
+                                .hazeSource(hazeState),
+                            hazeModifier = Modifier
+                                .hazeEffect(hazeState),
                             navController = navController
                         )
                     }
