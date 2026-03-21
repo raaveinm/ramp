@@ -29,6 +29,7 @@ import com.raaveinm.chirro.data.values.Eggs
 import com.raaveinm.chirro.data.values.TrackInfo
 import com.raaveinm.chirro.domain.PlaybackService
 import com.raaveinm.chirro.domain.toMediaItem
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -68,7 +69,10 @@ class PlayerViewModel(
     val isPlaying: Boolean get() = _uiState.value.isPlaying
     val dynamicColor: Flow<Boolean> get() = settingsRepository.uiSettingsFlow.map { it.backgroundDynamicColor }
     private val _sleepTimerEndTimeMs = MutableStateFlow<Long?>(null)
-    val sleepTimerEndTime = _sleepTimerEndTimeMs.asStateFlow().value
+    val sleepTimerEndTime = _sleepTimerEndTimeMs.asStateFlow()
+    private val _sleepTimerRemainingSeconds = MutableStateFlow<Long?>(null)
+    val sleepTimerRemainingSeconds = _sleepTimerRemainingSeconds.asStateFlow()
+    private var sleepTimerJob: Job? = null
 
     // Power Management
     private val context = getApplication<Application>()
@@ -305,6 +309,7 @@ class PlayerViewModel(
         mediaController?.removeListener(playerListener)
         mediaController?.release()
         mediaController = null
+        sleepTimerJob?.cancel()
     }
 
     private fun MediaItem.toTrackInfo(): TrackInfo? {
@@ -423,12 +428,29 @@ class PlayerViewModel(
         future?.addListener({
             val result = future.get()
             if (result.resultCode == SessionResult.RESULT_SUCCESS) {
-                val endTime = result.extras.getLong("EXTRA_END_TIME_MS", -1L)
+                val endTime = result.extras.getLong(PlaybackService.EXTRA_END_TIME_MS, -1L)
                 if (endTime != -1L) {
                     _sleepTimerEndTimeMs.value = endTime
+                    startSleepTimerTicker()
                 }
             }
         }, MoreExecutors.directExecutor())
+    }
+
+    private fun startSleepTimerTicker() {
+        sleepTimerJob?.cancel()
+        sleepTimerJob = viewModelScope.launch {
+            while (_sleepTimerEndTimeMs.value != null) {
+                val remaining = ((_sleepTimerEndTimeMs.value ?: 0L) - System.currentTimeMillis()) / 1000
+                if (remaining <= 0) {
+                    _sleepTimerRemainingSeconds.value = null
+                    _sleepTimerEndTimeMs.value = null
+                    break
+                }
+                _sleepTimerRemainingSeconds.value = remaining
+                delay(1000)
+            }
+        }
     }
 
     @OptIn(UnstableApi::class)
@@ -438,5 +460,7 @@ class PlayerViewModel(
             Bundle.EMPTY
         )
         _sleepTimerEndTimeMs.value = null
+        _sleepTimerRemainingSeconds.value = null
+        sleepTimerJob?.cancel()
     }
 }

@@ -35,6 +35,13 @@
 
     <string name="unknown">невідомо</string>
 
+    <string name="start_sleep_timer">Запустити таймер сну</string>
+    <string name="stop_sleep_timer">Зупинити таймер сну</string>
+    <string name="timer_set">Таймер сну встановлено на %1$d секунд</string>
+    <string name="timer_cancelled">Таймер сну скасовано</string>
+
+    <string name="delete_track">Видалити трек</string>
+
     <string-array name="track_order_options">
         <item>за замовчуванням</item>
         <item>id</item>

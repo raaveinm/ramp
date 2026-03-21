@@ -35,6 +35,13 @@
 
     <string name="unknown">невідомо</string>
 
+    <string name="start_sleep_timer">Запустить таймер сна</string>
+    <string name="stop_sleep_timer">Остановить таймер сна</string>
+    <string name="timer_set">Таймер сна установлен на %1$d секунд</string>
+    <string name="timer_cancelled">Таймер сна отменен</string>
+
+    <string name="delete_track">Удалить трек</string>
+
     <string-array name="track_order_options">
         <item>стандартн.</item>
         <item>id</item>

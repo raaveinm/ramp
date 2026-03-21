@@ -34,6 +34,13 @@
 
     <string name="unknown">inconnu</string>
 
+    <string name="start_sleep_timer">Démarrer le minuteur de veille</string>
+    <string name="stop_sleep_timer">Arrêter le minuteur de veille</string>
+    <string name="timer_set">Minuteur de veille réglé sur %1$d secondes</string>
+    <string name="timer_cancelled">Minuteur de veille annulé</string>
+
+    <string name="delete_track">Supprimer la piste</string>
+
     <string-array name="track_order_options">
         <item>par défaut</item>
         <item>id</item>

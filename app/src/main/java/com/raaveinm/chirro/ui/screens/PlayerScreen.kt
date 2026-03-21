@@ -18,7 +18,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -35,6 +38,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -43,7 +49,9 @@ import com.raaveinm.chirro.data.values.Eggs
 import com.raaveinm.chirro.data.values.TrackInfo
 import com.raaveinm.chirro.ui.layouts.ArcEasterEgg
 import com.raaveinm.chirro.ui.layouts.PlayerControlButtons
+import com.raaveinm.chirro.ui.layouts.TimePickerScreen
 import com.raaveinm.chirro.ui.layouts.TrackInfoLayout
+import com.raaveinm.chirro.ui.layouts.formatDuration
 import com.raaveinm.chirro.ui.navigation.NavData
 import com.raaveinm.chirro.ui.veiwmodel.AppViewModelProvider
 import com.raaveinm.chirro.ui.veiwmodel.PlayerViewModel
@@ -64,6 +72,7 @@ fun PlayerScreen(
     val trackInfo: TrackInfo? = uiState.currentTrack
     val isPlaying = uiState.isPlaying
     val activity = LocalContext.current as Activity
+    var timePickerEnabled by remember { mutableStateOf(false) }
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartIntentSenderForResult()
     ) { }
@@ -158,10 +167,20 @@ fun PlayerScreen(
                 trackLength = progressionUiState.totalDuration,
                 isFavourite = uiState.isFavorite,
                 extendedMenu = {
-                    Column {
-                        Text(
-                            text = viewModel.sleepTimerEndTime?.toString() ?: "00:00",
-                        )
+                    Column(
+                        modifier = Modifier,
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.End
+                    ) {
+                        val sleepTimerRemaining by viewModel.sleepTimerRemainingSeconds.collectAsState()
+                        if (sleepTimerRemaining != null) {
+                            Text(
+                                text = "Timer: ${formatDuration(sleepTimerRemaining!! * 1000)}",
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.padding(vertical = 8.dp)
+                            )
+                        }
                         Button(
                             onClick = {
                                 if (trackInfo != null) {
@@ -172,29 +191,79 @@ fun PlayerScreen(
                                     )
                                 }
                             },
-                            shape = MaterialTheme.shapes.small
-                        ) {
+                            shape = MaterialTheme.shapes.small,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = .1f),
+                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            modifier = Modifier.fillMaxWidth()
+                            ) {
                             Text(
-                                text = "Delete Track",
-                                modifier = Modifier.background(Color.Transparent)
+                                text = stringResource(R.string.delete_track),
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.End
                             )
                         }
                         Button(
-                            onClick = {viewModel.startSleepTimer(2)},
-                            shape = MaterialTheme.shapes.small
+                            onClick = { timePickerEnabled = !timePickerEnabled },
+                            shape = MaterialTheme.shapes.small,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = .1f),
+                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            modifier = Modifier.fillMaxWidth()
                         ) {
                             Text(
-                                text = "Start Sleep Timer",
-                                modifier = Modifier.background(Color.Transparent)
+                                text = stringResource(R.string.start_sleep_timer),
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.End
                             )
                         }
+
+                        AnimatedVisibility(visible = timePickerEnabled) {
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                val hourState = rememberLazyListState(initialFirstVisibleItemIndex = 0)
+                                val minuteState = rememberLazyListState(initialFirstVisibleItemIndex = 0)
+                                val secondState = rememberLazyListState(initialFirstVisibleItemIndex = 30)
+
+                                TimePickerScreen(
+                                    hourState = hourState,
+                                    minuteState = minuteState,
+                                    secondState = secondState
+                                )
+
+                                Button(
+                                    onClick = {
+                                        timePickerEnabled = false
+                                        val toSeconds =
+                                            (((hourState.firstVisibleItemIndex * 60) +
+                                                    minuteState.firstVisibleItemIndex) * 60 +
+                                                    secondState.firstVisibleItemIndex).toLong()
+                                        viewModel.startSleepTimer(toSeconds)
+                                    },
+                                    modifier = Modifier.padding(dimensionResource(R.dimen.small_padding))
+                                ) {
+                                    Text(text = "Set")
+                                }
+                            }
+                        }
+
                         Button(
                             onClick = {viewModel.stopSleepTimer()},
-                            shape = MaterialTheme.shapes.small
+                            shape = MaterialTheme.shapes.small,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = .1f),
+                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            modifier = Modifier.fillMaxWidth()
                         ) {
                             Text(
-                                text = "Cancel Sleep Timer",
-                                modifier = Modifier.background(Color.Transparent)
+                                text = stringResource(R.string.stop_sleep_timer),
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.End
                             )
                         }
                     }

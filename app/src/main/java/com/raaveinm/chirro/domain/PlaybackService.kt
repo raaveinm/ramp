@@ -64,7 +64,7 @@ class PlaybackService : MediaLibraryService() {
             }
         })
 
-        sleepTimer = SleepTimer(player)
+        sleepTimer = SleepTimer(player, this)
 
         // Build Session
         session = MediaLibrarySession
@@ -138,7 +138,7 @@ class PlaybackService : MediaLibraryService() {
                     if (seconds > 0) {
                         sleepTimer.startCountdown(seconds)
                         val resultExtras = Bundle().apply {
-                            sleepTimer.getEndTime()?.let { putLong("END_TIME", it) }
+                            sleepTimer.getEndTime()?.let { putLong(EXTRA_END_TIME_MS, it) }
                         }
                         return Futures.immediateFuture(
                             SessionResult(SessionResult.RESULT_SUCCESS, resultExtras)
@@ -224,5 +224,6 @@ class PlaybackService : MediaLibraryService() {
         const val START_SLEEP_TIMER = "START_SLEEP_TIMER"
         const val STOP_SLEEP_TIMER = "STOP_SLEEP_TIMER"
         const val EXTRA_SECONDS = "EXTRA_SECONDS"
+        const val EXTRA_END_TIME_MS = "EXTRA_END_TIME_MS"
     }
 }

@@ -35,6 +35,13 @@
 
     <string name="unknown">nieznany</string>
 
+    <string name="start_sleep_timer">Uruchom wyłącznik czasowy</string>
+    <string name="stop_sleep_timer">Zatrzymaj wyłącznik czasowy</string>
+    <string name="timer_set">Wyłącznik czasowy ustawiony na %1$d sekund</string>
+    <string name="timer_cancelled">Wyłącznik czasowy anulowany</string>
+
+    <string name="delete_track">Usuń utwór</string>
+
     <string-array name="track_order_options">
         <item>domyślnie</item>
         <item>id</item>

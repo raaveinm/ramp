@@ -34,6 +34,13 @@
 
     <string name="unknown">unbekannt</string>
 
+    <string name="start_sleep_timer">Schlaf-Timer starten</string>
+    <string name="stop_sleep_timer">Schlaf-Timer stoppen</string>
+    <string name="timer_set">Schlaf-Timer auf %1$d Sekunden eingestellt</string>
+    <string name="timer_cancelled">Schlaf-Timer abgebrochen</string>
+
+    <string name="delete_track">Titel löschen</string>
+
     <string-array name="track_order_options">
         <item>Standard</item>
         <item>ID</item>
