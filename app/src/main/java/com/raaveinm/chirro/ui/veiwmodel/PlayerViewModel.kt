@@ -29,17 +29,26 @@ import com.raaveinm.chirro.data.values.Eggs
 import com.raaveinm.chirro.data.values.TrackInfo
 import com.raaveinm.chirro.domain.PlaybackService
 import com.raaveinm.chirro.domain.toMediaItem
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlin.collections.emptyList
 
 /**
  * Main Screen UI management and media queue controls
@@ -56,6 +65,7 @@ import kotlinx.coroutines.launch
  * @property updateProgress
  */
 
+@FlowPreview
 class PlayerViewModel(
     application: Application,
     private val trackRepository: TrackRepository,
@@ -68,8 +78,8 @@ class PlayerViewModel(
     val progressionUiState = _progressionUiState.asStateFlow()
     val isPlaying: Boolean get() = _uiState.value.isPlaying
     val dynamicColor: Flow<Boolean> get() = settingsRepository.uiSettingsFlow.map { it.backgroundDynamicColor }
+    val backgroundImage: Flow<Boolean> get() = settingsRepository.uiSettingsFlow.map { it.backgroundImage }
     private val _sleepTimerEndTimeMs = MutableStateFlow<Long?>(null)
-    val sleepTimerEndTime = _sleepTimerEndTimeMs.asStateFlow()
     private val _sleepTimerRemainingSeconds = MutableStateFlow<Long?>(null)
     val sleepTimerRemainingSeconds = _sleepTimerRemainingSeconds.asStateFlow()
     private var sleepTimerJob: Job? = null
@@ -354,43 +364,60 @@ class PlayerViewModel(
     ///////////////////////////////////////////////
     // Search functionality
     ///////////////////////////////////////////////
-    private val _searchUiState = MutableStateFlow(SearchBarUiState())
-    val searchUiState = _searchUiState.asStateFlow()
+    private val _searchQuery = MutableStateFlow("")
+    private val _isSearching = MutableStateFlow(false)
+    private val _isLoading = MutableStateFlow(false)
+
+    @OptIn(FlowPreview::class, FlowPreview::class)
+    val searchUiState: StateFlow<SearchBarUiState> = combine(
+        _searchQuery,
+        _isSearching,
+        _isLoading,
+        _searchQuery
+            .debounce(400L)
+            .distinctUntilChanged()
+            .combine(_allTracks) { query, tracks ->
+                if (query.isBlank()) {
+                    emptyList()
+                } else {
+                    val keyWords = query.trim().split("\\s+".toRegex())
+
+                    tracks.filter { track ->
+                        keyWords.all { keyWord ->
+                            track.title.contains(keyWord, ignoreCase = true) ||
+                                    track.artist.contains(keyWord, ignoreCase = true) ||
+                                    track.album.contains(keyWord, ignoreCase = true)
+                        }
+                    }
+                }
+            }
+            .onEach { _isLoading.value = false }
+            .flowOn(Dispatchers.Default)
+    ) { query, isSearching, isLoading, results ->
+        SearchBarUiState(
+            currentText = query,
+            isSearching = isSearching,
+            searchResults = results,
+            isLoading = isLoading
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = SearchBarUiState()
+    )
 
     // Text field handling
     fun onTextChanged(text: String) {
-        _searchUiState.value = _searchUiState.value.copy(currentText = text)
-        filterTracks(text)
+        _searchQuery.value = text
+        _isLoading.value = true
     }
 
     fun onSearchToggle() {
-        _searchUiState.value = _searchUiState.value.copy(
-            isSearching = !_searchUiState.value.isSearching)
+        _isSearching.value = !_isSearching.value
     }
 
     fun clearSearch() {
-        _searchUiState.value = _searchUiState.value.copy(currentText = "")
-        filterTracks("")
-    }
-
-    // Filtered tracklist
-    private fun filterTracks(query: String) {
-        if (query.isBlank()) {
-            _searchUiState.value = _searchUiState.value.copy(searchResults = emptyList())
-            return
-        }
-
-        val keyWords = query.trim().split("\\s+".toRegex())
-
-        val filteredTracks = _allTracks.value.filter { track ->
-            keyWords.all { keyWord ->
-                track.title.contains(keyWord, ignoreCase = true) ||
-                        track.artist.contains(keyWord, ignoreCase = true) ||
-                        track.album.contains(keyWord, ignoreCase = true)
-            }
-        }
-
-        _searchUiState.value = _searchUiState.value.copy(searchResults = filteredTracks)
+        _searchQuery.value = ""
     }
 
     ///////////////////////////////////////////////

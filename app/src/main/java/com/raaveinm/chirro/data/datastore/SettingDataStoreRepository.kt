@@ -33,6 +33,7 @@ class SettingDataStoreRepository(private val dataStore: DataStore<Preferences>) 
         val IS_SAVED_STATE = stringPreferencesKey("is_saved_state")
         val IS_SHUFFLE_MODE = booleanPreferencesKey("is_shuffle_mode")
         val BACKGROUND_DYNAMIC_COLOR = booleanPreferencesKey("background_dynamic_color")
+        val BACKGROUND_IMAGE = booleanPreferencesKey("background_image")
     }
 
     ///////////////////////////////////////////////
@@ -66,9 +67,16 @@ class SettingDataStoreRepository(private val dataStore: DataStore<Preferences>) 
                 Log.w(tag, "Failed to read sort order: $e")
                 true
             }
+            val backgroundImage = try {
+                preferences[PreferencesKeys.BACKGROUND_IMAGE].toString().toBoolean()
+            } catch (e: Exception) {
+                Log.w(tag, "Failed to read sort order: $e")
+                false
+            }
             UiPreferences(
                 currentTheme = currentTheme,
-                backgroundDynamicColor = backgroundDynamicColor
+                backgroundDynamicColor = backgroundDynamicColor,
+                backgroundImage = backgroundImage
             )
         }
 
@@ -278,6 +286,14 @@ class SettingDataStoreRepository(private val dataStore: DataStore<Preferences>) 
     suspend fun setBackgroundDynamicColor(state: Boolean) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.BACKGROUND_DYNAMIC_COLOR] = state
+            if (state) preferences[PreferencesKeys.BACKGROUND_IMAGE] = false
+        }
+    }
+
+    suspend fun setBackgroundImage(state: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.BACKGROUND_IMAGE] = state
+            if (state) preferences[PreferencesKeys.BACKGROUND_DYNAMIC_COLOR] = false
         }
     }
 }

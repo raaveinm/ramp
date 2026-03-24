@@ -1,3 +1,5 @@
+@file:OptIn(FlowPreview::class)
+
 package com.raaveinm.chirro.ui.screens
 
 import android.annotation.SuppressLint
@@ -5,9 +7,7 @@ import android.app.Activity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -32,7 +32,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Search
@@ -42,19 +41,14 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.SwipeToDismissBox
-import androidx.compose.material3.SwipeToDismissBoxState
-import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
-import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -79,6 +73,7 @@ import androidx.navigation.NavController
 import com.raaveinm.chirro.R
 import com.raaveinm.chirro.ui.layouts.EmptyListComposable
 import com.raaveinm.chirro.ui.layouts.PlayerMinimized
+import com.raaveinm.chirro.ui.layouts.PlaylistItemRow
 import com.raaveinm.chirro.ui.layouts.SearchBar
 import com.raaveinm.chirro.ui.layouts.TrackInfoLayout
 import com.raaveinm.chirro.ui.navigation.NavData
@@ -87,7 +82,7 @@ import com.raaveinm.chirro.ui.veiwmodel.PlayerViewModel
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.FlowPreview
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("ConfigurationScreenWidthHeight")
@@ -128,7 +123,7 @@ fun PlaylistScreen(
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartIntentSenderForResult()
     ) { }
-    val scope = rememberCoroutineScope()
+    var expandedTrackId by remember { mutableStateOf<Long?>(null) }
 
     Surface(
         modifier = modifier,
@@ -197,101 +192,23 @@ fun PlaylistScreen(
                         items = tracks,
                         key = { track -> track.id }
                     ) { track ->
+                        val isExpanded = expandedTrackId == track.id
                         val isPlaying = uiState.currentTrack?.id == track.id
-                        val dismissState = rememberSwipeToDismissBoxState(
-                            initialValue = SwipeToDismissBoxValue.Settled,
-                            positionalThreshold = { totalDistance ->
-                                totalDistance * .01f
-                            }
-                        )
-
-                        val animatedColor by animateColorAsState(
-                            targetValue = when (dismissState.targetValue) {
-                                SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.error
-                                else -> MaterialTheme.colorScheme.surface
+                        PlaylistItemRow(
+                            track = track,
+                            isExpanded = isExpanded,
+                            isPlaying = isPlaying,
+                            onExpandToggle = { id ->
+                                expandedTrackId = if (expandedTrackId == id) null else id
                             },
-                            animationSpec = tween(durationMillis = 500)
-                        )
-
-                        ///////////////////////////////////////////////
-                        // Delete Track on Swipe
-                        ///////////////////////////////////////////////
-                        SwipeToDismissBox(
-                            state = dismissState,
-                            enableDismissFromStartToEnd = false,
-                            enableDismissFromEndToStart = true,
-                            onDismiss = {
-                                if (it == SwipeToDismissBoxValue.EndToStart) {
-                                    val isDeleted = viewModel.deleteTrack(track, activity, launcher)
-                                    if (!isDeleted) {
-                                        scope.launch {
-                                            returnState(dismissState)
-                                        }
-                                    }
+                            play = { clickedTrack -> viewModel.playTrack(clickedTrack) },
+                            navigateTo = {
+                                navController.navigate(NavData.PlayerScreen) {
+                                    popUpTo(NavData.PlayerScreen) { this.inclusive = true }
                                 }
                             },
-                            backgroundContent = {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(horizontal = dimensionResource(R.dimen.small_padding))
-                                        .background(animatedColor, MaterialTheme.shapes.medium),
-                                    contentAlignment = Alignment.CenterEnd
-                                ) {
-                                    if (dismissState.targetValue == SwipeToDismissBoxValue.EndToStart) {
-                                        Icon(
-                                            imageVector = Icons.Default.Delete,
-                                            contentDescription = "Delete",
-                                            modifier = Modifier.padding(end = dimensionResource(R.dimen.medium_padding)),
-                                            tint = MaterialTheme.colorScheme.onError
-                                        )
-                                    }
-                                }
-                            },
-
-                            ///////////////////////////////////////////////
-                            // Track info
-                            ///////////////////////////////////////////////
-                            content = {
-                                Surface(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = dimensionResource(R.dimen.small_padding))
-                                        .then(
-                                            if (isPlaying) {
-                                                Modifier
-                                                    .padding(vertical = 4.dp)
-                                                    .clip(RoundedCornerShape(16.dp))
-                                                    .border(
-                                                        width = 1.dp,
-                                                        color = MaterialTheme.colorScheme.onSurface.copy(
-                                                            alpha = 0.3f
-                                                        ),
-                                                        shape = RoundedCornerShape(16.dp)
-                                                    )
-                                            } else Modifier
-                                        ),
-                                    shape = MaterialTheme.shapes.medium,
-                                    color = Color.Transparent
-                                ) {
-                                    TrackInfoLayout(
-                                        modifier = Modifier.fillMaxSize(),
-                                        trackInfo = track,
-                                        pictureRequired = false,
-                                        sidePictureRequired = true,
-                                        containerColor = if (isPlaying) {
-                                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
-                                        } else {
-                                            MaterialTheme.colorScheme.surface
-                                        },
-                                        onClick = {
-                                            viewModel.playTrack(track)
-                                            navController.navigate(NavData.PlayerScreen) {
-                                                popUpTo(NavData.PlayerScreen) { this.inclusive = true }
-                                            }
-                                        }
-                                    )
-                                }
+                            onDeleteSwipe = { swipedTrack ->
+                                viewModel.deleteTrack(swipedTrack, activity, launcher)
                             }
                         )
                     }
@@ -346,6 +263,7 @@ fun PlaylistScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
+                        .padding(top = innerPadding.calculateTopPadding())
                         .verticalScroll(rememberScrollState())
                         .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.3f))
                         .clickable { isFABVisible = !isFABVisible },
@@ -377,27 +295,27 @@ fun PlaylistScreen(
 
                         Spacer(Modifier.size(dimensionResource(R.dimen.medium_padding)))
 
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .verticalScroll(rememberScrollState())
+                        LazyColumn(
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            searchUiState.searchResults.forEach { track ->
+                            items(
+                                items = searchUiState.searchResults,
+                                key = { track -> track.id }
+                            ) { track ->
                                 TrackInfoLayout(
                                     modifier = Modifier.fillMaxWidth(),
-                                    trackInfo = track,
-                                    pictureRequired = false,
-                                    sidePictureRequired = !viewModel.isPowerSaveMode.value,
-                                    containerColor = Color.Transparent,
-                                    onClick = {
+                                    interactionModifier = Modifier.clickable {
                                         viewModel.playTrack(track)
                                         navController.navigate(NavData.PlayerScreen) {
                                             popUpTo(NavData.PlayerScreen) {
                                                 this.inclusive = true
                                             }
                                         }
-                                        isNavigating = true
-                                    }
+                                    },
+                                    trackInfo = track,
+                                    pictureRequired = false,
+                                    sidePictureRequired = !viewModel.isPowerSaveMode.collectAsState().value,
+                                    containerColor = Color.Transparent,
                                 )
                             }
                         }
@@ -427,8 +345,4 @@ fun PlaylistScreen(
             )
         }
     }
-}
-
-suspend fun returnState(dismissState: SwipeToDismissBoxState){
-    dismissState.snapTo(SwipeToDismissBoxValue.Settled)
 }

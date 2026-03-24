@@ -10,5 +10,6 @@ data class SettingsUiState(
     val currentTheme: AppTheme = AppTheme.DYNAMIC,
     val isSavedState: Boolean = false,
     val isShuffleMode: Boolean = false,
-    val backgroundDynamicColor: Boolean = true
+    val backgroundDynamicColor: Boolean = true,
+    val backgroundImage: Boolean = false
 )

@@ -6,19 +6,19 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -48,6 +48,7 @@ import com.raaveinm.chirro.R
 import com.raaveinm.chirro.data.values.Eggs
 import com.raaveinm.chirro.data.values.TrackInfo
 import com.raaveinm.chirro.ui.layouts.ArcEasterEgg
+import com.raaveinm.chirro.ui.layouts.BackgroundImageCover
 import com.raaveinm.chirro.ui.layouts.PlayerControlButtons
 import com.raaveinm.chirro.ui.layouts.TimePickerScreen
 import com.raaveinm.chirro.ui.layouts.TrackInfoLayout
@@ -55,9 +56,9 @@ import com.raaveinm.chirro.ui.layouts.formatDuration
 import com.raaveinm.chirro.ui.navigation.NavData
 import com.raaveinm.chirro.ui.veiwmodel.AppViewModelProvider
 import com.raaveinm.chirro.ui.veiwmodel.PlayerViewModel
-import dev.chrisbanes.haze.hazeEffect
+import kotlinx.coroutines.FlowPreview
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, FlowPreview::class)
 @SuppressLint("ContextCastToActivity")
 @Composable
 fun PlayerScreen(
@@ -91,14 +92,26 @@ fun PlayerScreen(
         color = Color.Transparent
     ) {
         val backgroundEasterEgg = viewModel.backgroundEasterEgg()?: Eggs.NULL
-        AnimatedVisibility(backgroundEasterEgg != Eggs.NULL){
-            when (backgroundEasterEgg) {
+        val backgroundImage = viewModel.backgroundImage.collectAsState(initial = false)
+
+        Crossfade(
+            targetState = backgroundEasterEgg,
+            label = "BackgroundTransition",
+            modifier = Modifier.fillMaxSize().zIndex(0f)
+        ) { state ->
+            when (state) {
                 Eggs.ARC -> {
-                    Surface(Modifier
-                        .fillMaxSize()
-                        .zIndex(0f)) { ArcEasterEgg() }
+                    Surface(Modifier.fillMaxSize()) {
+                        ArcEasterEgg()
+                    }
                 }
-                Eggs.NULL -> {}
+                Eggs.NULL -> {
+                    if (backgroundImage.value)
+                    BackgroundImageCover(
+                        modifier = Modifier.fillMaxSize(),
+                        imageUri = trackInfo?.cover ?: ""
+                    )
+                }
             }
         }
         Column(
@@ -123,11 +136,12 @@ fun PlayerScreen(
 
                 TrackInfoLayout(
                     trackInfo = currentTrack,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.padding(vertical = dimensionResource(R.dimen.large_padding))
+                        .fillMaxWidth(),
+                    interactionModifier = Modifier
+                        .clickable { navController.navigate(NavData.PlaylistScreen(true)) },
                     pictureRequired = true,
                     containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
-                    onClick = { navController.navigate(NavData.PlaylistScreen(true)) },
-
                     onSwipeRTL = {
                         isNextDirection = true
                         viewModel.skipNext()

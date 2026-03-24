@@ -61,7 +61,7 @@ fun TrackInfoLayout(
     pictureRequired: Boolean = true,
     sidePictureRequired: Boolean = false,
     containerColor: Color? = null,
-    onClick: () -> Unit,
+    interactionModifier: Modifier = Modifier,
     onSwipeRTL: () -> Unit = {},
     onSwipeLTR: () -> Unit = {},
     onSwipeUp: (() -> Unit)? = null,
@@ -113,7 +113,7 @@ fun TrackInfoLayout(
                             }
                         }
                     },
-                shape = RoundedCornerShape(16.dp),
+                shape = MaterialTheme.shapes.medium,
             ) {
                 SubcomposeAsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
@@ -151,9 +151,9 @@ fun TrackInfoLayout(
                     .fillMaxWidth()
                     .padding(horizontal = dimensionResource(R.dimen.small_padding))
                     .padding(top = dimensionResource(R.dimen.large_size)),
+                interactionModifier = interactionModifier,
                 trackInfo = trackInfo,
                 containerColor = containerColor,
-                onClick = onClick,
                 pictureRequired = sidePictureRequired
             )
         }
@@ -163,9 +163,9 @@ fun TrackInfoLayout(
         ///////////////////////////////////////////////
         TextInfo(
             modifier = modifier,
+            interactionModifier = interactionModifier,
             trackInfo = trackInfo,
             containerColor = containerColor,
-            onClick = onClick,
             pictureRequired = sidePictureRequired
         )
     }
@@ -177,19 +177,18 @@ fun TrackInfoLayout(
 @Composable
 private fun TextInfo(
     modifier: Modifier = Modifier,
+    interactionModifier: Modifier = Modifier,
     trackInfo: TrackInfo,
     pictureRequired: Boolean,
     containerColor: Color? = null,
-    onClick: () -> Unit
 ){
     Card(
-        modifier = modifier,
+        modifier = modifier.then(interactionModifier),
         colors = if (containerColor != null) {
             CardDefaults.cardColors(containerColor = containerColor)
         } else {
             CardDefaults.cardColors()
         },
-        onClick = onClick
     ) {
         Row(
             modifier = Modifier
@@ -288,7 +287,6 @@ fun TrackInfoLayoutPreview() {
             isFavourite = false,
             date = 100000
         ),
-        onClick = {}
     )
 }
 
@@ -298,7 +296,6 @@ fun TrackInfoLayoutPreviewNoPicture() {
     TrackInfoLayout(
         modifier = Modifier,
         trackInfo = TrackInfo.EMPTY,
-        onClick = {},
         pictureRequired = false,
         sidePictureRequired = true
     )

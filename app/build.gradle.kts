@@ -89,14 +89,15 @@ dependencies {
     implementation("com.google.code.gson:gson:2.13.2")
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.compose.ui.text)
+    implementation(libs.androidx.compose.material3)
     ksp(libs.androidx.room.compiler)
 
     // --- Media & Images ---
     implementation(libs.androidx.media)
-    implementation("androidx.media3:media3-exoplayer:1.9.2")
-    implementation("androidx.media3:media3-ui:1.9.2")
-    implementation("androidx.media3:media3-session:1.9.2")
-    implementation("androidx.media3:media3-common:1.9.2")
+    implementation("androidx.media3:media3-exoplayer:1.9.3")
+    implementation("androidx.media3:media3-ui:1.9.3")
+    implementation("androidx.media3:media3-session:1.9.3")
+    implementation("androidx.media3:media3-common:1.9.3")
     implementation("io.coil-kt:coil-compose:2.7.0")
 
     // --- Background Tasks ---

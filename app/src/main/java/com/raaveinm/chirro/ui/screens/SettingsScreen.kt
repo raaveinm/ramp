@@ -70,8 +70,9 @@ import com.raaveinm.chirro.ui.veiwmodel.SettingsViewModel
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
+import kotlinx.coroutines.FlowPreview
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, FlowPreview::class)
 @Composable
 fun SettingsScreen(
     modifier: Modifier = Modifier,
@@ -121,7 +122,7 @@ fun SettingsScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = dimensionResource(R.dimen.s_medium_padding))
-                        .padding(vertical = dimensionResource(R.dimen.small_padding))
+                        .padding(vertical = dimensionResource(R.dimen.extra_small_padding))
                 ) {
                     val opt = listOf(
                         stringResource(R.string.shuffle_on),
@@ -132,7 +133,7 @@ fun SettingsScreen(
                     Text(
                         text = stringResource(R.string.shuffle_mode),
                         modifier = Modifier.wrapContentSize(),
-                        style = MaterialTheme.typography.titleSmall
+                        style = MaterialTheme.typography.bodyMedium
                     )
 
                     SingleChoiceSegmentedButtonRow {
@@ -153,14 +154,14 @@ fun SettingsScreen(
 
                 AnimatedVisibility(
                     visible = !isShuffleMode,
-                    modifier = Modifier.padding(vertical = dimensionResource(R.dimen.small_padding))
+                    modifier = Modifier.padding(vertical = dimensionResource(R.dimen.extra_small_padding))
                 ) {
                     Column {
 
                         HorizontalDivider(
                             Modifier
                                 .padding(horizontal = dimensionResource(R.dimen.medium_padding))
-                                .padding(vertical = dimensionResource(R.dimen.small_padding))
+                                .padding(vertical = dimensionResource(R.dimen.extra_small_padding))
                         )
 
                         Row(
@@ -169,12 +170,12 @@ fun SettingsScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = dimensionResource(R.dimen.s_medium_padding))
-                                .padding(vertical = dimensionResource(R.dimen.small_padding))
+                                .padding(vertical = dimensionResource(R.dimen.extra_small_padding))
                         ) {
                             Text(
                                 text = stringResource(R.string.track_primary),
                                 modifier = Modifier.weight(1f),
-                                style = MaterialTheme.typography.titleSmall
+                                style = MaterialTheme.typography.bodyMedium
                             )
                             DropDownSelection(
                                 options = options,
@@ -195,7 +196,7 @@ fun SettingsScreen(
                         HorizontalDivider(
                             Modifier
                                 .padding(horizontal = dimensionResource(R.dimen.medium_padding))
-                                .padding(vertical = dimensionResource(R.dimen.small_padding))
+                                .padding(vertical = dimensionResource(R.dimen.extra_small_padding))
                         )
 
                         Row(
@@ -204,12 +205,12 @@ fun SettingsScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = dimensionResource(R.dimen.s_medium_padding))
-                                .padding(vertical = dimensionResource(R.dimen.small_padding))
+                                .padding(vertical = dimensionResource(R.dimen.extra_small_padding))
                         ) {
                             Text(
                                 text = stringResource(R.string.track_secondary),
                                 modifier = Modifier.weight(2f),
-                                style = MaterialTheme.typography.titleSmall
+                                style = MaterialTheme.typography.bodyMedium
                             )
                             DropDownSelection(
                                 options = options,
@@ -230,7 +231,7 @@ fun SettingsScreen(
                         HorizontalDivider(
                             Modifier
                                 .padding(horizontal = dimensionResource(R.dimen.medium_padding))
-                                .padding(vertical = dimensionResource(R.dimen.small_padding))
+                                .padding(vertical = dimensionResource(R.dimen.extra_small_padding))
                         )
 
                         Row(
@@ -239,7 +240,7 @@ fun SettingsScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = dimensionResource(R.dimen.s_medium_padding))
-                                .padding(vertical = dimensionResource(R.dimen.small_padding))
+                                .padding(vertical = dimensionResource(R.dimen.extra_small_padding))
                         ) {
                             val opt = listOf(
                                 stringResource(R.string.order_asc),
@@ -250,7 +251,7 @@ fun SettingsScreen(
                             Text(
                                 text = stringResource(R.string.order),
                                 modifier = Modifier.wrapContentSize(),
-                                style = MaterialTheme.typography.titleSmall
+                                style = MaterialTheme.typography.bodyMedium
                             )
 
                             SingleChoiceSegmentedButtonRow {
@@ -337,9 +338,9 @@ fun SettingsScreen(
                             .background(
                                 color = if (isSelected) MaterialTheme.colorScheme.surfaceContainerHigh
                                 else MaterialTheme.colorScheme.surfaceBright,
-                                shape = RoundedCornerShape(24.dp)
+                                shape = RoundedCornerShape(8.dp)
                             )
-                            .heightIn(min = 56.dp)
+                            .heightIn(min = 24.dp)
                             .clickable { viewModel.setTheme(option.theme) }
                             .padding(vertical = dimensionResource(R.dimen.small_padding))
                     ) {
@@ -351,14 +352,14 @@ fun SettingsScreen(
                         Text(
                             text = option.label,
                             modifier = Modifier.padding(end = 16.dp),
-                            style = MaterialTheme.typography.titleSmall
+                            style = MaterialTheme.typography.bodyMedium
                         )
                     }
 
                     if (index < themeOptions.lastIndex)
                         HorizontalDivider(Modifier
                             .padding(horizontal = dimensionResource(R.dimen.medium_padding))
-                            .padding(vertical = dimensionResource(R.dimen.small_padding))
+                            .padding(vertical = dimensionResource(R.dimen.extra_small_padding))
                         )
                 }
             }
@@ -386,14 +387,14 @@ fun SettingsScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = dimensionResource(R.dimen.s_medium_padding))
-                        .padding(vertical = dimensionResource(R.dimen.small_padding))
+                        .padding(vertical = dimensionResource(R.dimen.extra_small_padding))
                 ) {
                     val checked = uiState.isSavedState
 
                     Text(
                         text = stringResource(R.string.saved_text),
                         modifier = Modifier.weight(5f),
-                        style = MaterialTheme.typography.titleSmall
+                        style = MaterialTheme.typography.bodyMedium
                     )
                     Switch(
                         checked = checked,
@@ -413,7 +414,7 @@ fun SettingsScreen(
                 HorizontalDivider(
                     Modifier
                         .padding(horizontal = dimensionResource(R.dimen.medium_padding))
-                        .padding(vertical = dimensionResource(R.dimen.small_padding))
+                        .padding(vertical = dimensionResource(R.dimen.extra_small_padding))
                 )
 
                 Row(
@@ -422,19 +423,55 @@ fun SettingsScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = dimensionResource(R.dimen.s_medium_padding))
-                        .padding(vertical = dimensionResource(R.dimen.small_padding))
+                        .padding(vertical = dimensionResource(R.dimen.extra_small_padding))
                 ) {
                     val checked = uiState.backgroundDynamicColor
 
                     Text(
                         text = stringResource(R.string.is_dynamic_color),
                         modifier = Modifier.weight(5f),
-                        style = MaterialTheme.typography.titleSmall
+                        style = MaterialTheme.typography.bodyMedium
                     )
                     Switch(
                         checked = checked,
                         modifier = Modifier.weight(1f),
                         onCheckedChange = { viewModel.setBackgroundDynamicColor(it) },
+                        thumbContent = {
+                            Icon(
+                                imageVector = if (checked) Icons.Filled.Check
+                                else Icons.Filled.Close,
+                                contentDescription = null,
+                                modifier = Modifier.size(SwitchDefaults.IconSize),
+                            )
+                        }
+                    )
+                }
+
+                HorizontalDivider(
+                    Modifier
+                        .padding(horizontal = dimensionResource(R.dimen.medium_padding))
+                        .padding(vertical = dimensionResource(R.dimen.extra_small_padding))
+                )
+
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = dimensionResource(R.dimen.s_medium_padding))
+                        .padding(vertical = dimensionResource(R.dimen.extra_small_padding))
+                ) {
+                    val checked = uiState.backgroundImage
+
+                    Text(
+                        text = stringResource(R.string.is_dynamic_color) + "IMG",
+                        modifier = Modifier.weight(5f),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Switch(
+                        checked = checked,
+                        modifier = Modifier.weight(1f),
+                        onCheckedChange = { viewModel.setBackgroundImage(it) },
                         thumbContent = {
                             Icon(
                                 imageVector = if (checked) Icons.Filled.Check
@@ -477,12 +514,12 @@ fun SettingsScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = dimensionResource(R.dimen.s_medium_padding))
-                        .padding(vertical = dimensionResource(R.dimen.small_padding))
+                        .padding(vertical = dimensionResource(R.dimen.extra_small_padding))
                 ) {
                     Text(
                         text = stringResource(R.string.select_language),
                         modifier = Modifier.weight(1f),
-                        style = MaterialTheme.typography.titleSmall
+                        style = MaterialTheme.typography.bodyMedium
                     )
 
                     DropDownSelection(

@@ -28,7 +28,8 @@ class SettingsViewModel(
             currentTheme = uiSettings.currentTheme,
             isSavedState = playback.isSavedState,
             isShuffleMode = settings.isShuffleMode,
-            backgroundDynamicColor = uiSettings.backgroundDynamicColor
+            backgroundDynamicColor = uiSettings.backgroundDynamicColor,
+            backgroundImage = uiSettings.backgroundImage,
         )
     }
 
@@ -42,7 +43,8 @@ class SettingsViewModel(
                     currentTheme = it.currentTheme,
                     isSavedState = it.isSavedState,
                     isShuffleMode = it.isShuffleMode,
-                    backgroundDynamicColor = it.backgroundDynamicColor
+                    backgroundDynamicColor = it.backgroundDynamicColor,
+                    backgroundImage = it.backgroundImage
                 )
             }
         }
@@ -124,6 +126,12 @@ class SettingsViewModel(
     fun setBackgroundDynamicColor(state: Boolean) {
         viewModelScope.launch {
             settingsRepository.setBackgroundDynamicColor(state)
+        }
+    }
+
+    fun setBackgroundImage(state: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.setBackgroundImage(state)
         }
     }
 }
