@@ -207,7 +207,11 @@ fun PlayerScreen(
                             },
                             shape = MaterialTheme.shapes.small,
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = .1f),
+                                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(
+                                    red = .5f,
+                                    green = .5f,
+                                    blue = .5f
+                                ),
                                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                             ),
                             modifier = Modifier.fillMaxWidth()
@@ -222,7 +226,7 @@ fun PlayerScreen(
                             onClick = { timePickerEnabled = !timePickerEnabled },
                             shape = MaterialTheme.shapes.small,
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = .1f),
+                                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = .25f),
                                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                             ),
                             modifier = Modifier.fillMaxWidth()
@@ -269,7 +273,7 @@ fun PlayerScreen(
                             onClick = {viewModel.stopSleepTimer()},
                             shape = MaterialTheme.shapes.small,
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = .1f),
+                                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = .25f),
                                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                             ),
                             modifier = Modifier.fillMaxWidth()
@@ -282,6 +286,7 @@ fun PlayerScreen(
                         }
                     }
                 },
+                onDismissRequest = { timePickerEnabled = false }
             )
             Spacer(Modifier.padding(dimensionResource(R.dimen.large_size)))
         }

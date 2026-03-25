@@ -50,7 +50,8 @@ fun PlayerControlButtons(
     currentDuration: Long,
     isFavourite: Boolean,
     onShareClick: () -> Unit,
-    trackLength: Long
+    trackLength: Long,
+    onDismissRequest: () -> Unit = {}
 ) {
     var isExtended: Boolean by remember { mutableStateOf(false) }
     Column(
@@ -136,7 +137,10 @@ fun PlayerControlButtons(
                         .align(Alignment.TopEnd)
                         .background(Color.Transparent)
                         .padding(dimensionResource(R.dimen.small_padding)),
-                    onDismissRequest = { isExtended = false },
+                    onDismissRequest = {
+                        isExtended = false
+                        onDismissRequest()
+                    },
                     shape = MaterialTheme.shapes.medium,
                     content = { extendedMenu() }
                 )
