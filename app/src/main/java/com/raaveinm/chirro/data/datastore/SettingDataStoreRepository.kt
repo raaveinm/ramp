@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.google.gson.Gson
@@ -34,6 +35,7 @@ class SettingDataStoreRepository(private val dataStore: DataStore<Preferences>) 
         val IS_SHUFFLE_MODE = booleanPreferencesKey("is_shuffle_mode")
         val BACKGROUND_DYNAMIC_COLOR = booleanPreferencesKey("background_dynamic_color")
         val BACKGROUND_IMAGE = booleanPreferencesKey("background_image")
+        val BACKGROUND_IMAGE_OPACITY = intPreferencesKey("background_image_opacity")
     }
 
     ///////////////////////////////////////////////
@@ -73,10 +75,17 @@ class SettingDataStoreRepository(private val dataStore: DataStore<Preferences>) 
                 Log.w(tag, "Failed to read sort order: $e")
                 false
             }
+            val opacity = try {
+                preferences[PreferencesKeys.BACKGROUND_IMAGE_OPACITY]
+            } catch (e: Exception) {
+                Log.w(tag, "Failed to read sort order: $e")
+                30
+            }
             UiPreferences(
                 currentTheme = currentTheme,
                 backgroundDynamicColor = backgroundDynamicColor,
-                backgroundImage = backgroundImage
+                backgroundImage = backgroundImage,
+                backgroundImageOpacity = opacity?: 30
             )
         }
 
@@ -294,6 +303,12 @@ class SettingDataStoreRepository(private val dataStore: DataStore<Preferences>) 
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.BACKGROUND_IMAGE] = state
             if (state) preferences[PreferencesKeys.BACKGROUND_DYNAMIC_COLOR] = false
+        }
+    }
+
+    suspend fun setBackgroundImgOpacity(value: Int) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.BACKGROUND_IMAGE_OPACITY] = value
         }
     }
 }

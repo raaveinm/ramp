@@ -13,7 +13,8 @@ import coil.request.ImageRequest
 @Composable
 fun BackgroundImageCover(
     modifier: Modifier = Modifier,
-    imageUri: String
+    imageUri: String,
+    opacity: Float = .3f
 ) {
     SubcomposeAsyncImage(
         model = ImageRequest.Builder(LocalContext.current)
@@ -25,6 +26,6 @@ fun BackgroundImageCover(
             .fillMaxSize()
             .blur(radius = 24.dp),
         contentScale = ContentScale.Crop,
-        alpha = 0.3f
+        alpha = opacity
     )
 }

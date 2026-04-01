@@ -109,7 +109,8 @@ fun PlayerScreen(
                     if (backgroundImage.value)
                     BackgroundImageCover(
                         modifier = Modifier.fillMaxSize(),
-                        imageUri = trackInfo?.cover ?: ""
+                        imageUri = trackInfo?.cover ?: "",
+                        opacity = viewModel.opacityValue.collectAsState(initial = .3f).value
                     )
                 }
             }
@@ -250,7 +251,8 @@ fun PlayerScreen(
                                 TimePickerScreen(
                                     hourState = hourState,
                                     minuteState = minuteState,
-                                    secondState = secondState
+                                    secondState = secondState,
+                                    powerSafeMode = viewModel.isPowerSaveMode.collectAsState().value
                                 )
 
                                 Button(

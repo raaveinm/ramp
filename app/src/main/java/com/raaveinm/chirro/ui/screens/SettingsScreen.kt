@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -40,6 +41,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -60,7 +62,9 @@ import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.raaveinm.chirro.R
 import com.raaveinm.chirro.ui.layouts.DropDownSelection
+import com.raaveinm.chirro.ui.layouts.EdgeToEdgeRow
 import com.raaveinm.chirro.ui.layouts.SettingCard
+import com.raaveinm.chirro.ui.layouts.SettingColumn
 import com.raaveinm.chirro.ui.theme.AppTheme
 import com.raaveinm.chirro.ui.theme.ThemeOption
 import com.raaveinm.chirro.ui.theme.languageMap
@@ -71,6 +75,7 @@ import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
 import kotlinx.coroutines.FlowPreview
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class, FlowPreview::class)
 @Composable
@@ -105,173 +110,116 @@ fun SettingsScreen(
                 .padding(vertical = dimensionResource(R.dimen.medium_padding))
                 .padding(horizontal = dimensionResource(R.dimen.small_padding))
         ) {
-            Column(
-                modifier = Modifier
-                    .hazeSource(state = hazeState)
-                    .zIndex(.5f)
-                    .animateContentSize()
-            ) {
-                val options = stringArrayResource(R.array.track_order_options).toList()
-                val selectedPrimary = options[uiState.trackPrimaryOrder.ordinal]
-                val selectedSecondary = options[uiState.trackSecondaryOrder.ordinal]
-                val isShuffleMode = uiState.isShuffleMode
-
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = dimensionResource(R.dimen.s_medium_padding))
-                        .padding(vertical = dimensionResource(R.dimen.extra_small_padding))
-                ) {
-                    val opt = listOf(
-                        stringResource(R.string.shuffle_on),
-                        stringResource(R.string.shuffle_off)
-                    )
-                    val selectedIndex = if (uiState.isShuffleMode) 0 else 1
-
-                    Text(
-                        text = stringResource(R.string.shuffle_mode),
-                        modifier = Modifier.wrapContentSize(),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-
-                    SingleChoiceSegmentedButtonRow {
-                        opt.forEachIndexed { index, label ->
-                            SegmentedButton(
-                                shape = SegmentedButtonDefaults.itemShape(
-                                    index = index,
-                                    count = opt.size
-                                ),
-                                onClick = { viewModel.setShuffleMode(!uiState.isShuffleMode) },
-                                selected = index == selectedIndex,
-                                label = { Text(label) },
-//                                modifier = Modifier.weight(1f),
-                            )
-                        }
-                    }
-                }
-
-                AnimatedVisibility(
-                    visible = !isShuffleMode,
-                    modifier = Modifier.padding(vertical = dimensionResource(R.dimen.extra_small_padding))
-                ) {
-                    Column {
-
-                        HorizontalDivider(
-                            Modifier
-                                .padding(horizontal = dimensionResource(R.dimen.medium_padding))
-                                .padding(vertical = dimensionResource(R.dimen.extra_small_padding))
-                        )
-
-                        Row(
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = dimensionResource(R.dimen.s_medium_padding))
-                                .padding(vertical = dimensionResource(R.dimen.extra_small_padding))
-                        ) {
+            SettingColumn(
+                modifier = Modifier.hazeSource(state = hazeState),
+                contentArray = arrayOf({
+                    val checked = uiState.isShuffleMode
+                    EdgeToEdgeRow(
+                        contentArray = arrayOf({
                             Text(
-                                text = stringResource(R.string.track_primary),
+                                text = stringResource(R.string.shuffle_mode),
                                 modifier = Modifier.weight(1f),
                                 style = MaterialTheme.typography.bodyMedium
                             )
-                            DropDownSelection(
-                                options = options,
-                                selectedOption = selectedPrimary,
-                                onOptionSelected = {
-                                    viewModel.setTrackPrimaryOrder(
-                                        options.indexOf(
-                                            it
-                                        )
-                                    )
-                                },
-                                hazeStateModifier = Modifier
-                                    .hazeEffect(hazeState)
-                                    .zIndex(1f)
-                            )
-                        }
-
-                        HorizontalDivider(
-                            Modifier
-                                .padding(horizontal = dimensionResource(R.dimen.medium_padding))
-                                .padding(vertical = dimensionResource(R.dimen.extra_small_padding))
-                        )
-
-                        Row(
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = dimensionResource(R.dimen.s_medium_padding))
-                                .padding(vertical = dimensionResource(R.dimen.extra_small_padding))
-                        ) {
-                            Text(
-                                text = stringResource(R.string.track_secondary),
-                                modifier = Modifier.weight(2f),
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                            DropDownSelection(
-                                options = options,
-                                selectedOption = selectedSecondary,
-                                onOptionSelected = {
-                                    viewModel.setTrackSecondaryOrder(
-                                        options.indexOf(
-                                            it
-                                        )
-                                    )
-                                },
-                                hazeStateModifier = Modifier
-                                    .hazeEffect(hazeState)
-                                    .zIndex(1f)
-                            )
-                        }
-
-                        HorizontalDivider(
-                            Modifier
-                                .padding(horizontal = dimensionResource(R.dimen.medium_padding))
-                                .padding(vertical = dimensionResource(R.dimen.extra_small_padding))
-                        )
-
-                        Row(
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = dimensionResource(R.dimen.s_medium_padding))
-                                .padding(vertical = dimensionResource(R.dimen.extra_small_padding))
-                        ) {
-                            val opt = listOf(
-                                stringResource(R.string.order_asc),
-                                stringResource(R.string.order_desc)
-                            )
-                            val selectedIndex = if (uiState.trackSortAscending) 0 else 1
-
-                            Text(
-                                text = stringResource(R.string.order),
-                                modifier = Modifier.wrapContentSize(),
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-
-                            SingleChoiceSegmentedButtonRow {
-                                opt.forEachIndexed { index, label ->
-                                    SegmentedButton(
-                                        shape = SegmentedButtonDefaults.itemShape(
-                                            index = index,
-                                            count = opt.size
-                                        ),
-                                        onClick = { viewModel.setTrackSortAscending(!uiState.trackSortAscending) },
-                                        selected = index == selectedIndex,
-                                        label = { Text(label) },
-//                                modifier = Modifier.weight(1f),
+                        }, {
+                            Switch(
+                                checked = checked,
+                                onCheckedChange = { viewModel.setShuffleMode(it) },
+                                thumbContent = {
+                                    Icon(
+                                        imageVector = if (checked) Icons.Filled.Check
+                                        else Icons.Filled.Close,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(SwitchDefaults.IconSize),
                                     )
                                 }
-                            }
-                        }
+                            )
+                        })
+                    )
+                },{
+                    val options = stringArrayResource(R.array.track_order_options).toList()
+                    val selectedPrimary = options[uiState.trackPrimaryOrder.ordinal]
+                    AnimatedVisibility(!uiState.isShuffleMode) {
+                        SettingColumn(
+                            modifier = Modifier.animateContentSize(),
+                            contentArray = arrayOf({
+                                EdgeToEdgeRow(
+                                    contentArray = arrayOf({
+                                        Text(
+                                            text = stringResource(R.string.track_primary),
+                                            modifier = Modifier.weight(1f),
+                                            style = MaterialTheme.typography.bodyMedium
+                                        )
+                                    },{
+                                        DropDownSelection(
+                                            options = options,
+                                            selectedOption = selectedPrimary,
+                                            onOptionSelected = {
+                                                viewModel.setTrackPrimaryOrder(
+                                                    options.indexOf(it)
+                                                )
+                                            },
+                                            hazeStateModifier = Modifier
+                                                .hazeEffect(hazeState)
+                                                .zIndex(1f)
+                                        )
+                                    })
+                                )
+                            },{
+                                val options = stringArrayResource(R.array.track_order_options).toList()
+                                val selectedSecondary = options[uiState.trackSecondaryOrder.ordinal]
+                                EdgeToEdgeRow(
+                                    contentArray = arrayOf({
+                                        Text(
+                                            text = stringResource(R.string.track_secondary),
+                                            modifier = Modifier.weight(1f),
+                                            style = MaterialTheme.typography.bodyMedium
+                                        )
+                                    },{
+                                        DropDownSelection(
+                                            options = options,
+                                            selectedOption = selectedSecondary,
+                                            onOptionSelected = { viewModel.setTrackSecondaryOrder(options.indexOf(it)) },
+                                            hazeStateModifier = Modifier
+                                                .hazeEffect(hazeState)
+                                                .zIndex(1f)
+                                        )
+                                    })
+                                )
+                            },{
+                                val opt = listOf(
+                                    stringResource(R.string.order_asc),
+                                    stringResource(R.string.order_desc)
+                                )
+                                val selectedIndex = if (uiState.trackSortAscending) 0 else 1
+                                EdgeToEdgeRow(
+                                    contentArray = arrayOf({
+                                        Text(
+                                            text = stringResource(R.string.order),
+                                            modifier = Modifier.wrapContentSize(),
+                                            style = MaterialTheme.typography.bodyMedium
+                                        )
+                                    },{
+                                        SingleChoiceSegmentedButtonRow {
+                                            opt.forEachIndexed { index, label ->
+                                                SegmentedButton(
+                                                    shape = SegmentedButtonDefaults.itemShape(
+                                                        index = index,
+                                                        count = opt.size
+                                                    ),
+                                                    onClick = { viewModel.setTrackSortAscending(!uiState.trackSortAscending) },
+                                                    selected = index == selectedIndex,
+                                                    label = { Text(label) },
+                                                )
+                                            }
+                                        }
+                                    })
+                                )
+                            })
+                        )
                     }
-                }
-            }
+                })
+            )
         }
 
         ///////////////////////////////////////////////
@@ -376,113 +324,100 @@ fun SettingsScreen(
                 .padding(vertical = dimensionResource(R.dimen.medium_padding))
                 .padding(horizontal = dimensionResource(R.dimen.small_padding))
         ) {
-            Column(
-                modifier = Modifier
-                    .hazeSource(state = hazeState)
-                    .zIndex(.5f)
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = dimensionResource(R.dimen.s_medium_padding))
-                        .padding(vertical = dimensionResource(R.dimen.extra_small_padding))
-                ) {
+            SettingColumn(
+                modifier = Modifier.hazeSource(state = hazeState),
+                contentArray = arrayOf({
                     val checked = uiState.isSavedState
-
-                    Text(
-                        text = stringResource(R.string.saved_text),
-                        modifier = Modifier.weight(5f),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Switch(
-                        checked = checked,
-                        modifier = Modifier.weight(1f),
-                        onCheckedChange = { viewModel.setSavedState(it, playerViewModel.uiState.value.currentTrack) },
-                        thumbContent = {
-                            Icon(
-                                imageVector = if (checked) Icons.Filled.Check
-                                else Icons.Filled.Close,
-                                contentDescription = null,
-                                modifier = Modifier.size(SwitchDefaults.IconSize),
+                    EdgeToEdgeRow(
+                        contentArray = arrayOf({
+                            Text(
+                                text = stringResource(R.string.saved_text),
+                                modifier = Modifier.weight(5f),
+                                style = MaterialTheme.typography.bodyMedium
                             )
-                        }
+                        },{
+                            Switch(
+                                checked = checked,
+                                modifier = Modifier.weight(1f),
+                                onCheckedChange = { viewModel.setSavedState(it, playerViewModel.uiState.value.currentTrack) },
+                                thumbContent = {
+                                    Icon(
+                                        imageVector = if (checked) Icons.Filled.Check
+                                        else Icons.Filled.Close,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(SwitchDefaults.IconSize),
+                                    )
+                                }
+                            )
+                        })
                     )
-                }
-
-                HorizontalDivider(
-                    Modifier
-                        .padding(horizontal = dimensionResource(R.dimen.medium_padding))
-                        .padding(vertical = dimensionResource(R.dimen.extra_small_padding))
-                )
-
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = dimensionResource(R.dimen.s_medium_padding))
-                        .padding(vertical = dimensionResource(R.dimen.extra_small_padding))
-                ) {
+                },{
                     val checked = uiState.backgroundDynamicColor
-
-                    Text(
-                        text = stringResource(R.string.is_dynamic_color),
-                        modifier = Modifier.weight(5f),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Switch(
-                        checked = checked,
-                        modifier = Modifier.weight(1f),
-                        onCheckedChange = { viewModel.setBackgroundDynamicColor(it) },
-                        thumbContent = {
-                            Icon(
-                                imageVector = if (checked) Icons.Filled.Check
-                                else Icons.Filled.Close,
-                                contentDescription = null,
-                                modifier = Modifier.size(SwitchDefaults.IconSize),
+                    EdgeToEdgeRow(
+                        contentArray = arrayOf({
+                            Text(
+                                text = stringResource(R.string.is_dynamic_color),
+                                modifier = Modifier.weight(5f),
+                                style = MaterialTheme.typography.bodyMedium
                             )
-                        }
+                        },{
+                            Switch(
+                                checked = checked,
+                                modifier = Modifier.weight(1f),
+                                onCheckedChange = { viewModel.setBackgroundDynamicColor(it) },
+                                thumbContent = {
+                                    Icon(
+                                        imageVector = if (checked) Icons.Filled.Check
+                                        else Icons.Filled.Close,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(SwitchDefaults.IconSize),
+                                    )
+                                }
+                            )
+                        })
                     )
-                }
-
-                HorizontalDivider(
-                    Modifier
-                        .padding(horizontal = dimensionResource(R.dimen.medium_padding))
-                        .padding(vertical = dimensionResource(R.dimen.extra_small_padding))
-                )
-
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = dimensionResource(R.dimen.s_medium_padding))
-                        .padding(vertical = dimensionResource(R.dimen.extra_small_padding))
-                ) {
+                },{
                     val checked = uiState.backgroundImage
-
-                    Text(
-                        text = stringResource(R.string.is_dynamic_color) + "IMG",
-                        modifier = Modifier.weight(5f),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Switch(
-                        checked = checked,
-                        modifier = Modifier.weight(1f),
-                        onCheckedChange = { viewModel.setBackgroundImage(it) },
-                        thumbContent = {
-                            Icon(
-                                imageVector = if (checked) Icons.Filled.Check
-                                else Icons.Filled.Close,
-                                contentDescription = null,
-                                modifier = Modifier.size(SwitchDefaults.IconSize),
+                    Column {
+                        EdgeToEdgeRow(
+                            contentArray = arrayOf({
+                                Text(
+                                    text = stringResource(R.string.is_dynamic_color) + "IMG",
+                                    modifier = Modifier.weight(5f),
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }, {
+                                Switch(
+                                    checked = checked,
+                                    modifier = Modifier.weight(1f),
+                                    onCheckedChange = { viewModel.setBackgroundImage(it) },
+                                    thumbContent = {
+                                        Icon(
+                                            imageVector = if (checked) Icons.Filled.Check
+                                            else Icons.Filled.Close,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(SwitchDefaults.IconSize),
+                                        )
+                                    }
+                                )
+                            })
+                        )
+                        AnimatedVisibility(checked) {
+                            EdgeToEdgeRow(
+                                contentArray = arrayOf(
+                                    {
+                                        Slider(
+                                            value = viewModel.alphaState.collectAsState().value.backgroundAlpha,
+                                            onValueChange = { newValue -> viewModel.setBackgroundAlpha(newValue) },
+                                            modifier = Modifier.fillMaxWidth()
+                                        )
+                                    }
+                                )
                             )
                         }
-                    )
-                }
-            }
+                    }
+                })
+            )
         }
 
         ///////////////////////////////////////////////
@@ -496,48 +431,43 @@ fun SettingsScreen(
                 .padding(vertical = dimensionResource(R.dimen.medium_padding))
                 .padding(horizontal = dimensionResource(R.dimen.small_padding))
         ) {
-            Column(
-                modifier = Modifier
-                    .hazeSource(state = hazeState)
-                    .zIndex(.5f)
-            ) {
-                val currentAppLocales = AppCompatDelegate.getApplicationLocales()
-                val currentLocale = if (!currentAppLocales.isEmpty) currentAppLocales[0]
-                else java.util.Locale.getDefault()
-                val languageCode = currentLocale?.language ?: "en"
-                val selectedOption = languageMap[languageCode] ?: "English"
-                val options = languageMap.values.toList()
-
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = dimensionResource(R.dimen.s_medium_padding))
-                        .padding(vertical = dimensionResource(R.dimen.extra_small_padding))
-                ) {
-                    Text(
-                        text = stringResource(R.string.select_language),
-                        modifier = Modifier.weight(1f),
-                        style = MaterialTheme.typography.bodyMedium
+            SettingColumn(
+                modifier = Modifier.hazeSource(state = hazeState),
+                contentArray = arrayOf({
+                    val currentAppLocales = AppCompatDelegate.getApplicationLocales()
+                    val currentLocale =
+                        if (!currentAppLocales.isEmpty) currentAppLocales[0]
+                        else Locale.getDefault()
+                    val languageCode = currentLocale?.language ?: "en"
+                    val selectedOption = languageMap[languageCode] ?: "English"
+                    val options = languageMap.values.toList()
+                    EdgeToEdgeRow(
+                        contentArray = arrayOf({
+                            Text(
+                                text = stringResource(R.string.select_language),
+                                modifier = Modifier.weight(1f),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        },{
+                            DropDownSelection(
+                                options = options,
+                                selectedOption = selectedOption,
+                                onOptionSelected = { displayName ->
+                                    val selectedCode = languageMap.entries.firstOrNull {
+                                        it.value == displayName
+                                    }?.key ?: "en"
+                                    val appLocale = LocaleListCompat.forLanguageTags(selectedCode)
+                                    AppCompatDelegate.setApplicationLocales(appLocale)
+                                },
+                                hazeStateModifier = Modifier
+                                    .hazeEffect(hazeState)
+                                    .zIndex(1f)
+                            )
+                        })
                     )
-
-                    DropDownSelection(
-                        options = options,
-                        selectedOption = selectedOption,
-                        onOptionSelected = { displayName ->
-                            val selectedCode = languageMap.entries.firstOrNull {
-                                it.value == displayName
-                            }?.key ?: "en"
-                            val appLocale = LocaleListCompat.forLanguageTags(selectedCode)
-                            AppCompatDelegate.setApplicationLocales(appLocale)
-                        },
-                        hazeStateModifier = Modifier
-                            .hazeEffect(hazeState)
-                            .zIndex(1f)
-                    )
-                }
-            }
+                })
+            )
         }
+        Spacer(Modifier.size(size = 48.dp))
     }
 }

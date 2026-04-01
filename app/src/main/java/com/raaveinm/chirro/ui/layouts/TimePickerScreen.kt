@@ -2,17 +2,31 @@ package com.raaveinm.chirro.ui.layouts
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -22,9 +36,9 @@ import androidx.compose.ui.unit.sp
 fun TimePickerScreen(
     hourState: LazyListState = rememberLazyListState(initialFirstVisibleItemIndex = 0),
     minuteState: LazyListState = rememberLazyListState(initialFirstVisibleItemIndex = 0),
-    secondState: LazyListState = rememberLazyListState(initialFirstVisibleItemIndex = 0)
+    secondState: LazyListState = rememberLazyListState(initialFirstVisibleItemIndex = 0),
+    powerSafeMode: Boolean = false
 ) {
-
     val hours = (0..23).toList()
     val minutesAndSeconds = (0..59).toList()
 
@@ -40,11 +54,11 @@ fun TimePickerScreen(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            WheelPicker(items = hours, state = hourState)
+            WheelPicker(items = hours, state = hourState, powerSafeMode = powerSafeMode)
             TimeSeparator()
-            WheelPicker(items = minutesAndSeconds, state = minuteState)
+            WheelPicker(items = minutesAndSeconds, state = minuteState, powerSafeMode = powerSafeMode)
             TimeSeparator()
-            WheelPicker(items = minutesAndSeconds, state = secondState)
+            WheelPicker(items = minutesAndSeconds, state = secondState, powerSafeMode = powerSafeMode)
         }
     }
 }
@@ -66,11 +80,22 @@ fun TimeSeparator() {
 fun WheelPicker(
     items: List<Int>,
     state: LazyListState,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    powerSafeMode: Boolean
 ) {
     val itemHeight = 48.dp
     val flingBehavior = rememberSnapFlingBehavior(lazyListState = state)
     val selectedIndex by remember { derivedStateOf { state.firstVisibleItemIndex } }
+    val hapticFeedback = LocalHapticFeedback.current
+
+    if (!powerSafeMode) {
+        LaunchedEffect(state) {
+            snapshotFlow { state.firstVisibleItemIndex }
+                .collect { _ ->
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
+                }
+        }
+    }
 
     LazyColumn(
         state = state,
@@ -86,7 +111,9 @@ fun WheelPicker(
             val value = items[index]
 
             Box(
-                modifier = Modifier.height(itemHeight).fillMaxWidth(),
+                modifier = Modifier
+                    .height(itemHeight)
+                    .fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
                 Text(

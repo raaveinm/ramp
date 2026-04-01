@@ -79,6 +79,7 @@ class PlayerViewModel(
     val isPlaying: Boolean get() = _uiState.value.isPlaying
     val dynamicColor: Flow<Boolean> get() = settingsRepository.uiSettingsFlow.map { it.backgroundDynamicColor }
     val backgroundImage: Flow<Boolean> get() = settingsRepository.uiSettingsFlow.map { it.backgroundImage }
+    val opacityValue: Flow<Float> get() = settingsRepository.uiSettingsFlow.map { (it.backgroundImageOpacity).toFloat()/100 }
     private val _sleepTimerEndTimeMs = MutableStateFlow<Long?>(null)
     private val _sleepTimerRemainingSeconds = MutableStateFlow<Long?>(null)
     val sleepTimerRemainingSeconds = _sleepTimerRemainingSeconds.asStateFlow()

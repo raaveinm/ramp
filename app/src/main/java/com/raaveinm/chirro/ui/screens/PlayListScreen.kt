@@ -16,7 +16,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -83,6 +82,7 @@ import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
 import kotlinx.coroutines.FlowPreview
+import kotlin.math.abs
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("ConfigurationScreenWidthHeight")
@@ -136,12 +136,19 @@ fun PlaylistScreen(
             if (isNavigating) {
                 LaunchedEffect(uiState.currentTrack, tracks) {
                     if (isNavigating && tracks.isNotEmpty()) {
-                        uiState.currentTrack?.let { current ->
-                            val index = tracks.indexOfFirst { it.id == current.id }
-                            if (index != -1) {
-                                if (!viewModel.isPowerSaveMode.value)
-                                    listState.animateScrollToItem((index - 3).coerceAtLeast(0))
-                                else listState.scrollToItem((index - 3).coerceAtLeast(0))
+                        val currentTrackId = uiState.currentTrack?.id
+
+                        if (currentTrackId != null) {
+                            val targetIndex = tracks.indexOfFirst { it.id == currentTrackId }
+                            if (targetIndex != -1) {
+                                val scrollTarget = (targetIndex - 3).coerceAtLeast(0)
+
+                                if (!viewModel.isPowerSaveMode.value &&
+                                    abs(listState.firstVisibleItemIndex - targetIndex) < 64) {
+                                    listState.animateScrollToItem(scrollTarget)
+                                } else {
+                                    listState.scrollToItem(scrollTarget)
+                                }
                                 isNavigating = false
                             }
                         }

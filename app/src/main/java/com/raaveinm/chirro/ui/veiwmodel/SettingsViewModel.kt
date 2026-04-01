@@ -2,14 +2,18 @@ package com.raaveinm.chirro.ui.veiwmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.raaveinm.chirro.data.values.OrderMediaQueue
 import com.raaveinm.chirro.data.datastore.SettingDataStoreRepository
+import com.raaveinm.chirro.data.values.OrderMediaQueue
 import com.raaveinm.chirro.data.values.TrackInfo
 import com.raaveinm.chirro.ui.theme.AppTheme
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(
@@ -17,10 +21,26 @@ class SettingsViewModel(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(SettingsUiState())
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
+    private val _localAlphaOverride = MutableStateFlow<Float?>(null)
+    val alphaState: StateFlow<BackgroundAlphaUiState> = combine(
+        settingsRepository.uiSettingsFlow,
+        _localAlphaOverride
+    ) { uiSettings, localAlpha ->
+        val dsAlpha = (uiSettings.backgroundImageOpacity).toFloat() / 100f
+        BackgroundAlphaUiState(backgroundAlpha = localAlpha ?: dsAlpha)
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = BackgroundAlphaUiState(0.3f)
+    )
+
+    private var alphaSaveJob: Job? = null
+
     val settingsFlow = combine(
         settingsRepository.settingsFlow,
         settingsRepository.playbackStateFlow,
-        settingsRepository.uiSettingsFlow) { settings, playback, uiSettings ->
+        settingsRepository.uiSettingsFlow
+    ) { settings, playback, uiSettings ->
         SettingsUiState(
             trackPrimaryOrder = settings.trackPrimaryOrder,
             trackSecondaryOrder = settings.trackSecondaryOrder,
@@ -32,20 +52,14 @@ class SettingsViewModel(
             backgroundImage = uiSettings.backgroundImage,
         )
     }
+//    var haptic: HapticFeedback
+//        get() = LocalHapticFeedback.current
+//        set(value) =
 
     init {
         viewModelScope.launch {
             settingsFlow.collect {
-                _uiState.value = _uiState.value.copy(
-                    trackPrimaryOrder = it.trackPrimaryOrder,
-                    trackSecondaryOrder = it.trackSecondaryOrder,
-                    trackSortAscending = it.trackSortAscending,
-                    currentTheme = it.currentTheme,
-                    isSavedState = it.isSavedState,
-                    isShuffleMode = it.isShuffleMode,
-                    backgroundDynamicColor = it.backgroundDynamicColor,
-                    backgroundImage = it.backgroundImage
-                )
+                _uiState.value = it
             }
         }
     }
@@ -56,6 +70,7 @@ class SettingsViewModel(
     fun setShuffleMode(shuffleMode: Boolean) {
         viewModelScope.launch {
             settingsRepository.setShuffleMode(shuffleMode)
+//            haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
         }
     }
 
@@ -132,6 +147,15 @@ class SettingsViewModel(
     fun setBackgroundImage(state: Boolean) {
         viewModelScope.launch {
             settingsRepository.setBackgroundImage(state)
+        }
+    }
+
+    fun setBackgroundAlpha(alpha: Float) {
+        _localAlphaOverride.value = alpha
+        alphaSaveJob?.cancel()
+        alphaSaveJob = viewModelScope.launch {
+            delay(300)
+            settingsRepository.setBackgroundImgOpacity((alpha * 100).toInt())
         }
     }
 }

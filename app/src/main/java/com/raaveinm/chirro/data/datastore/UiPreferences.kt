@@ -5,5 +5,6 @@ import com.raaveinm.chirro.ui.theme.AppTheme
 data class UiPreferences(
     val currentTheme: AppTheme = AppTheme.DYNAMIC,
     val backgroundDynamicColor: Boolean = true,
-    val backgroundImage: Boolean = false
+    val backgroundImage: Boolean = false,
+    val backgroundImageOpacity: Int
 )
