@@ -28,6 +28,7 @@ import com.raaveinm.chirro.data.repository.TrackRepository
 import com.raaveinm.chirro.data.values.Eggs
 import com.raaveinm.chirro.data.values.TrackInfo
 import com.raaveinm.chirro.domain.PlaybackService
+import com.raaveinm.chirro.domain.jni.AudioCore
 import com.raaveinm.chirro.domain.toMediaItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
@@ -275,6 +276,7 @@ class PlayerViewModel(
     fun pause() {
         mediaController?.pause()
         updatePlayState()
+        Log.d("RRR", AudioCore.test())
     }
 
     fun resume() {

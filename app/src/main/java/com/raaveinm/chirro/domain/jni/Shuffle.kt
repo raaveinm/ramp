@@ -1,4 +1,4 @@
-package com.raaveinm.chirro.domain
+package com.raaveinm.chirro.domain.jni
 
 import com.raaveinm.chirro.data.values.TrackInfo
 import kotlin.collections.map
@@ -10,7 +10,7 @@ import kotlin.collections.map
 
 object Shuffle {
     init {
-        System.loadLibrary("chirro-shuffle")
+        System.loadLibrary("chirro")
     }
     external fun shuffleTrackList(array: LongArray)
 }
