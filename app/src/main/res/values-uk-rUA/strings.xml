@@ -19,6 +19,9 @@
 
 
     <string name="is_dynamic_color">Атмосферне тло</string>
+    <string name="background_image">Фонове зображення</string>
+    <string name="opacity">Прозорість:</string>
+
     <string name="order_asc">зрост</string>
     <string name="order_desc">спад</string>
 

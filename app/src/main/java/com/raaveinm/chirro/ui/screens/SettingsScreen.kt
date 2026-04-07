@@ -61,10 +61,10 @@ import androidx.compose.ui.zIndex
 import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.raaveinm.chirro.R
-import com.raaveinm.chirro.ui.layouts.DropDownSelection
-import com.raaveinm.chirro.ui.layouts.EdgeToEdgeRow
-import com.raaveinm.chirro.ui.layouts.SettingCard
-import com.raaveinm.chirro.ui.layouts.SettingColumn
+import com.raaveinm.chirro.ui.layouts.settings.DropDownSelection
+import com.raaveinm.chirro.ui.layouts.settings.EdgeToEdgeRow
+import com.raaveinm.chirro.ui.layouts.settings.SettingCard
+import com.raaveinm.chirro.ui.layouts.settings.SettingColumn
 import com.raaveinm.chirro.ui.theme.AppTheme
 import com.raaveinm.chirro.ui.theme.ThemeOption
 import com.raaveinm.chirro.ui.theme.languageMap
@@ -382,7 +382,7 @@ fun SettingsScreen(
                         EdgeToEdgeRow(
                             contentArray = arrayOf({
                                 Text(
-                                    text = stringResource(R.string.is_dynamic_color) + "IMG",
+                                    text = stringResource(R.string.background_image),
                                     modifier = Modifier.weight(5f),
                                     style = MaterialTheme.typography.bodyMedium
                                 )
@@ -406,11 +406,22 @@ fun SettingsScreen(
                             EdgeToEdgeRow(
                                 contentArray = arrayOf(
                                     {
-                                        Slider(
-                                            value = viewModel.alphaState.collectAsState().value.backgroundAlpha,
-                                            onValueChange = { newValue -> viewModel.setBackgroundAlpha(newValue) },
-                                            modifier = Modifier.fillMaxWidth()
-                                        )
+                                        Column {
+                                            Text(
+                                                text = stringResource(R.string.opacity),
+                                                modifier = Modifier.fillMaxWidth().padding(top = dimensionResource(R.dimen.small_padding)),
+                                                style = MaterialTheme.typography.bodyMedium
+                                            )
+                                            Slider(
+                                                value = viewModel.alphaState.collectAsState().value.backgroundAlpha,
+                                                onValueChange = { newValue ->
+                                                    viewModel.setBackgroundAlpha(
+                                                        newValue
+                                                    )
+                                                },
+                                                modifier = Modifier.fillMaxWidth()
+                                            )
+                                        }
                                     }
                                 )
                             )

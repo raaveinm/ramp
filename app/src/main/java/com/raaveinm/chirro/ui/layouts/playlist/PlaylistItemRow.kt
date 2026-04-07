@@ -1,4 +1,4 @@
-package com.raaveinm.chirro.ui.layouts
+package com.raaveinm.chirro.ui.layouts.playlist
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -35,6 +35,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import com.raaveinm.chirro.R
 import com.raaveinm.chirro.data.values.TrackInfo
+import com.raaveinm.chirro.ui.layouts.TrackInfoLayout
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)

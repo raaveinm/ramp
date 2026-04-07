@@ -19,6 +19,9 @@
 
 
     <string name="is_dynamic_color">Tło atmosferyczne</string>
+    <string name="background_image">Obraz tła</string>
+    <string name="opacity">Poziom przezroczystości:</string>
+
     <string name="order_asc">Rosnąco</string>
     <string name="order_desc">Malejąco</string>
 

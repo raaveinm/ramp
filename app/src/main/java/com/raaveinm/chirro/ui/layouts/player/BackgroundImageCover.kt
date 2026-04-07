@@ -1,4 +1,4 @@
-package com.raaveinm.chirro.ui.layouts
+package com.raaveinm.chirro.ui.layouts.player
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable

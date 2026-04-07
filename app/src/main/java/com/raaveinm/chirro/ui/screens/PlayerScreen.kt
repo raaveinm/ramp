@@ -47,10 +47,10 @@ import androidx.navigation.NavHostController
 import com.raaveinm.chirro.R
 import com.raaveinm.chirro.data.values.Eggs
 import com.raaveinm.chirro.data.values.TrackInfo
-import com.raaveinm.chirro.ui.layouts.ArcEasterEgg
-import com.raaveinm.chirro.ui.layouts.BackgroundImageCover
-import com.raaveinm.chirro.ui.layouts.PlayerControlButtons
-import com.raaveinm.chirro.ui.layouts.TimePickerScreen
+import com.raaveinm.chirro.ui.layouts.player.ArcEasterEgg
+import com.raaveinm.chirro.ui.layouts.player.BackgroundImageCover
+import com.raaveinm.chirro.ui.layouts.player.PlayerControlButtons
+import com.raaveinm.chirro.ui.layouts.player.TimePickerScreen
 import com.raaveinm.chirro.ui.layouts.TrackInfoLayout
 import com.raaveinm.chirro.ui.layouts.formatDuration
 import com.raaveinm.chirro.ui.navigation.NavData

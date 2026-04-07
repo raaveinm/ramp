@@ -70,10 +70,10 @@ import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.raaveinm.chirro.R
-import com.raaveinm.chirro.ui.layouts.EmptyListComposable
-import com.raaveinm.chirro.ui.layouts.PlayerMinimized
-import com.raaveinm.chirro.ui.layouts.PlaylistItemRow
-import com.raaveinm.chirro.ui.layouts.SearchBar
+import com.raaveinm.chirro.ui.layouts.playlist.EmptyListComposable
+import com.raaveinm.chirro.ui.layouts.playlist.PlayerMinimized
+import com.raaveinm.chirro.ui.layouts.playlist.PlaylistItemRow
+import com.raaveinm.chirro.ui.layouts.playlist.SearchBar
 import com.raaveinm.chirro.ui.layouts.TrackInfoLayout
 import com.raaveinm.chirro.ui.navigation.NavData
 import com.raaveinm.chirro.ui.veiwmodel.AppViewModelProvider

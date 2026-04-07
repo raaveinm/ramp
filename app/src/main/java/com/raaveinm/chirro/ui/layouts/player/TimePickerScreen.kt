@@ -1,4 +1,4 @@
-package com.raaveinm.chirro.ui.layouts
+package com.raaveinm.chirro.ui.layouts.player
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi

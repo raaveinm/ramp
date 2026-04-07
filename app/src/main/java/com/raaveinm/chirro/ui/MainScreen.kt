@@ -31,7 +31,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.raaveinm.chirro.domain.findActivity
 import com.raaveinm.chirro.ui.layouts.TopBar
-import com.raaveinm.chirro.ui.layouts.rememberDominantColor
+import com.raaveinm.chirro.ui.layouts.player.rememberDominantColor
 import com.raaveinm.chirro.ui.navigation.NavData
 import com.raaveinm.chirro.ui.screens.PlayerScreen
 import com.raaveinm.chirro.ui.screens.PlaylistScreen
@@ -41,8 +41,13 @@ import com.raaveinm.chirro.ui.veiwmodel.PlayerViewModel
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
+import kotlinx.coroutines.FlowPreview
 
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class, ExperimentalMaterial3Api::class)
+@OptIn(
+    ExperimentalMaterial3WindowSizeClassApi::class,
+    ExperimentalMaterial3Api::class,
+    FlowPreview::class
+)
 @Composable
 fun MainScreen (modifier: Modifier) {
     val navController: NavHostController = rememberNavController()

@@ -1,4 +1,4 @@
-package com.raaveinm.chirro.ui.layouts
+package com.raaveinm.chirro.ui.layouts.player
 
 import android.graphics.drawable.BitmapDrawable
 import androidx.compose.animation.animateColorAsState

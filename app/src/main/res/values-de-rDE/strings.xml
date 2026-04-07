@@ -18,6 +18,9 @@
     <string name="shuffle_mode">Zufallswiedergabe</string>
 
     <string name="is_dynamic_color">Umgebungs-Hintergrundfarbe</string>
+    <string name="background_image">Hintergrundbild</string>
+    <string name="opacity">Deckkraft:</string>
+
     <string name="order_asc">Aufstieg</string>
     <string name="order_desc">Absteig</string>
 

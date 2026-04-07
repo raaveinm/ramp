@@ -19,6 +19,9 @@
 
 
     <string name="is_dynamic_color">Атмосферный фон</string>
+    <string name="background_image">Фоновое изображение</string>
+    <string name="opacity">Прозрачность:</string>
+
     <string name="order_asc">возраст.</string>
     <string name="order_desc">убываниe</string>
 

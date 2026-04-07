@@ -18,6 +18,9 @@
     <string name="shuffle_mode">Mode aléatoire</string>
 
     <string name="is_dynamic_color">Couleur de fond ambiante</string>
+    <string name="background_image">Image de fond</string>
+    <string name="opacity">Niveau d\'opacité :</string>
+
     <string name="order_asc">Croissant</string>
     <string name="order_desc">Décroissant</string>
 

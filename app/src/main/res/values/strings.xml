@@ -18,6 +18,8 @@
     <string name="app_behaviour">Application behaviour</string>
     <string name="shuffle_mode">Shuffle mode</string>
     <string name="is_dynamic_color">Ambient background color</string>
+    <string name="background_image">Background image</string>
+    <string name="opacity">Opacity level:</string>
 
 
     <string name="order_asc">Ascend</string>

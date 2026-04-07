@@ -1,4 +1,4 @@
-package com.raaveinm.chirro.ui.layouts
+package com.raaveinm.chirro.ui.layouts.settings
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
@@ -18,6 +18,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -132,7 +133,7 @@ fun DropDownPreview() {
     val options = listOf("Option 1", "Option 2", "Option 3")
     var selectedOption by remember { mutableStateOf(options[1]) }
 
-    androidx.compose.material3.Surface(
+    Surface(
         color = Color(0xFFEFEFEF),
         modifier = Modifier.padding(50.dp)
     ) {

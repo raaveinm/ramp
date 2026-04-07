@@ -1,4 +1,4 @@
-package com.raaveinm.chirro.ui.layouts
+package com.raaveinm.chirro.ui.layouts.playlist
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
