@@ -15,3 +15,7 @@
 .cxx
 .DS_Store
 *.iml
+
+# Sub Proj
+/app/src/main/cpp/.idea/
+/app/src/main/cpp/cmake-build-debug

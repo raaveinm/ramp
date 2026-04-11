@@ -1,6 +1,7 @@
+@file:Suppress("UnstableApiUsage")
+
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
@@ -13,7 +14,7 @@ android {
     defaultConfig {
         applicationId = "com.raaveinm.chirro"
         minSdk = 28
-        targetSdk = 34
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
@@ -68,7 +69,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.foundation)
-    implementation("androidx.compose.ui:ui-text-google-fonts:1.10.5")
+    implementation("androidx.compose.ui:ui-text-google-fonts:1.10.6")
     implementation("androidx.compose.material:material-icons-extended:1.7.8")
     implementation("dev.chrisbanes.haze:haze:1.7.2")
     implementation("androidx.palette:palette-ktx:1.0.0")
@@ -94,14 +95,14 @@ dependencies {
 
     // --- Media & Images ---
     implementation(libs.androidx.media)
-    implementation("androidx.media3:media3-exoplayer:1.9.3")
-    implementation("androidx.media3:media3-ui:1.9.3")
-    implementation("androidx.media3:media3-session:1.9.3")
-    implementation("androidx.media3:media3-common:1.9.3")
+    implementation("androidx.media3:media3-exoplayer:1.10.0")
+    implementation("androidx.media3:media3-ui:1.10.0")
+    implementation("androidx.media3:media3-session:1.10.0")
+    implementation("androidx.media3:media3-common:1.10.0")
     implementation("io.coil-kt:coil-compose:2.7.0")
 
     // --- Background Tasks ---
-    implementation("androidx.work:work-gcm:2.11.1")
+    implementation("androidx.work:work-gcm:2.11.2")
 
     // --- Testing ---
     testImplementation(libs.junit)

@@ -30,6 +30,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.util.concurrent.Callable
 
+import androidx.media3.exoplayer.DefaultRenderersFactory
+import androidx.media3.common.audio.AudioProcessor
+import androidx.media3.exoplayer.audio.DefaultAudioSink
+import androidx.media3.exoplayer.audio.AudioSink
+import android.content.Context
+
 @UnstableApi
 class PlaybackService : MediaLibraryService() {
 
@@ -42,6 +48,8 @@ class PlaybackService : MediaLibraryService() {
     private val serviceJob = SupervisorJob()
     private val serviceScope = CoroutineScope(Dispatchers.Main + serviceJob)
     private lateinit var settingsRepository: SettingDataStoreRepository
+    
+    private val audioProcessor = ChirroAudioProcessor()
 
     override fun onCreate() {
         super.onCreate()
@@ -52,8 +60,21 @@ class PlaybackService : MediaLibraryService() {
         notificationProvider = PlaybackNotificationProvider(this)
         setMediaNotificationProvider(notificationProvider)
 
+        // Build RenderersFactory with custom AudioProcessor
+        val renderersFactory = object : DefaultRenderersFactory(this) {
+            override fun buildAudioSink(
+                context: Context,
+                enableFloatOutput: Boolean,
+                enableAudioTrackPlaybackParams: Boolean
+            ): AudioSink {
+                return DefaultAudioSink.Builder(context)
+                    .setAudioProcessors(arrayOf(audioProcessor))
+                    .build()
+            }
+        }
+
         // Build Player
-        player = ExoPlayer.Builder(this)
+        player = ExoPlayer.Builder(this, renderersFactory)
             .setAudioAttributes(AudioAttributes.DEFAULT, true)
             .setHandleAudioBecomingNoisy(true)
             .build()

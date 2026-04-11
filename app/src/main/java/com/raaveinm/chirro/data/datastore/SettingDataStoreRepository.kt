@@ -11,6 +11,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.google.gson.Gson
+import com.raaveinm.chirro.data.values.EqualizerPreferences
 import com.raaveinm.chirro.data.values.OrderMediaQueue
 import com.raaveinm.chirro.data.values.TrackInfo
 import com.raaveinm.chirro.ui.theme.AppTheme
@@ -36,6 +37,7 @@ class SettingDataStoreRepository(private val dataStore: DataStore<Preferences>) 
         val BACKGROUND_DYNAMIC_COLOR = booleanPreferencesKey("background_dynamic_color")
         val BACKGROUND_IMAGE = booleanPreferencesKey("background_image")
         val BACKGROUND_IMAGE_OPACITY = intPreferencesKey("background_image_opacity")
+        val CURRENT_EQUALIZER = stringPreferencesKey("current_equalizer")
     }
 
     ///////////////////////////////////////////////
@@ -109,9 +111,20 @@ class SettingDataStoreRepository(private val dataStore: DataStore<Preferences>) 
                 null
             }
 
+            val equalizerPreferences = try {
+                val jsonString = preferences[PreferencesKeys.CURRENT_EQUALIZER]
+                if (jsonString != null) {
+                    Gson().fromJson(jsonString, EqualizerPreferences::class.java)
+                } else EqualizerPreferences.NORMAL
+            } catch (e: Exception) {
+                Log.e(tag, "Error parsing equalizer: $e")
+                EqualizerPreferences.NORMAL
+            }
+
             PlaybackState(
                 currentTrack = currentTrack,
-                isSavedState = isSavedState
+                isSavedState = isSavedState,
+                equalizerPreferences = equalizerPreferences
             )
         }
         .distinctUntilChanged()
@@ -309,6 +322,13 @@ class SettingDataStoreRepository(private val dataStore: DataStore<Preferences>) 
     suspend fun setBackgroundImgOpacity(value: Int) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.BACKGROUND_IMAGE_OPACITY] = value
+        }
+    }
+
+    suspend fun updateEqualizer(equalizerPreferences: EqualizerPreferences) {
+        dataStore.edit { preferences ->
+            val jsonString = Gson().toJson(equalizerPreferences)
+            preferences[PreferencesKeys.CURRENT_EQUALIZER] = jsonString
         }
     }
 }

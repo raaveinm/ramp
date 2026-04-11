@@ -45,6 +45,17 @@
 
     <string name="delete_track">Видалити трек</string>
 
+    <string name="sound_settings">Налаштування звуку</string>
+    <string name="parametric_eq">Параметричний еквалайзер</string>
+
+    <string name="eq_normal">Звичайний</string>
+    <string name="eq_rock">Рок</string>
+    <string name="eq_jazz">Джаз</string>
+    <string name="eq_classical">Класика</string>
+    <string name="eq_bass_boost">Посилення басів</string>
+    <string name="eq_treble_boost">Посилення ВЧ</string>
+    <string name="eq_custom">Користувацький</string>
+
     <string-array name="track_order_options">
         <item>за замовчуванням</item>
         <item>id</item>

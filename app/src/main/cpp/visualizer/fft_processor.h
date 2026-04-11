@@ -1,7 +1,3 @@
-//
-// Created by Kirill Dulov on 4/7/26.
-//
-
 #ifndef CHIRRO_FFT_PROCESSOR_H
 #define CHIRRO_FFT_PROCESSOR_H
 
@@ -19,10 +15,10 @@ public:
      * @param length Length of the data in bytes.
      * @return Vector of frequency magnitudes.
      */
-    static std::vector<float> calculate(uint8_t* data, int length);
+    std::vector<float> calculate(uint8_t* data, int length);
 
 private:
-    // KissFFT state or other FFT library state would go here
+    // FFT state or library state
 };
 
 #endif //CHIRRO_FFT_PROCESSOR_H

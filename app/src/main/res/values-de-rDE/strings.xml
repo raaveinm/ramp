@@ -44,6 +44,17 @@
 
     <string name="delete_track">Titel löschen</string>
 
+    <string name="sound_settings">Toneinstellungen</string>
+    <string name="parametric_eq">Parametrischer EQ</string>
+
+    <string name="eq_normal">Normal</string>
+    <string name="eq_rock">Rock</string>
+    <string name="eq_jazz">Jazz</string>
+    <string name="eq_classical">Klassik</string>
+    <string name="eq_bass_boost">Bass-Boost</string>
+    <string name="eq_treble_boost">Höhen-Boost</string>
+    <string name="eq_custom">Benutzerdefiniert</string>
+
     <string-array name="track_order_options">
         <item>Standard</item>
         <item>ID</item>

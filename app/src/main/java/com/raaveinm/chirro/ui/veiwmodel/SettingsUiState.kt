@@ -1,5 +1,6 @@
 package com.raaveinm.chirro.ui.veiwmodel
 
+import com.raaveinm.chirro.data.values.EqualizerPreferences
 import com.raaveinm.chirro.data.values.OrderMediaQueue
 import com.raaveinm.chirro.ui.theme.AppTheme
 
@@ -11,5 +12,6 @@ data class SettingsUiState(
     val isSavedState: Boolean = false,
     val isShuffleMode: Boolean = false,
     val backgroundDynamicColor: Boolean = true,
-    val backgroundImage: Boolean = false
+    val backgroundImage: Boolean = false,
+    val equalizerPreferences: EqualizerPreferences = EqualizerPreferences.NORMAL
 )

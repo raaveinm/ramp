@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -61,8 +62,11 @@ import androidx.compose.ui.zIndex
 import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.raaveinm.chirro.R
+import com.raaveinm.chirro.data.values.EqualizerPreferences
 import com.raaveinm.chirro.ui.layouts.settings.DropDownSelection
 import com.raaveinm.chirro.ui.layouts.settings.EdgeToEdgeRow
+import com.raaveinm.chirro.ui.layouts.settings.EqualizerGraph
+import com.raaveinm.chirro.ui.layouts.settings.EqualizerPreset
 import com.raaveinm.chirro.ui.layouts.settings.SettingCard
 import com.raaveinm.chirro.ui.layouts.settings.SettingColumn
 import com.raaveinm.chirro.ui.theme.AppTheme
@@ -429,6 +433,62 @@ fun SettingsScreen(
                     }
                 })
             )
+        }
+
+        ///////////////////////////////////////////////
+        // Sound settings
+        ///////////////////////////////////////////////
+        val eqPresets = listOf(
+            EqualizerPreferences.NORMAL,
+            EqualizerPreferences.ROCK,
+            EqualizerPreferences.JAZZ,
+            EqualizerPreferences.CLASSICAL,
+            EqualizerPreferences.BASS_BOOST,
+            EqualizerPreferences.TREBLE_BOOST,
+            EqualizerPreferences.CUSTOM
+        )
+        val currentEq = uiState.equalizerPreferences
+        val selectedEqIndex = remember(currentEq) {
+            val index = eqPresets.indexOf(currentEq)
+            if (index == -1) eqPresets.size - 1 else index
+        }
+
+        SettingCard(
+            title = stringResource(R.string.sound_settings),
+            modifier = Modifier
+                .fillMaxWidth()
+                .hazeSource(state = hazeState)
+                .padding(vertical = dimensionResource(R.dimen.medium_padding))
+                .padding(horizontal = dimensionResource(R.dimen.small_padding))
+        ) {
+            Column(
+                modifier = Modifier.padding(dimensionResource(R.dimen.small_padding))
+            ) {
+                EqualizerPreset(
+                    modifier = Modifier.fillMaxWidth(),
+                    presets = eqPresets,
+                    selectedIndex = selectedEqIndex,
+                    onSelectionChange = { index ->
+                        viewModel.setEqualizer(eqPresets[index])
+                    }
+                )
+
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.medium_padding)))
+
+                val currentGains = remember(currentEq) {
+                    listOf(
+                        currentEq.subBass, currentEq.bass, currentEq.lowMid, currentEq.mid,
+                        currentEq.highMid, currentEq.presence, currentEq.brilliance, currentEq.air
+                    )
+                }
+
+                EqualizerGraph(
+                    bandGains = currentGains,
+                    onBandGainChange = { index, gain ->
+                        viewModel.setEqualizerBand(index, gain)
+                    }
+                )
+            }
         }
 
         ///////////////////////////////////////////////
