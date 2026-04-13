@@ -40,9 +40,4 @@ object AudioCore {
      * Enable/Disable specific DSP effects
      */
     external fun setEffectEnabled(effectId: Int, enabled: Boolean)
-
-    const val EFFECT_EQUALIZER = 1
-    const val EFFECT_BASS_BOOST = 2
-    const val EFFECT_REVERB = 3
-    const val EFFECT_SILENCE_TRIMMER = 4
 }

@@ -24,7 +24,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.PointerInputChange
@@ -44,7 +43,8 @@ import kotlin.math.pow
 @Composable
 fun EqualizerGraph(
     bandGains: List<Float>,
-    onBandGainChange: (Int, Float) -> Unit
+    onBandGainChange: (Int, Float) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val frequencies = listOf("60", "150", "400", "1k", "2.5k", "6k", "10k", "15k")
     var activePointIndex by remember { mutableStateOf<Int?>(null) }
@@ -53,9 +53,10 @@ fun EqualizerGraph(
     val textMeasurer = rememberTextMeasurer()
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .padding(dimensionResource(R.dimen.medium_padding))
+            .padding(horizontal = dimensionResource(R.dimen.small_padding))
+            .padding(bottom = dimensionResource(R.dimen.medium_padding))
     ) {
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -66,6 +67,7 @@ fun EqualizerGraph(
             val lineColor = MaterialTheme.colorScheme.primary
             val controlDotColor = MaterialTheme.colorScheme.onPrimary
             val controlDotHighlight = MaterialTheme.colorScheme.secondary
+            val contentColor = MaterialTheme.colorScheme.outline
             val gradientColors = listOf(
                 MaterialTheme.colorScheme.onPrimary.copy(alpha = .6f),
                 MaterialTheme.colorScheme.onPrimary.copy(alpha = .2f)
@@ -73,6 +75,8 @@ fun EqualizerGraph(
 
             Canvas(
                 modifier = Modifier
+
+                    .padding(horizontal = dimensionResource(R.dimen.small_padding))
                     .fillMaxSize()
                     .pointerInput(Unit) {
                         awaitEachGesture {
@@ -122,9 +126,9 @@ fun EqualizerGraph(
                 // Grid and Labels
                 ///////////////////////////////////////////////
 
-                val gridColor = Color.White.copy(alpha = 0.1f)
+                val gridColor = lineColor.copy(alpha = .6f)
                 val labelStyle = TextStyle(
-                    color = Color.White.copy(alpha = 0.6f),
+                    color = contentColor,
                     fontSize = 10.sp
                 )
 
@@ -173,7 +177,7 @@ fun EqualizerGraph(
                 ///////////////////////////////////////////////
 
                 drawLine(
-                    color = Color.White.copy(alpha = 0.2f),
+                    color = lineColor.copy(alpha = 0.2f),
                     start = Offset(0f, halfHeight),
                     end = Offset(width, halfHeight),
                     strokeWidth = 2f
@@ -252,7 +256,7 @@ fun EqualizerGraph(
             frequencies.forEach { freq ->
                 Text(
                     text = freq,
-                    color = Color.White.copy(alpha = 0.6f),
+                    color = MaterialTheme.colorScheme.onBackground,
                     style = MaterialTheme.typography.labelSmall
                 )
             }

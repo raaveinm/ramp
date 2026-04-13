@@ -462,7 +462,9 @@ fun SettingsScreen(
                 .padding(horizontal = dimensionResource(R.dimen.small_padding))
         ) {
             Column(
-                modifier = Modifier.padding(dimensionResource(R.dimen.small_padding))
+                modifier = Modifier
+                    .padding(horizontal = dimensionResource(R.dimen.small_padding))
+                    .padding(top = dimensionResource(R.dimen.medium_padding))
             ) {
                 EqualizerPreset(
                     modifier = Modifier.fillMaxWidth(),
@@ -472,8 +474,6 @@ fun SettingsScreen(
                         viewModel.setEqualizer(eqPresets[index])
                     }
                 )
-
-                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.medium_padding)))
 
                 val currentGains = remember(currentEq) {
                     listOf(
