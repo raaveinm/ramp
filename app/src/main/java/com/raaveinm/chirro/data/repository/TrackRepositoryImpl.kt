@@ -18,7 +18,6 @@ import com.raaveinm.chirro.data.database.TrackDao
 import com.raaveinm.chirro.data.values.TrackInfo
 import com.raaveinm.chirro.data.values.OrderMediaQueue
 import com.raaveinm.chirro.data.datastore.SettingDataStoreRepository
-import com.raaveinm.chirro.domain.jni.shuffled
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob

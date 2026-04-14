@@ -24,4 +24,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Chirro"
 include(":app")
- 
+include(":core:audioengine")

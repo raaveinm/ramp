@@ -19,3 +19,5 @@
 # Sub Proj
 /app/src/main/cpp/.idea/
 /app/src/main/cpp/cmake-build-debug
+/core/audioengine/src/main/cpp/.idea/
+/core/audioengine/src/main/cpp/cmake-build-debug/
