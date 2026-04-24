@@ -3,7 +3,7 @@ package com.raaveinm.chirro.ui.layouts.playlist
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -37,7 +37,7 @@ fun ExpandedTrackInteraction(
         verticalArrangement = Arrangement.Bottom
     ) {
         Surface(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxWidth(),
             color = Color.Transparent,
             onClick = { uriHandler.openUri(request) }
         ) {
@@ -47,7 +47,7 @@ fun ExpandedTrackInteraction(
             )
         }
         Surface(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxWidth(),
             color = Color.Transparent,
             onClick = { playTrack() }
         ) {

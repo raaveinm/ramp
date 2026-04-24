@@ -30,6 +30,33 @@ add_library(chirro SHARED
     audio_core.cpp
 )
 
+# --- Unit Tests Section ---
+option(BUILD_TESTS "Build C++ unit tests" OFF)
+
+if(BUILD_TESTS)
+    include(FetchContent)
+    FetchContent_Declare(
+        googletest
+        URL https://github.com/google/googletest/archive/refs/heads/main.zip
+    )
+    # For Windows: prevent overriding the parent project's compiler/linker settings
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+    FetchContent_MakeAvailable(googletest)
+
+    add_executable(audio_core_test
+        ../../test/cpp/equalizer_test.cpp
+        ../../test/cpp/fft_test.cpp
+    )
+    target_link_libraries(audio_core_test
+        GTest::gtest_main
+        audio_dsp
+        visualizer
+    )
+    include(GoogleTest)
+    gtest_discover_tests(audio_core_test)
+endif()
+# --- End of Unit Tests Section ---
+
 target_link_options(chirro PRIVATE "-Wl,-z,max-page-size=16384")
 
 target_link_libraries(chirro PRIVATE
