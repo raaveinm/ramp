@@ -1,10 +1,15 @@
 package com.raaveinm.chirro.domain.jni
 
+import android.util.Log
 import java.nio.ByteBuffer
 
 object AudioCore {
     init {
-        System.loadLibrary("chirro")
+        try {
+            System.loadLibrary("chirro")
+        } catch (e: Throwable) {
+            Log.e("AudioCore", "Failed to load native library: ${e.message}")
+        }
     }
 
     external fun test(): String

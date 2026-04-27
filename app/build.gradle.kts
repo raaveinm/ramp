@@ -55,7 +55,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.foundation)
-    implementation("androidx.compose.ui:ui-text-google-fonts:1.10.6")
+    implementation("androidx.compose.ui:ui-text-google-fonts:1.11.0")
     implementation("androidx.compose.material:material-icons-extended:1.7.8")
     implementation("dev.chrisbanes.haze:haze:1.7.2")
     implementation("androidx.palette:palette-ktx:1.0.0")
@@ -65,7 +65,7 @@ dependencies {
     implementation(libs.androidx.compose.material3.window.size.class1)
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.10.0")
-    implementation("androidx.navigation:navigation-compose:2.9.7")
+    implementation("androidx.navigation:navigation-compose:2.9.8")
 
     // --- Data & Storage (Room) ---
     implementation(libs.androidx.room.ktx)
@@ -73,10 +73,11 @@ dependencies {
     implementation("androidx.room:room-rxjava3:2.8.4")
     implementation("androidx.datastore:datastore-preferences:1.2.1")
     implementation("androidx.datastore:datastore-preferences-core:1.2.1")
-    implementation("com.google.code.gson:gson:2.13.2")
+    implementation("com.google.code.gson:gson:2.14.0")
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.compose.ui.text)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.navigation.testing)
     ksp(libs.androidx.room.compiler)
 
     // --- Media & Images ---
@@ -92,10 +93,14 @@ dependencies {
 
     // --- Testing ---
     testImplementation(libs.junit)
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
+    androidTestImplementation(libs.mockk.android)
+    androidTestImplementation(libs.kotlinx.coroutines.test)
 
     // --- Debug ---
     debugImplementation(libs.androidx.ui.tooling)

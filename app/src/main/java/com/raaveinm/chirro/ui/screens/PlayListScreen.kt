@@ -158,7 +158,10 @@ fun PlaylistScreen(
 
             // Display Empty Playlist Screen
             if (tracks.isEmpty()) {
-                EmptyListComposable()
+                EmptyListComposable(
+                    modifier.padding(top = innerPadding.calculateTopPadding()),
+                    "No media detected"
+                )
             } else {
                 ///////////////////////////////////////////////
                 // Playlist

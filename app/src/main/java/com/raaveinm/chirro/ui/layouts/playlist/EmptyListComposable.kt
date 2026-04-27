@@ -23,10 +23,14 @@ import androidx.compose.ui.unit.dp
 import com.raaveinm.chirro.R
 
 @Composable
-fun EmptyListComposable(text: String? = null, stringRes: Int? = null) {
+fun EmptyListComposable(
+    modifier: Modifier = Modifier,
+    text: String? = null,
+    stringRes: Int? = null
+) {
     val message = text ?: stringResource(stringRes ?: R.string.unknown_error)
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(top = dimensionResource(R.dimen.large_padding))
 

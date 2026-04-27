@@ -51,6 +51,7 @@ fun EqualizerGraph(
     val currentGains by rememberUpdatedState(bandGains)
     val currentOnGainChange by rememberUpdatedState(onBandGainChange)
     val textMeasurer = rememberTextMeasurer()
+    val innerRightPadding = dimensionResource(R.dimen.small_size)
 
     Column(
         modifier = modifier
@@ -79,9 +80,10 @@ fun EqualizerGraph(
                     .padding(horizontal = dimensionResource(R.dimen.small_padding))
                     .fillMaxSize()
                     .pointerInput(Unit) {
+                        val rightPaddingPx = innerRightPadding.toPx()
                         awaitEachGesture {
                             val down = awaitFirstDown()
-                            val widthPerBand = size.width / (currentGains.size - 1)
+                            val widthPerBand = (size.width - rightPaddingPx) / (currentGains.size - 1)
                             val closestIndex = (down.position.x / widthPerBand).toInt().coerceIn(0, currentGains.size - 1)
                             val exactPointX = closestIndex * widthPerBand
 
@@ -250,7 +252,10 @@ fun EqualizerGraph(
         Spacer(modifier = Modifier.height(16.dp))
 
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = dimensionResource(R.dimen.small_padding))
+                .padding(end = innerRightPadding),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             frequencies.forEach { freq ->
