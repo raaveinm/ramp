@@ -28,6 +28,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,16 +48,22 @@ import androidx.navigation.NavHostController
 import com.raaveinm.chirro.R
 import com.raaveinm.chirro.data.values.Eggs
 import com.raaveinm.chirro.data.values.TrackInfo
+import com.raaveinm.chirro.ui.features.AmbientRandom
 import com.raaveinm.chirro.ui.layouts.player.ArcEasterEgg
 import com.raaveinm.chirro.ui.layouts.player.BackgroundImageCover
 import com.raaveinm.chirro.ui.layouts.player.PlayerControlButtons
 import com.raaveinm.chirro.ui.layouts.player.TimePickerScreen
 import com.raaveinm.chirro.ui.layouts.TrackInfoLayout
 import com.raaveinm.chirro.ui.layouts.formatDuration
+import com.raaveinm.chirro.ui.layouts.player.colorSpectre
+import com.raaveinm.chirro.ui.layouts.player.differsBeyond
+import com.raaveinm.chirro.ui.layouts.player.rememberDominantColor
 import com.raaveinm.chirro.ui.navigation.NavData
 import com.raaveinm.chirro.ui.veiwmodel.AppViewModelProvider
 import com.raaveinm.chirro.ui.veiwmodel.PlayerViewModel
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalMaterial3Api::class, FlowPreview::class)
 @SuppressLint("ContextCastToActivity")
@@ -93,6 +100,32 @@ fun PlayerScreen(
     ) {
         val backgroundEasterEgg = viewModel.backgroundEasterEgg()?: Eggs.NULL
         val backgroundImage = viewModel.backgroundImage.collectAsState(initial = false)
+
+        if (viewModel.animatedBackground.collectAsState(false).value) {
+            val color = if (trackInfo?.cover != null) rememberDominantColor(trackInfo.cover) else null
+            var acceptedColor by remember { mutableStateOf<Color?>(null) }
+            var ambientColorList by remember { mutableStateOf(colorSpectre(null)) }
+
+            LaunchedEffect(color?.value) {
+                delay(50.milliseconds)
+                val settled = color?.value
+                val accepted = acceptedColor
+                val changed = when {
+                    settled == null && accepted == null -> false
+                    settled == null || accepted == null -> true
+                    else -> settled.differsBeyond(accepted)
+                }
+                if (changed) {
+                    acceptedColor = settled
+                    ambientColorList = colorSpectre(settled)
+                }
+            }
+
+            AmbientRandom(
+                modifier = Modifier.fillMaxSize().zIndex(-1f),
+                colorList = ambientColorList
+            )
+        }
 
         Crossfade(
             targetState = backgroundEasterEgg,

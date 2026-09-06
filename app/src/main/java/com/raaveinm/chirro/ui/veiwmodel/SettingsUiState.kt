@@ -13,5 +13,6 @@ data class SettingsUiState(
     val isShuffleMode: Boolean = false,
     val backgroundDynamicColor: Boolean = true,
     val backgroundImage: Boolean = false,
+    val animatedBackground: Boolean = false,
     val equalizerPreferences: EqualizerPreferences = EqualizerPreferences.NORMAL
 )

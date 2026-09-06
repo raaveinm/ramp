@@ -100,6 +100,7 @@ fun SettingsScreen(
     ) {
         val uiState = viewModel.uiState.collectAsState().value
 
+        // This to do is living here for a f****** year
         // TODO("set custom unknown cover")
 
         ///////////////////////////////////////////////
@@ -379,7 +380,7 @@ fun SettingsScreen(
                             )
                         })
                     )
-                },{
+                }, {
                     val checked = uiState.backgroundImage
                     Column {
                         EdgeToEdgeRow(
@@ -412,7 +413,9 @@ fun SettingsScreen(
                                         Column {
                                             Text(
                                                 text = stringResource(R.string.opacity),
-                                                modifier = Modifier.fillMaxWidth().padding(top = dimensionResource(R.dimen.small_padding)),
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(top = dimensionResource(R.dimen.small_padding)),
                                                 style = MaterialTheme.typography.bodyMedium
                                             )
                                             Slider(
@@ -430,6 +433,31 @@ fun SettingsScreen(
                             )
                         }
                     }
+                }, {
+                    val checked = uiState.animatedBackground
+                    EdgeToEdgeRow(
+                        contentArray = arrayOf({
+                            Text(
+                                text = stringResource(R.string.animated_background),
+                                modifier = Modifier.weight(5f),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }, {
+                            Switch(
+                                checked = checked,
+                                modifier = Modifier.weight(1f),
+                                onCheckedChange = { viewModel.setAnimatedBackground(it) },
+                                thumbContent = {
+                                    Icon(
+                                        imageVector = if (checked) Icons.Filled.Check
+                                        else Icons.Filled.Close,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(SwitchDefaults.IconSize),
+                                    )
+                                }
+                            )
+                        })
+                    )
                 })
             )
         }

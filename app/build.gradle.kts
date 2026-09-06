@@ -9,7 +9,7 @@ plugins {
 
 android {
     namespace = "com.raaveinm.chirro"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.raaveinm.chirro"
@@ -34,10 +34,6 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-//
-//    kotlin {
-//        jvmToolchain(11)
-//    }
 
     buildFeatures {
         compose = true
@@ -53,9 +49,8 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
     implementation(libs.androidx.foundation)
-    implementation("androidx.compose.ui:ui-text-google-fonts:1.11.0")
+    implementation("androidx.compose.ui:ui-text-google-fonts:1.12.0")
     implementation("androidx.compose.material:material-icons-extended:1.7.8")
     implementation("dev.chrisbanes.haze:haze:1.7.2")
     implementation("androidx.palette:palette-ktx:1.0.0")
@@ -63,9 +58,9 @@ dependencies {
     // --- Lifecycle & Navigation ---
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.compose.material3.window.size.class1)
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.10.0")
-    implementation("androidx.navigation:navigation-compose:2.9.8")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.11.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.11.0")
+    implementation("androidx.navigation:navigation-compose:2.10.0")
 
     // --- Data & Storage (Room) ---
     implementation(libs.androidx.room.ktx)
@@ -82,10 +77,10 @@ dependencies {
 
     // --- Media & Images ---
     implementation(libs.androidx.media)
-    implementation("androidx.media3:media3-exoplayer:1.10.0")
-    implementation("androidx.media3:media3-ui:1.10.0")
-    implementation("androidx.media3:media3-session:1.10.0")
-    implementation("androidx.media3:media3-common:1.10.0")
+    implementation("androidx.media3:media3-exoplayer:1.11.0")
+    implementation("androidx.media3:media3-ui:1.11.0")
+    implementation("androidx.media3:media3-session:1.11.0")
+    implementation("androidx.media3:media3-common:1.11.0")
     implementation("io.coil-kt:coil-compose:2.7.0")
 
     // --- Background Tasks ---
@@ -97,10 +92,8 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
     androidTestImplementation(libs.mockk.android)
-    androidTestImplementation(libs.kotlinx.coroutines.test)
 
     // --- Debug ---
     debugImplementation(libs.androidx.ui.tooling)

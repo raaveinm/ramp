@@ -21,6 +21,7 @@
     <string name="is_dynamic_color">Атмосферный фон</string>
     <string name="background_image">Фоновое изображение</string>
     <string name="opacity">Прозрачность:</string>
+    <string name="animated_background">Анимированный фон</string>
 
     <string name="order_asc">возраст.</string>
     <string name="order_desc">убываниe</string>
@@ -36,7 +37,7 @@
     <string name="high_contrast">Повышенный контраст</string>
     <string name="monochrome">Монохром</string>
 
-    <string name="unknown">невідомо</string>
+    <string name="unknown">неизвестно</string>
 
     <string name="start_sleep_timer">Запустить таймер сна</string>
     <string name="stop_sleep_timer">Остановить таймер сна</string>
@@ -66,4 +67,7 @@
         <item>порядок</item>
         <item>добавлен</item>
     </string-array>
+
+    <string name="permission_denied">Жизненоважные разрешения отклонены</string>
+    <string name="permanent_denial">Разрешение окончательно отклонено. Нажмите, чтобы открыть Настройки</string>
 </resources>

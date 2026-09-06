@@ -59,6 +59,16 @@ fun PlayerControlButtons(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        Slider(
+            modifier = Modifier
+                .padding(horizontal = dimensionResource(R.dimen.medium_padding))
+                .fillMaxWidth(),
+            value = currentDuration.toFloat(),
+            onValueChange = { newValue -> onSeek(newValue) },
+            valueRange = 0f..trackLength.toFloat().coerceAtLeast(1f)
+        )
+
+        Spacer(Modifier.padding(dimensionResource(R.dimen.small_padding)))
 
         Row(
             modifier = Modifier
@@ -146,17 +156,6 @@ fun PlayerControlButtons(
                 )
             }
         }
-
-        Spacer(Modifier.padding(dimensionResource(R.dimen.small_padding)))
-
-        Slider(
-            modifier = Modifier
-                .padding(horizontal = dimensionResource(R.dimen.medium_padding))
-                .fillMaxWidth(),
-            value = currentDuration.toFloat(),
-            onValueChange = { newValue -> onSeek(newValue) },
-            valueRange = 0f..trackLength.toFloat().coerceAtLeast(1f)
-        )
     }
 }
 

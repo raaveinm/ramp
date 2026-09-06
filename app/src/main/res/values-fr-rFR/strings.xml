@@ -20,6 +20,7 @@
     <string name="is_dynamic_color">Couleur de fond ambiante</string>
     <string name="background_image">Image de fond</string>
     <string name="opacity">Niveau d\'opacité :</string>
+    <string name="animated_background">Arrière-plan animé</string>
 
     <string name="order_asc">Croissant</string>
     <string name="order_desc">Décroissant</string>
@@ -65,4 +66,7 @@
         <item>n de piste</item>
         <item>date d\'ajout</item>
     </string-array>
+
+    <string name="permission_denied">Les autorisations volatiles sont refusées</string>
+    <string name="permanent_denial">Autorisation définitivement refusée. Appuyez pour ouvrir les Paramètres</string>
 </resources>

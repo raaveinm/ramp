@@ -38,6 +38,7 @@ class SettingDataStoreRepository(private val dataStore: DataStore<Preferences>) 
         val BACKGROUND_IMAGE = booleanPreferencesKey("background_image")
         val BACKGROUND_IMAGE_OPACITY = intPreferencesKey("background_image_opacity")
         val CURRENT_EQUALIZER = stringPreferencesKey("current_equalizer")
+        val ANIMATED_BACKGROUND = booleanPreferencesKey("animated_background")
     }
 
     ///////////////////////////////////////////////
@@ -65,29 +66,16 @@ class SettingDataStoreRepository(private val dataStore: DataStore<Preferences>) 
                 Log.w(tag, "Failed to read sort order: $e")
                 AppTheme.DYNAMIC
             }
-            val backgroundDynamicColor = try {
-                preferences[PreferencesKeys.BACKGROUND_DYNAMIC_COLOR].toString().toBoolean()
-            } catch (e: Exception) {
-                Log.w(tag, "Failed to read sort order: $e")
-                true
-            }
-            val backgroundImage = try {
-                preferences[PreferencesKeys.BACKGROUND_IMAGE].toString().toBoolean()
-            } catch (e: Exception) {
-                Log.w(tag, "Failed to read sort order: $e")
-                false
-            }
-            val opacity = try {
-                preferences[PreferencesKeys.BACKGROUND_IMAGE_OPACITY]
-            } catch (e: Exception) {
-                Log.w(tag, "Failed to read sort order: $e")
-                30
-            }
+            val backgroundDynamicColor = preferences[PreferencesKeys.BACKGROUND_DYNAMIC_COLOR] ?: true
+            val backgroundImage = preferences[PreferencesKeys.BACKGROUND_IMAGE] ?: false
+            val opacity = preferences[PreferencesKeys.BACKGROUND_IMAGE_OPACITY] ?: 30
+            val animatedBackground = preferences[PreferencesKeys.ANIMATED_BACKGROUND] ?: false
             UiPreferences(
                 currentTheme = currentTheme,
                 backgroundDynamicColor = backgroundDynamicColor,
                 backgroundImage = backgroundImage,
-                backgroundImageOpacity = opacity?: 30
+                backgroundImageOpacity = opacity,
+                animatedBackground = animatedBackground
             )
         }
 
@@ -152,18 +140,8 @@ class SettingDataStoreRepository(private val dataStore: DataStore<Preferences>) 
                 Log.w(tag, "Failed to read sort order: $e")
                 OrderMediaQueue.TRACK
             }
-            val isAsc: Boolean = try {
-                preferences[PreferencesKeys.SORT_ASCENDING].toString().toBoolean()
-            } catch (e: Exception) {
-                Log.w(tag, "Failed to read sort order: $e")
-                true
-            }
-            val isShuffleMode = try {
-                preferences[PreferencesKeys.IS_SHUFFLE_MODE].toString().toBoolean()
-            } catch (e: Exception) {
-                Log.w(tag, "Failed to read sort order: $e")
-                false
-            }
+            val isAsc: Boolean = preferences[PreferencesKeys.SORT_ASCENDING] ?: true
+            val isShuffleMode = preferences[PreferencesKeys.IS_SHUFFLE_MODE] ?: false
 
             SettingsList(
                 trackPrimaryOrder = sortPrimaryOrder,
@@ -308,20 +286,40 @@ class SettingDataStoreRepository(private val dataStore: DataStore<Preferences>) 
     suspend fun setBackgroundDynamicColor(state: Boolean) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.BACKGROUND_DYNAMIC_COLOR] = state
-            if (state) preferences[PreferencesKeys.BACKGROUND_IMAGE] = false
+            if (state) {
+                preferences[PreferencesKeys.BACKGROUND_IMAGE] = false
+                preferences[PreferencesKeys.ANIMATED_BACKGROUND] = false
+            }
         }
     }
 
     suspend fun setBackgroundImage(state: Boolean) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.BACKGROUND_IMAGE] = state
-            if (state) preferences[PreferencesKeys.BACKGROUND_DYNAMIC_COLOR] = false
+            if (state) {
+                preferences[PreferencesKeys.BACKGROUND_DYNAMIC_COLOR] = false
+                preferences[PreferencesKeys.ANIMATED_BACKGROUND] = false
+            } else if (preferences[PreferencesKeys.ANIMATED_BACKGROUND] != true) {
+                preferences[PreferencesKeys.BACKGROUND_DYNAMIC_COLOR] = true
+            }
         }
     }
 
     suspend fun setBackgroundImgOpacity(value: Int) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.BACKGROUND_IMAGE_OPACITY] = value
+        }
+    }
+
+    suspend fun setAnimatedBackground(state: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.ANIMATED_BACKGROUND] = state
+            if (state) {
+                preferences[PreferencesKeys.BACKGROUND_DYNAMIC_COLOR] = false
+                preferences[PreferencesKeys.BACKGROUND_IMAGE] = false
+            } else if (preferences[PreferencesKeys.BACKGROUND_IMAGE] != true) {
+                preferences[PreferencesKeys.BACKGROUND_DYNAMIC_COLOR] = true
+            }
         }
     }
 

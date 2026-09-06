@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 class SettingsViewModel(
     private val settingsRepository: SettingDataStoreRepository
@@ -55,12 +56,10 @@ class SettingsViewModel(
             isShuffleMode = settings.isShuffleMode,
             backgroundDynamicColor = uiSettings.backgroundDynamicColor,
             backgroundImage = uiSettings.backgroundImage,
+            animatedBackground = uiSettings.animatedBackground,
             equalizerPreferences = localEq ?: playback.equalizerPreferences ?: EqualizerPreferences.NORMAL
         )
     }
-//    var haptic: HapticFeedback
-//        get() = LocalHapticFeedback.current
-//        set(value) =
 
     init {
         viewModelScope.launch {
@@ -77,7 +76,6 @@ class SettingsViewModel(
     fun setShuffleMode(shuffleMode: Boolean) {
         viewModelScope.launch {
             settingsRepository.setShuffleMode(shuffleMode)
-//            haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
         }
     }
 
@@ -161,8 +159,14 @@ class SettingsViewModel(
         _localAlphaOverride.value = alpha
         alphaSaveJob?.cancel()
         alphaSaveJob = viewModelScope.launch {
-            delay(300)
+            delay(300.milliseconds)
             settingsRepository.setBackgroundImgOpacity((alpha * 100).toInt())
+        }
+    }
+
+    fun setAnimatedBackground(state: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.setAnimatedBackground(state)
         }
     }
 
@@ -170,7 +174,7 @@ class SettingsViewModel(
         _localEqualizerOverride.value = equalizerPreferences
         equalizerSaveJob?.cancel()
         equalizerSaveJob = viewModelScope.launch {
-            delay(200)
+            delay(100.milliseconds)
             settingsRepository.updateEqualizer(equalizerPreferences)
             _localEqualizerOverride.value = null
         }
@@ -193,7 +197,7 @@ class SettingsViewModel(
         _localEqualizerOverride.value = updated
         equalizerSaveJob?.cancel()
         equalizerSaveJob = viewModelScope.launch {
-            delay(500)
+            delay(300.milliseconds)
             settingsRepository.updateEqualizer(updated)
             _localEqualizerOverride.value = null
         }

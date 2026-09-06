@@ -1,5 +1,6 @@
 package com.raaveinm.chirro.ui.veiwmodel
 
+import android.util.Log
 import com.raaveinm.chirro.data.datastore.PlaybackState
 import com.raaveinm.chirro.data.datastore.SettingDataStoreRepository
 import com.raaveinm.chirro.data.datastore.SettingsList
@@ -7,14 +8,11 @@ import com.raaveinm.chirro.data.datastore.UiPreferences
 import com.raaveinm.chirro.data.values.EqualizerPreferences
 import com.raaveinm.chirro.data.values.OrderMediaQueue
 import com.raaveinm.chirro.ui.theme.AppTheme
-import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
-import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,10 +29,9 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class SettingsViewModelTest {
 
-    private val testDispatcher = StandardTestDispatcher()
+    private val settingsDispatcher = StandardTestDispatcher()
     private lateinit var settingsRepository: SettingDataStoreRepository
     private lateinit var viewModel: SettingsViewModel
-    private val setEqualizerBand: (Int, Float) -> Unit = mockk(relaxed = true)
 
     private val settingsFlow = MutableStateFlow(SettingsList())
     private val playbackStateFlow = MutableStateFlow(PlaybackState())
@@ -42,7 +39,7 @@ class SettingsViewModelTest {
 
     @Before
     fun setup() {
-        Dispatchers.setMain(testDispatcher)
+        Dispatchers.setMain(settingsDispatcher)
         mockkStatic(Log::class)
         every { Log.e(any(), any()) } returns 0
         every { Log.w(any(), any() as String) } returns 0
@@ -53,7 +50,7 @@ class SettingsViewModelTest {
         every { settingsRepository.playbackStateFlow } returns playbackStateFlow
         every { settingsRepository.uiSettingsFlow } returns uiSettingsFlow
 
-        viewModel = SettingsViewModel(settingsRepository, setEqualizerBand)
+        viewModel = SettingsViewModel(settingsRepository)
     }
 
     @After

@@ -20,6 +20,7 @@
     <string name="is_dynamic_color">Ambient background color</string>
     <string name="background_image">Background image</string>
     <string name="opacity">Opacity level:</string>
+    <string name="animated_background">Animated Background</string>
 
 
     <string name="order_asc">Ascend</string>
@@ -65,4 +66,7 @@
         <item>track</item>
         <item>date added</item>
     </string-array>
+
+    <string name="permission_denied">Volatile permissions are denied</string>
+    <string name="permanent_denial">Permission permanently denied. Tap to open Settings</string>
 </resources>

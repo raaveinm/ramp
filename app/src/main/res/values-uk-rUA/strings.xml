@@ -21,6 +21,7 @@
     <string name="is_dynamic_color">Атмосферне тло</string>
     <string name="background_image">Фонове зображення</string>
     <string name="opacity">Прозорість:</string>
+    <string name="animated_background">Анімоване тло</string>
 
     <string name="order_asc">зрост</string>
     <string name="order_desc">спад</string>
@@ -66,4 +67,7 @@
         <item>номер треку</item>
         <item>дата додавання</item>
     </string-array>
+
+    <string name="permission_denied">Жизненоважные дозволи відхилено</string>
+    <string name="permanent_denial">Дозвіл остаточно відхилено. Натисніть, щоб відкрити Налаштування</string>
 </resources>

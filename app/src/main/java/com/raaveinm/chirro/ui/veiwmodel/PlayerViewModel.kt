@@ -50,6 +50,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlin.collections.emptyList
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Main Screen UI management and media queue controls
@@ -64,6 +65,8 @@ import kotlin.collections.emptyList
  * @property mediaController
  * @property playerListener
  * @property updateProgress
+ *
+ * @see 'https://miro.medium.com/v2/0*n1DCGYyv2qTfIymi.jpg'
  */
 
 @FlowPreview
@@ -78,9 +81,10 @@ class PlayerViewModel(
     val uiState = _uiState.asStateFlow()
     val progressionUiState = _progressionUiState.asStateFlow()
     val isPlaying: Boolean get() = _uiState.value.isPlaying
-    val dynamicColor: Flow<Boolean> get() = settingsRepository.uiSettingsFlow.map { it.backgroundDynamicColor }
-    val backgroundImage: Flow<Boolean> get() = settingsRepository.uiSettingsFlow.map { it.backgroundImage }
-    val opacityValue: Flow<Float> get() = settingsRepository.uiSettingsFlow.map { (it.backgroundImageOpacity).toFloat()/100 }
+    val dynamicColor: Flow<Boolean> = settingsRepository.uiSettingsFlow.map { it.backgroundDynamicColor }
+    val backgroundImage: Flow<Boolean> = settingsRepository.uiSettingsFlow.map { it.backgroundImage }
+    val opacityValue: Flow<Float> = settingsRepository.uiSettingsFlow.map { (it.backgroundImageOpacity).toFloat()/100 }
+    val animatedBackground: Flow<Boolean> = settingsRepository.uiSettingsFlow.map { it.animatedBackground }
     private val _sleepTimerEndTimeMs = MutableStateFlow<Long?>(null)
     private val _sleepTimerRemainingSeconds = MutableStateFlow<Long?>(null)
     val sleepTimerRemainingSeconds = _sleepTimerRemainingSeconds.asStateFlow()
@@ -111,12 +115,6 @@ class PlayerViewModel(
         if (isVisible) updateProgress()
     }
 
-//    fun onFavoriteClicked(track: TrackInfo) {
-//        viewModelScope.launch {
-//            trackRepository.toggleFavorite(track)
-//        }
-//    }
-
     init {
         val filter = IntentFilter(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED)
         context.registerReceiver(powerModeReceiver, filter)
@@ -134,7 +132,7 @@ class PlayerViewModel(
                 while (shouldUpdate) {
                     updateProgress()
                     val delayMs = if (isPowerSaveMode.value) 300L else 100L
-                    delay(delayMs)
+                    delay(delayMs.milliseconds)
                 }
             }
         }
@@ -377,7 +375,7 @@ class PlayerViewModel(
         _isSearching,
         _isLoading,
         _searchQuery
-            .debounce(400L)
+            .debounce(400L.milliseconds)
             .distinctUntilChanged()
             .combine(_allTracks) { query, tracks ->
                 if (query.isBlank()) {
@@ -478,7 +476,7 @@ class PlayerViewModel(
                     break
                 }
                 _sleepTimerRemainingSeconds.value = remaining
-                delay(1000)
+                delay(1000.milliseconds)
             }
         }
     }
